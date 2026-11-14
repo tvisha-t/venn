@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { api } from "@/lib/api";
 import { useMe } from "@/components/AppShell";
@@ -24,11 +24,17 @@ export default function EventsPage() {
   const [err, setErr] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
 
+  // `city` is only what the user picked (null = the server uses their profile city), so a response
+  // never triggers a second load. Older responses are ignored so they can't overwrite a newer state.
+  const reqId = useRef(0);
   const load = useCallback(() => {
     setErr(null);
     const qs = new URLSearchParams({ range, category });
     if (city) qs.set("city", city);
-    api<Data>(`/api/events?${qs}`).then((d) => { setData(d); if (!city) setCity(d.city); }).catch((e) => setErr((e as Error).message));
+    const id = ++reqId.current;
+    api<Data>(`/api/events?${qs}`)
+      .then((d) => { if (id === reqId.current) setData(d); })
+      .catch((e) => { if (id === reqId.current) setErr((e as Error).message); });
   }, [city, range, category]);
   useEffect(load, [load]);
 
@@ -46,7 +52,7 @@ export default function EventsPage() {
     return data.events.find((e) => e.isFeatured) ?? [...data.events].sort((a, b) => b.going - a.going)[0];
   }, [data, range]);
   const list = useMemo(() => (data?.events ?? []).filter((e) => e.id !== featured?.id), [data, featured]);
-  const shownCity = city ?? me?.profile.city ?? "Atlanta";
+  const shownCity = city ?? data?.city ?? me?.profile.city ?? "Atlanta";
   const heading = range === "going" ? "You're going" : range === "week" ? "This week" : "Coming up";
   const featuredLabel = range === "week" ? "Biggest this week" : "Biggest this month";
 
