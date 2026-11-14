@@ -31,6 +31,7 @@ Venn turns Georgia Tech's network into an agent that works for you. A user types
 | 9 | Opt-out + claim | Signed one-tap links in every email to unclaimed people: Claim or Remove me. |
 | 10 | Standing goals | Saved goals re-run when new profiles arrive and notify the user of new matches. |
 | 11 | Audit log | Every read of contact data and every send is logged. |
+| 12 | Consent-based growth loop (added 2026-11-14) | (a) **LinkedIn data-export import:** members upload their own LinkedIn "Get a copy of your data" .zip; only `Profile.csv`, `Positions.csv`, `Education.csv`, `Skills.csv` are opened (never connections, messages, emails or phone numbers). (b) **Claim with LinkedIn:** every intro to an unclaimed alum invites them to claim and import from LinkedIn; claimers land on the import step. (c) **Invite a Yellow Jacket:** one invite email; the invitee's address is never stored (sha256 only, to block repeats for 30 days and honor "Don't send me invites"); same response whether or not an email went out. **Never** scrape LinkedIn or any third-party site, harvest contacts from inboxes, or guess email addresses. |
 
 ### Out of scope for MVP (mention as roadmap only)
 
@@ -387,10 +388,12 @@ POST   /api/intros/draft               ({recipientId, goalId})
 POST   /api/intros/rewrite             ({introId, mode: 'shorter'|'warmer'})
 POST   /api/intros/:id/send
 GET    /api/intros                     (Requests tab)
+POST   /api/invites                    ({email, note?}; generic response; stores only a hash)
+GET    /api/explore/nearby?lat&lng     (closest people; location rounded ~1 km, never stored; distance bands only)
 
 POST   /api/email/inbound              (provider webhook, signature-verified)
 POST   /api/email/events               (bounces/complaints)
-GET    /r/:token/decline | /claim | /remove
+GET    /r/:token/decline | /claim | /remove | /noinvite   (GET = confirm page, POST = action)
 
 POST   /api/admin/import-aa            (service role; CSV upload)
 GET    /api/admin/dashboard            (aggregates only: intros sent/replied, by industry/city)
@@ -404,40 +407,33 @@ GET    /api/admin/dashboard            (aggregates only: intros sent/replied, by
 
 > **Revised 2026-11-14:** sleek, modern product UI in the style of Handshake / Linear. Visual and layout changes only. Every flow, privacy rule and the email-only intro model are unchanged.
 >
-> **Rebrand 2026-11-14 (later):** the whole app moves from GT navy/gold to the **Venn plum** palette from the login mockup (`Venn — Login.pdf`). Venn has its own brand; it still never uses official GT logos.
+> **Restyle 2026-11-14 ("Game Day", navy + gold):** replaces the earlier plum rebrand. Source: `VENN_RESTYLE_INSTRUCTIONS.md` (wins over this summary if they differ). Visual only: every route, flow and privacy rule is unchanged.
 
 ### 12.1 Design tokens
 
-```css
-:root {
-  --bg: #F8F4F7;              /* page background (soft blush gray) */
-  --surface: #FFFFFF;         /* cards, panels, sidebar */
-  --line: #ECE3E9;            /* hairline borders, dividers */
-  --text: #17131A;            /* primary text */
-  --text-2: #625A66;          /* secondary/meta text (AA on white and on --bg) */
-  --text-3: #9C93A0;          /* icons, placeholders ONLY: fails AA for small text */
-  --brand: #7A3E6A;           /* Venn plum: primary buttons, key text, selected rows, map clusters */
-  --brand-hover: #693359;
-  --brand-tint: #F4E6EF;      /* selected row, active filter pill */
-  --petal: #C0699B;           /* small accent: focus ring, active nav marker, selected map cluster ring */
-  --petal-text: #8A3B6C;      /* accent used as text ("Why", "New") — AA on white */
-  --petal-tint: #F3DFEA;      /* chips, badges, highlight behind headline words */
-  --panel: #F1E2EB;           /* marketing / info panels (login "How it works", privacy note) */
-  --success: #1F7A4D;         /* on --success-bg #E8F5EE */
-}
-```
+**The idea:** navy does the work, gold marks what matters. Light is the default; dark applies with `data-theme="dark"` on `<html>`, or follows the OS when no theme is forced. All tokens live in `src/app/globals.css` and are exposed as Tailwind utilities (`bg-canvas`, `text-text-muted`, `border-line-control`, `bg-primary`, `bg-accent-soft`, `hl`, `text-title-1` …). Components never hardcode a hex, font, radius or shadow; emails and the signed-link pages inline the light values.
 
-- **Type:** **Plus Jakarta Sans** (rounded geometric sans) for everything, weights 400 / 500 / 600 / 700; headlines 700 with tight tracking. A monospace (JetBrains Mono) only for small numerals/labels such as "12 min" and "01". Sizes: 28 page title · 20 section · 16 card title · 14 body · 13 meta (login headline 44).
-- **Wordmark:** lowercase **venn** in plum.
-- **Shape:** 10 px cards, 8 px inputs and buttons, pill chips, 24 px marketing panels. Few borders. Shadows only on hover (and the floating preview card on login).
-- **Do not** use official GT logos (Interlocking GT, Buzz).
-- **Accessibility:** WCAG AA contrast, visible focus ring (petal), full keyboard support, respect `prefers-reduced-motion`, split views stack under 900 px. At most 2 chips per list row (extras collapse to "+N").
-- **Components:** shadcn/ui throughout; skeleton loaders for lists.
+| Token | Light | Dark | Use |
+|---|---|---|---|
+| `--canvas` / `--surface` / `--surface-raised` | `#f6f8fa` / `#fff` / `#eef2f6` | `#00182e` / `#00213d` / `#0a2c4b` | page, cards, wells |
+| `--text` / `--text-muted` / `--text-subtle` | `#0d1b2a` / `#4f5559` / `#5c6267` | `#f2f5f8` / `#a9b8c7` / `#93a3b3` | text |
+| `--line` / `--line-control` | `#e1e7ed` / `#7d878f` | `#1a3a58` / `#5d7895` | dividers / input borders |
+| `--primary` (+ hover, soft, ink) | GT navy `#003057` | gold `#eaaa00` | the one primary action, links, selection, focus |
+| `--accent` (+ soft, ink, text) | Buzz gold `#eaaa00` | same | small doses only: gold button on navy, connected check, selected map pin, active-tab bar, chips |
+| `--highlight` | `#f5d77e` | `#5a4708` | highlighter behind what two people share |
+| `--brand` | `#003057` | `#0a2c4b` | navy panels (max one per screen) |
+| `--success` / `--danger` | `#116b33` / `#b42318` | `#4ade80` / `#f97066` | replied / validation errors only |
+
+- **Type:** Plus Jakarta Sans (400–800) everywhere; **Geist Mono** for numbers, counts, distances and timestamps. Scale: display 56 · title-1 32 · title-2 22 · title-3 16 · body 15 · body-sm 13 · label 12 · eyebrow 12 caps · metric 32 mono · mono-sm 12.
+- **Shape:** radius 12 buttons/inputs/wells, 20 cards, 28 modals and login panels, full for chips/avatars. Soft navy-tinted shadows (`--shadow-card`, `--shadow-pop`). Flat surfaces; no gradients, glows or glass.
+- **Gold rules:** never gold text on white (use `--accent-text`, weight 600+), never two gold buttons on a screen, never Tech Gold `#B3A369` as a fill.
+- **Wordmark:** lowercase "venn", 800, `--primary`. No GT logos, seal or Buzz.
+- **Accessibility:** all text pairs ≥ 4.5:1 in both themes; visible focus (gold on navy panels); 44px tap targets; reduced motion respected; split views stack under 900 px; at most 2 chips per card row.
 
 ### 12.2 Layout
 
-- **App shell:** slim left sidebar (Home, Explore, Requests, Saved goals; lucide icons; gold indicator on the active item) and a top bar with an **"Ask Venn…"** input (⌘K / Ctrl+K focuses it; Enter runs the goal) and an avatar menu (Profile, Sandbox inbox, Admin, Sign out). On phones the sidebar becomes a bottom tab bar.
-- **Split view (Results and Explore):** Handshake-style. A compact list on the left and the selected profile on the right. Under 900 px the panes stack.
+- **App shell:** 64px top nav: wordmark, tabs **Find · Explore · Requests · Profile** (active = 3px gold bar), a city pill and a navy avatar menu (Profile, Saved goals, Invite, Sandbox inbox, Admin, Sign out). Phones: bottom tab bar with a gold bar on the active tab.
+- **Split view (Results and Explore):** a 440px column of person cards and the selected profile on the right (navy header). Under 900 px the panes stack.
 - **Filters:** one row of pill dropdowns (Role, Industry, Program, City, Class year, Major) with counts, plus a search field. The Industry dropdown is sorted by count (replaces the separate Industries tab).
 - **View switch:** a segmented control for **List · Map · Companies**.
 
@@ -447,9 +443,9 @@ GET    /api/admin/dashboard            (aggregates only: intros sent/replied, by
 2. **Profile builder:** upload LinkedIn PDF or resume → extracted fields in an editable form → AI summary → **Approve**. Optional opt-in contact sharing.
 3. **Home:** one large goal input, 4 suggestion chips (2 per row), then **Active goals** and **Recent replies** lists.
 4. **Agent progress:** a one-line status bar ("Searching 614 Yellow Jackets…" with step count) that collapses, when done, into **"Venn understood: [chips]"** (employer, industry, city, role, program, ask).
-5. **Results:** split view. A **result row** shows avatar, name, "Title · Company", "Class of '15 · Atlanta", one **Why** line, and an **Unclaimed** badge only when relevant. **Request intro** lives in the detail pane.
+5. **Results:** split view of **person cards**: navy avatar, name, "Title at Company · CS '15", a city-level distance band in mono ("Same city", "25–100 km"), a **"You both: …"** overlap row with the highlighter (shared clubs, programs, major, city), up to 2 open-to chips, and **Request intro**. The detail pane adds "Why Venn matched you". No email or phone on any card.
 6. **Profile detail pane:** fields, GT programs and Open to as pills, opt-in contact details (if shared), **Request intro**. No relay contact info.
-7. **Intro composer (side panel):** clean editor, **Shorter** / **Warmer** ghost buttons, live email preview, **Send intro** bottom-right.
+7. **Intro composer (modal):** "Say hi to Maya", recipient summary with what you share, editable subject + message ("Drafted by Venn, edit anything"), **Rewrite shorter** / **Warmer** / **Preview email**, "will see" vs "stays private" panels, and **Send request**. Footer states the real policy: one email plus one reminder after 5 days.
 8. **Requests:** a table (Person · Message · Status · Updated) with subtle tinted status badges, reply preview, and next-best suggestion.
 9. **Map:** light basemap, navy count clusters, gold ring on the selected cluster, side list of the selected cluster. Falls back to a list when WebGL is unavailable.
 10. **Companies:** company list with counts; selecting one shows its people grouped by title.

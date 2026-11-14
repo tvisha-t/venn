@@ -23,7 +23,7 @@ export const ExtractedSchema = z.object({
   openTo: z.array(z.string()),
   interests: z.array(z.string()),
 });
-export type Extracted = z.infer<typeof ExtractedSchema> & { source: "llm" | "rules" };
+export type Extracted = z.infer<typeof ExtractedSchema> & { source: "llm" | "rules" | "linkedin_export" };
 
 export async function pdfToText(buf: ArrayBuffer): Promise<string> {
   const pdf = await getDocumentProxy(new Uint8Array(buf));

@@ -28,5 +28,6 @@ export const POST = route(async (req: Request) => {
   }
   jar.delete("venn_claim");
   await setSession({ userId: r.userId, profileId: r.profileId });
-  return NextResponse.json({ ok: true, next: r.needsProfile ? "/profile" : "/home", claimed: Boolean(claim) });
+  const next = r.needsProfile ? (claim ? "/profile?import=linkedin" : "/profile") : "/home";
+  return NextResponse.json({ ok: true, next, claimed: Boolean(claim) });
 });

@@ -12,7 +12,7 @@ const ROOT = process.cwd();
 const MOCK = path.join(ROOT, "mock-data");
 
 export const GT_CONFIG = {
-  brand: { primary: "#7A3E6A", accent: "#C0699B" },
+  brand: { primary: "#003057", accent: "#EAAA00" },
   mapCenter: { lat: 33.7756, lng: -84.3963, zoom: 10 },
   programs: ["CREATE-X", "VIP", "Co-op", "Internship Program", "Grand Challenges", "Honors Program", "Study Abroad", "OMSCS", "Professional Education", "Startup Launch"],
   csThreads: ["Intelligence", "Systems & Architecture", "Theory", "Modeling & Simulation", "Devices", "Information Internetworks", "Media", "People"],
@@ -26,7 +26,7 @@ export async function migrate(db = defaultSql) {
 }
 
 export async function resetDatabase(db = defaultSql) {
-  await db.unsafe(`drop table if exists shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
+  await db.unsafe(`drop table if exists invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
     goal_parse_cache, goals, suppression_list, contact_points, profiles, users, schools cascade`);
 }
 

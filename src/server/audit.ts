@@ -3,7 +3,7 @@ import { sql as defaultSql, type Sql } from "./db";
 export type AuditAction =
   | "contact.read" | "intro.send" | "intro.reminder" | "intro.reply_forward" | "profile.remove"
   | "profile.claim" | "profile.approve" | "aa.import" | "intro.decline" | "email.bounce"
-  | "shared_contact.view" | "shared_contact.update";
+  | "shared_contact.view" | "shared_contact.update" | "invite.send" | "invite.optout";
 
 export async function audit(
   actor: string,

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireSession } from "@/server/session";
-import { route, throttle } from "@/server/http";
+import { route, throttle, zId } from "@/server/http";
 import { createDraft } from "@/server/intros";
 
-const Body = z.object({ recipientId: z.string().uuid(), goalId: z.string().uuid().nullable().optional() });
+const Body = z.object({ recipientId: zId, goalId: zId.nullable().optional() });
 
 export const POST = route(async (req: Request) => {
   throttle(req, "agent");

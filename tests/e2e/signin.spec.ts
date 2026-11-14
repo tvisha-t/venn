@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("school-email sign-in: rejects non-school email, creates a new GT member, signs the same person back in", async ({ page }) => {
   await page.goto("/signin");
   await expect(page.getByRole("heading", { name: /Find your\s+people/ })).toBeVisible();
-  await expect(page.getByText("Your email and phone are never shown.")).toBeVisible();
+  await expect(page.getByText(/Your email and phone are never shown/)).toBeVisible();
 
   await page.getByLabel("School email").fill("someone@gmail.com");
   await page.getByRole("button", { name: "Continue", exact: true }).click();

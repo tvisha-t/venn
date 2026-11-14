@@ -13,9 +13,11 @@ const ATLANTA: [number, number] = [-84.3963, 33.7756];
  * Renders count bubbles only — never individual people. Data comes from a loader
  * (server clusters with k-anonymity applied, or city-level groups).
  */
-/** Plum cluster; the selected one gets a petal ring (accent only). */
+/** Navy cluster with a mono count; the selected one turns gold with a navy ring (tokens, so dark mode works). */
 function styleSelected(el: HTMLElement, on: boolean) {
-  el.style.boxShadow = on ? "0 0 0 3px #C0699B, 0 1px 3px rgba(23,19,26,.25)" : "0 1px 3px rgba(23,19,26,.25)";
+  el.style.background = on ? "var(--accent)" : "var(--primary)";
+  el.style.color = on ? "var(--on-accent)" : "var(--on-primary)";
+  el.style.boxShadow = on ? "0 0 0 2px var(--surface), 0 0 0 4px var(--primary), var(--shadow-card)" : "0 0 0 2px var(--surface), var(--shadow-card)";
   el.setAttribute("aria-pressed", String(on));
 }
 
@@ -79,7 +81,7 @@ export function ClusterMap({
         const el = document.createElement("button");
         const size = Math.round(Math.min(56, 28 + Math.sqrt(c.count) * 4));
         el.className = "venn-cluster";
-        el.style.cssText = `width:${size}px;height:${size}px;border-radius:9999px;background:#7A3E6A;color:#fff;border:2px solid #fff;font:600 12px var(--font-jakarta),system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(15,27,45,.25);transition:box-shadow .15s`;
+        el.style.cssText = `width:${size}px;height:${size}px;border-radius:9999px;border:0;font-family:var(--font-mono);font-size:12px;font-weight:500;cursor:pointer;transition:background .15s,box-shadow .15s`;
         styleSelected(el, c.id === selectedRef.current);
         el.textContent = String(c.count);
         el.setAttribute("aria-label", `${c.count} ${c.count === 1 ? "person" : "people"}${c.label ? ` in ${c.label}` : ""}. Show list.`);
@@ -151,7 +153,7 @@ export function ClusterMap({
         const el = document.createElement("div");
         el.setAttribute("role", "img");
         el.setAttribute("aria-label", "Your approximate location");
-        el.style.cssText = "width:16px;height:16px;border-radius:9999px;background:#C0699B;border:3px solid #fff;box-shadow:0 0 0 6px rgba(192,105,155,.25)";
+        el.style.cssText = "width:16px;height:16px;border-radius:9999px;background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 2px var(--primary),0 0 0 8px var(--accent-soft)";
         meMarker.current = new Marker({ element: el }).setLngLat([me.lng, me.lat]).addTo(map.current);
       };
       if (map.current?.loaded()) add(); else map.current?.once("load", add);
@@ -164,18 +166,18 @@ export function ClusterMap({
   if (fallback) {
     return (
       <div className="space-y-2">
-        <p className="text-meta text-ink-2">The interactive map isn&apos;t available on this device, so here are the same groups as a list.</p>
+        <p className="text-meta text-text-muted">The interactive map isn&apos;t available on this device, so here are the same groups as a list.</p>
         <ul className="grid gap-2 sm:grid-cols-2" aria-label="People by area">
           {fallback.clusters.map((c) => (
             <li key={c.id}>
               <button onClick={() => selectRef.current(c, 3)} aria-pressed={c.id === selectedId}
-                className={`flex w-full items-center justify-between rounded-lg border bg-surface px-3 py-2.5 text-left text-[14px] transition-shadow hover:shadow-[0_1px_3px_rgba(15,27,45,0.08)] ${c.id === selectedId ? "border-brand/30 ring-2 ring-petal" : ""}`}>
-                <span>{c.label}</span><span className="rounded-full bg-brand px-2 py-0.5 text-[12px] font-semibold text-white">{c.count}</span>
+                className={`flex w-full items-center justify-between rounded-md border bg-surface px-4 py-3 text-left transition-colors hover:border-line-control ${c.id === selectedId ? "border-2 border-primary px-[15px] py-[11px]" : "border-line"}`}>
+                <span>{c.label}</span><span className={`rounded-full px-2.5 py-0.5 font-mono text-[12px] font-medium ${c.id === selectedId ? "bg-accent text-on-accent" : "bg-primary text-on-primary"}`}>{c.count}</span>
               </button>
             </li>
           ))}
         </ul>
-        {fallback.clusters.length === 0 && <p className="text-sm text-gray-matter">No one with a location matches these filters.</p>}
+        {fallback.clusters.length === 0 && <p className="text-sm text-text-muted">No one with a location matches these filters.</p>}
       </div>
     );
   }
@@ -184,10 +186,10 @@ export function ClusterMap({
     <div className="space-y-2">
       {err && <ErrorState message={err} onRetry={refresh} />}
       <div className="relative">
-        <div ref={ref} className="h-[480px] w-full overflow-hidden rounded-lg border bg-muted" role="application" aria-label="Map of GT people, shown as group counts" />
+        <div ref={ref} className="h-[480px] w-full overflow-hidden rounded-lg border border-line bg-surface-raised [&_.maplibregl-canvas]:grayscale" role="application" aria-label="Map of GT people, shown as group counts" />
         {loading && <div className="absolute left-3 top-3 rounded-md bg-surface/95 px-2 py-1 text-meta shadow-sm" role="status">Loading map…</div>}
       </div>
-      <p className="text-meta text-ink-2">
+      <p className="text-meta text-text-muted">
         Locations are rounded to about 1 km. Zoomed in past city level, groups smaller than 3 people are hidden so no one can be pinpointed.
         {hidden > 0 && ` ${hidden} ${hidden === 1 ? "person is" : "people are"} hidden at this zoom.`}
       </p>

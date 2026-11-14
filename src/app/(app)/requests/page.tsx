@@ -1,7 +1,7 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
-import { Lightbulb, Send } from "lucide-react";
+import { Check, Info, Lightbulb, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyState, ErrorState, LoadingRows } from "@/components/states";
@@ -19,19 +19,23 @@ type Intro = {
   recipient: { id: string; firstName: string; lastName: string; jobTitle: string | null; employer: string | null; classYear: number | null; status: string } | null;
 };
 
-const BADGE: Record<IntroStatus, { label: string; cls: string }> = {
-  draft: { label: "Draft", cls: "bg-muted text-ink-2" },
-  sent: { label: "Sent", cls: "bg-brand-tint text-brand" },
-  replied: { label: "Replied", cls: "bg-success-bg text-success" },
-  not_interested: { label: "Not interested", cls: "bg-muted text-ink-2" },
-  no_response: { label: "No response", cls: "bg-warn-bg text-warn" },
-  bounced: { label: "Couldn't deliver", cls: "bg-danger-bg text-danger" },
-  suppressed: { label: "No email on file", cls: "bg-muted text-ink-2" },
+const BADGE: Record<IntroStatus, { label: string; cls: string; dot: string }> = {
+  draft: { label: "Draft", cls: "bg-surface-raised text-text-subtle", dot: "bg-text-subtle" },
+  sent: { label: "Sent", cls: "bg-accent-soft text-accent-ink", dot: "bg-accent-ink" },
+  replied: { label: "Replied", cls: "bg-success-soft text-success", dot: "bg-success" },
+  no_response: { label: "No response", cls: "bg-surface-raised text-text-subtle", dot: "bg-text-subtle" },
+  not_interested: { label: "Not interested", cls: "bg-transparent px-0 text-text-subtle", dot: "border border-text-subtle bg-transparent" },
+  bounced: { label: "Couldn't deliver", cls: "bg-surface-raised text-text-subtle", dot: "bg-text-subtle" },
+  suppressed: { label: "No email on file", cls: "bg-surface-raised text-text-subtle", dot: "bg-text-subtle" },
 };
 
 function StatusBadge({ status }: { status: IntroStatus }) {
   const b = BADGE[status];
-  return <span className={cn("inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-[12px] font-medium", b.cls)}>{b.label}</span>;
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-1 text-label", b.cls)}>
+      <span className={cn("size-1.5 rounded-full", b.dot)} aria-hidden />{b.label}
+    </span>
+  );
 }
 
 function updatedAt(i: Intro) {
@@ -71,6 +75,8 @@ export default function Requests() {
   }
 
   const rows = intros?.filter((i) => inTab(i, tab)) ?? [];
+  const latestReply = intros?.filter((i) => i.status === "replied" && i.repliedAt && Date.now() - new Date(i.repliedAt).getTime() < 7 * 86400_000)
+    .sort((a, b) => new Date(b.repliedAt!).getTime() - new Date(a.repliedAt!).getTime())[0];
   const n = (t: Tab) => intros?.filter((i) => inTab(i, t)).length ?? 0;
   const canSuggest = (i: Intro) => (i.status === "not_interested" || i.status === "no_response") && !!i.goalId;
 
@@ -80,20 +86,20 @@ export default function Requests() {
       <span className="min-w-0">
         <span className="flex items-center gap-1.5 font-medium hover:underline">
           <span className="truncate">{i.recipient.firstName} {i.recipient.lastName}</span>
-          {i.unseen && i.status === "replied" && <span className="rounded-full bg-petal-tint px-1.5 py-0.5 text-[11px] font-semibold text-petal-text">New</span>}
+          {i.unseen && i.status === "replied" && <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[11px] font-semibold text-accent-ink">New</span>}
         </span>
-        <span className="block truncate text-meta text-ink-2">{[i.recipient.jobTitle, i.recipient.employer].filter(Boolean).join(" · ") || "Georgia Tech"}</span>
+        <span className="block truncate text-meta text-text-muted">{[i.recipient.jobTitle, i.recipient.employer].filter(Boolean).join(" · ") || "Georgia Tech"}</span>
       </span>
     </button>
-  ) : <span className="text-ink-2">Removed from Venn</span>;
+  ) : <span className="text-text-muted">Removed from Venn</span>;
 
   const message = (i: Intro) => (
     <div className="min-w-0 space-y-1.5">
       <p className="truncate font-medium">{i.subject}</p>
-      <p className="line-clamp-1 text-ink-2">{i.message}</p>
+      <p className="line-clamp-1 text-text-muted">{i.message}</p>
       {i.replyPreview && (
-        <p className="line-clamp-2 rounded-md bg-success-bg/60 px-2.5 py-1.5 text-[13px]">
-          <span className="font-medium text-success">Reply:</span> {i.replyPreview}
+        <p className="line-clamp-3 rounded-md bg-success-soft px-3 py-2 text-body-sm text-text">
+          <span className="font-bold text-success">Their reply:</span> {i.replyPreview}
         </p>
       )}
     </div>
@@ -105,10 +111,10 @@ export default function Requests() {
     return (
       <div className="flex flex-wrap items-center gap-2 text-[13px]">
         {nb === undefined && <Button size="sm" variant="ghost" onClick={() => suggest(i)}><Lightbulb /> Suggest the next best person</Button>}
-        {nb === null && <span className="text-ink-2">No more matches for this goal. Try a new goal on Home.</span>}
+        {nb === null && <span className="text-text-muted">No more matches for this goal. Try a new goal on Home.</span>}
         {nb && (
           <>
-            <span><span className="font-medium">Next best:</span> {nb.profile.firstName} {nb.profile.lastName} <span className="text-ink-2">· {nb.reason}</span></span>
+            <span><span className="font-medium">Next best:</span> {nb.profile.firstName} {nb.profile.lastName} <span className="text-text-muted">· {nb.reason}</span></span>
             <Button size="sm" variant="outline" onClick={() => setCompose({ p: nb.profile, goalId: i.goalId })}><Send /> Request intro</Button>
           </>
         )}
@@ -120,10 +126,22 @@ export default function Requests() {
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-title">Requests</h1>
-          <p className="mt-1 text-ink-2">Every intro you&apos;ve sent, tracked automatically through the email relay.</p>
+          <h1 className="text-title-1">Requests</h1>
+          <p className="mt-1 text-text-muted">Every intro you&apos;ve sent, tracked automatically through the email relay.</p>
         </div>
       </header>
+      {latestReply && latestReply.recipient && (
+        <section className="on-brand flex flex-wrap items-center gap-4 rounded-lg bg-brand p-5 text-on-brand sm:p-6" aria-live="polite">
+          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-accent"><Check className="size-6 stroke-[2.5] text-on-accent" aria-hidden /></span>
+          <div className="min-w-0 flex-1">
+            <p className="text-title-2 font-extrabold">{latestReply.recipient.firstName} replied. You&apos;re connected!</p>
+            <p className="text-on-brand-muted">We sent {latestReply.recipient.firstName}&apos;s reply to your email. Reply there to keep talking.</p>
+          </div>
+          <Button variant="brand" onClick={() => { setTab("all"); setTimeout(() => document.getElementById(`intro-${latestReply.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 50); }}>
+            See {latestReply.recipient.firstName}&apos;s reply
+          </Button>
+        </section>
+      )}
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <Segmented<Tab> label="Filter by status" value={tab} onChange={setTab}
           options={[
@@ -148,20 +166,20 @@ export default function Requests() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[30%] pl-4 text-[13px] text-ink-2">Person</TableHead>
-                  <TableHead className="text-[13px] text-ink-2">Message</TableHead>
-                  <TableHead className="w-[140px] text-[13px] text-ink-2">Status</TableHead>
-                  <TableHead className="w-[110px] pr-4 text-right text-[13px] text-ink-2">Updated</TableHead>
+                  <TableHead className="w-[30%] pl-4 text-[13px] text-text-muted">Person</TableHead>
+                  <TableHead className="text-[13px] text-text-muted">Message</TableHead>
+                  <TableHead className="w-[140px] text-[13px] text-text-muted">Status</TableHead>
+                  <TableHead className="w-[110px] pr-4 text-right text-[13px] text-text-muted">Updated</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((i) => (
                   <Fragment key={i.id}>
-                    <TableRow data-intro-row className={cn("align-top", canSuggest(i) && "border-b-0")}>
+                    <TableRow id={`intro-${i.id}`} data-intro-row className={cn("align-top", canSuggest(i) && "border-b-0")}>
                       <TableCell className="max-w-0 py-3.5 pl-4">{person(i)}</TableCell>
                       <TableCell className="max-w-0 whitespace-normal py-3.5">{message(i)}</TableCell>
                       <TableCell className="py-3.5"><StatusBadge status={i.status} /></TableCell>
-                      <TableCell className="py-3.5 pr-4 text-right text-meta text-ink-2">{updatedAt(i)}</TableCell>
+                      <TableCell className="py-3.5 pr-4 text-right text-mono-sm text-text-subtle">{updatedAt(i)}</TableCell>
                     </TableRow>
                     {canSuggest(i) && (
                       <TableRow data-intro-row className="hover:bg-transparent">
@@ -177,15 +195,21 @@ export default function Requests() {
           {/* Phones: stacked rows */}
           <ul className="divide-y rounded-lg border bg-surface md:hidden">
             {rows.map((i) => (
-              <li key={i.id} data-intro-row className="space-y-2.5 px-4 py-3.5">
+              <li key={i.id} id={`intro-m-${i.id}`} data-intro-row className="space-y-2.5 px-4 py-4">
                 <div className="flex items-start justify-between gap-2">{person(i)}<StatusBadge status={i.status} /></div>
                 {message(i)}
-                <p className="text-meta text-ink-2">Updated {updatedAt(i).toLowerCase()}</p>
+                <p className="text-mono-sm text-text-subtle">Updated {updatedAt(i).toLowerCase()}</p>
                 {nextBestRow(i)}
               </li>
             ))}
           </ul>
         </>
+      )}
+
+      {intros && intros.length > 0 && (
+        <p className="flex items-start gap-2 rounded-md bg-primary-soft px-4 py-3 text-body-sm text-primary-ink">
+          <Info className="mt-0.5 size-4 shrink-0" aria-hidden /> Venn sends one reminder after 5 days. Requests close as &ldquo;No response&rdquo; 10 days after sending if there&apos;s no reply.
+        </p>
       )}
 
       <ProfileSheet id={open} onClose={() => setOpen(null)} onRequest={(p) => { setOpen(null); setCompose({ p, goalId: null }); }} />

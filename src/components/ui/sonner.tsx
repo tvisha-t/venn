@@ -4,9 +4,9 @@ import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = (props: ToasterProps) => (
   <Sonner
-    theme="light"
+    theme="system"
     className="toaster group"
-    toastOptions={{ classNames: { toast: "!bg-white !text-[var(--gt-brand)] !border-[var(--gt-pi-mile)]" } }}
+    toastOptions={{ classNames: { toast: "!bg-surface !text-text !border-line !shadow-pop !rounded-md" } }}
     {...props}
   />
 )

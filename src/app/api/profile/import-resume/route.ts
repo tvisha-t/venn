@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { requireSession } from "@/server/session";
 import { HttpError, route, throttle } from "@/server/http";
 import { extractProfile, pdfToText } from "@/server/resume";
+import { LinkedInExportError, extractFromLinkedIn, readLinkedInZip } from "@/server/linkedinExport";
+import { getVocab } from "@/server/agent/vocab";
 
-// PDF or pasted text → extracted fields. NOT saved until the user approves.
+// LinkedIn PDF / resume PDF / LinkedIn data export (.zip) / pasted text → extracted fields.
+// Nothing is saved until the user reviews and approves.
 export const POST = route(async (req: Request) => {
   throttle(req, "agent");
   await requireSession();
@@ -14,8 +17,20 @@ export const POST = route(async (req: Request) => {
     const file = form.get("file");
     const pasted = form.get("text");
     if (file instanceof File && file.size > 0) {
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".zip") || /zip/.test(file.type)) {
+        if (file.size > 50 * 1024 * 1024) throw new HttpError(413, "That export is over 50 MB. Request the smaller LinkedIn export (profile only) and try again.");
+        try {
+          const files = readLinkedInZip(new Uint8Array(await file.arrayBuffer()));
+          const vocab = await getVocab();
+          return NextResponse.json({ extracted: extractFromLinkedIn(files, vocab.majors) });
+        } catch (e) {
+          if (e instanceof LinkedInExportError) throw new HttpError(422, e.message);
+          throw e;
+        }
+      }
       if (file.size > 5 * 1024 * 1024) throw new HttpError(413, "That file is over 5 MB.");
-      if (!/pdf$/i.test(file.type) && !file.name.toLowerCase().endsWith(".pdf")) throw new HttpError(415, "Upload a PDF, or paste the text instead.");
+      if (!/pdf$/i.test(file.type) && !name.endsWith(".pdf")) throw new HttpError(415, "Upload a PDF or a LinkedIn data export (.zip), or paste the text instead.");
       try { text = await pdfToText(await file.arrayBuffer()); } catch { throw new HttpError(422, "We couldn't read that PDF. Try pasting the text instead."); }
     } else if (typeof pasted === "string") text = pasted;
   } else {

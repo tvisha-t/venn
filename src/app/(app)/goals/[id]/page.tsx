@@ -47,11 +47,11 @@ export default function GoalPage({ params }: { params: Promise<{ id: string }> }
   const newCount = data.matches.filter((m) => m.isNew).length;
   return (
     <div className="space-y-5">
-      <Link href="/goals" className="inline-flex items-center gap-1 text-[13px] font-medium text-ink-2 hover:text-ink"><ChevronLeft className="size-4" aria-hidden /> Saved goals</Link>
+      <Link href="/goals" className="inline-flex items-center gap-1 text-[13px] font-medium text-text-muted hover:text-text"><ChevronLeft className="size-4" aria-hidden /> Saved goals</Link>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-title">{data.goal.rawText}</h1>
-          <p className="mt-1 text-ink-2">{data.goal.explanation}</p>
+          <p className="mt-1 text-text-muted">{data.goal.explanation}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-surface px-4 py-2.5">
           <Switch id="standing" checked={data.goal.standing} onChange={toggle} label="Keep this goal active" />
@@ -59,8 +59,8 @@ export default function GoalPage({ params }: { params: Promise<{ id: string }> }
         </div>
       </header>
       <AgentStatus steps={[]} running={false} understood={data.goal.understood} />
-      {newCount > 0 && <p className="rounded-lg bg-petal-tint px-4 py-2.5 text-petal-text"><strong className="font-semibold">{newCount} new {newCount === 1 ? "match" : "matches"}</strong> since you last looked.</p>}
-      {data.goal.relaxed.length > 0 && <p className="rounded-lg bg-warn-bg px-4 py-2.5 text-warn">No exact matches. We loosened the <strong className="font-medium">{data.goal.relaxed.join(", then ")}</strong> filter.</p>}
+      {newCount > 0 && <p className="rounded-lg bg-accent-soft px-4 py-2.5 text-accent-ink"><strong className="font-semibold">{newCount} new {newCount === 1 ? "match" : "matches"}</strong> since you last looked.</p>}
+      {data.goal.relaxed.length > 0 && <p className="rounded-lg bg-accent-soft px-4 py-2.5 text-accent-ink">No exact matches. We loosened the <strong className="font-medium">{data.goal.relaxed.join(", then ")}</strong> filter.</p>}
       <MatchResults matches={data.matches} goalId={id} onChanged={load} />
     </div>
   );

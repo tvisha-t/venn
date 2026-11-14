@@ -9,7 +9,7 @@ import { EmptyState, ErrorState, LoadingCards } from "@/components/states";
 import { api } from "@/lib/api";
 
 type Email = {
-  id: string; introId: string | null; mailbox: "recipient" | "sender"; fromName: string; replyToLabel: string | null; subject: string;
+  id: string; introId: string | null; mailbox: "recipient" | "sender" | "invitee"; fromName: string; replyToLabel: string | null; subject: string;
   html: string; text: string; kind: string; createdAt: string; toName: string; toStatus: string; introStatus: string | null;
 };
 
@@ -42,10 +42,10 @@ export default function DevInbox() {
   }
 
   return (
-    <div className="min-h-screen bg-diploma">
-      <header className="bg-brand text-white">
+    <div className="min-h-screen bg-canvas">
+      <header className="on-brand bg-brand text-on-brand">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <p className="flex items-center gap-2 font-semibold"><Inbox className="size-5" aria-hidden /> Sandbox inbox <span className="rounded bg-buzz px-1.5 text-xs font-bold text-brand">EMAIL_MODE=sandbox</span></p>
+          <p className="flex items-center gap-2 font-semibold"><Inbox className="size-5" aria-hidden /> Sandbox inbox <span className="rounded bg-accent-soft text-accent-ink px-1.5 text-xs font-bold text-primary">EMAIL_MODE=sandbox</span></p>
           <div className="flex gap-2">
             <Button size="sm" variant="secondary" onClick={load}><RefreshCw /> Refresh</Button>
             <Button size="sm" variant="secondary" onClick={timeTravel}><Clock /> Simulate 5 days passing</Button>
@@ -54,7 +54,7 @@ export default function DevInbox() {
         </div>
       </header>
       <main id="main" className="mx-auto max-w-6xl px-4 py-6">
-        <p className="mb-4 text-sm text-gray-matter">Emails to fictional people land here instead of a real inbox. You&apos;re playing the recipient: reply, or click the links in the email. Recipients are shown by name only.</p>
+        <p className="mb-4 text-sm text-text-muted">Emails to fictional people land here instead of a real inbox. You&apos;re playing the recipient: reply, or click the links in the email. Recipients are shown by name only.</p>
         {err && <ErrorState message={err} onRetry={load} />}
         {!emails && !err && <LoadingCards n={2} />}
         {emails?.length === 0 && <EmptyState title="No emails yet">Send an intro from Venn and it will appear here.</EmptyState>}
@@ -63,24 +63,24 @@ export default function DevInbox() {
             <ul className="max-h-[75vh] space-y-2 overflow-y-auto" aria-label="Emails">
               {emails.map((m) => (
                 <li key={m.id}>
-                  <button onClick={() => setSel(m.id)} aria-current={sel === m.id} className={`w-full rounded-lg border bg-white p-3 text-left text-sm ${sel === m.id ? "border-petal ring-2 ring-petal/40" : ""}`}>
-                    <p className="flex justify-between gap-2"><span className="font-semibold">To: {m.toName}</span><span className="text-xs text-gray-matter">{m.kind.replace("_", " ")}</span></p>
+                  <button onClick={() => setSel(m.id)} aria-current={sel === m.id} className={`w-full rounded-lg border bg-surface p-3 text-left text-sm ${sel === m.id ? "border-line-control ring-2 ring-accent/40" : ""}`}>
+                    <p className="flex justify-between gap-2"><span className="font-semibold">To: {m.toName}</span><span className="text-xs text-text-muted">{m.kind.replace("_", " ")}</span></p>
                     <p className="line-clamp-1">{m.subject}</p>
-                    <p className="text-xs text-gray-matter">From {m.fromName}{m.introStatus ? ` · intro: ${m.introStatus.replace("_", " ")}` : ""}</p>
+                    <p className="text-xs text-text-muted">From {m.fromName}{m.introStatus ? ` · intro: ${m.introStatus.replace("_", " ")}` : ""}</p>
                   </button>
                 </li>
               ))}
             </ul>
             {e && (
               <section className="space-y-3">
-                <div className="rounded-lg border bg-white p-3 text-sm">
-                  <p><strong>From:</strong> {e.fromName} · <strong>To:</strong> {e.toName} ({e.mailbox === "recipient" ? (e.toStatus === "unclaimed" ? "unclaimed alum" : "member") : "the sender"})</p>
+                <div className="rounded-lg border bg-surface p-3 text-sm">
+                  <p><strong>From:</strong> {e.fromName} · <strong>To:</strong> {e.toName} ({e.mailbox === "recipient" ? (e.toStatus === "unclaimed" ? "unclaimed alum" : "member") : e.mailbox === "invitee" ? "invitee, not on Venn yet" : "the sender"})</p>
                   <p><strong>Reply-To:</strong> {e.replyToLabel}</p>
                   <p><strong>Subject:</strong> {e.subject}</p>
                 </div>
-                <iframe title="Email body" srcDoc={e.html} sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" className="h-[460px] w-full rounded-lg border bg-white" />
+                <iframe title="Email body" srcDoc={e.html} sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" className="h-[460px] w-full rounded-lg border bg-surface" />
                 {e.mailbox === "recipient" && e.introId && (
-                  <div className="space-y-2 rounded-lg border bg-white p-3">
+                  <div className="space-y-2 rounded-lg border bg-surface p-3">
                     <label htmlFor="reply" className="flex items-center gap-1.5 text-sm font-semibold"><Reply className="size-4" aria-hidden /> Reply as {e.toName}</label>
                     <Textarea id="reply" rows={3} value={reply} onChange={(x) => setReply(x.target.value)} />
                     <Button onClick={sendReply} disabled={busy || !reply.trim()}>Send reply</Button>

@@ -47,15 +47,15 @@ export default function Admin() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="font-serif text-3xl font-semibold">Admin <span className="text-base font-sans font-normal text-gray-matter">(demo)</span></h1>
-        <p className="text-gray-matter">Alumni Association import and engagement. Aggregates only: no names, no contact data.</p>
+        <h1 className="text-3xl font-semibold">Admin <span className="text-base font-sans font-normal text-text-muted">(demo)</span></h1>
+        <p className="text-text-muted">Alumni Association import and engagement. Aggregates only: no names, no contact data.</p>
       </header>
 
-      <section className="space-y-3 rounded-xl border bg-white p-5">
+      <section className="space-y-3 rounded-lg border border-line bg-surface p-6 shadow-card">
         <h2 className="font-semibold">Alumni Association import</h2>
-        <p className="text-sm text-gray-matter">Upload the AA export CSV. Deceased and directory-opt-out rows are never stored, duplicates are merged, claimed members win, and people who removed themselves are never re-created. Safe to re-run.</p>
+        <p className="text-sm text-text-muted">Upload the AA export CSV. Deceased and directory-opt-out rows are never stored, duplicates are merged, claimed members win, and people who removed themselves are never re-created. Safe to re-run.</p>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="cursor-pointer rounded-md border bg-white px-3 py-2 text-sm hover:border-petal">
+          <label className="cursor-pointer rounded-md border bg-surface px-3 py-2 text-sm hover:border-line-control">
             {file ? file.name : "Choose CSV…"}
             <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           </label>
@@ -80,11 +80,11 @@ export default function Admin() {
             <Breakdown title="Intros by recipient city" rows={dash.byCity} />
           </div>
           <section className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border bg-white p-5">
+            <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
               <h2 className="mb-2 font-semibold">Last import</h2>
-              {dash.imports[0] ? <><p className="mb-2 text-xs text-gray-matter">{new Date(dash.imports[0].at).toLocaleString()}</p><CountsTable counts={dash.imports[0].counts} /></> : <p className="text-sm text-gray-matter">No imports yet.</p>}
+              {dash.imports[0] ? <><p className="mb-2 text-xs text-text-muted">{new Date(dash.imports[0].at).toLocaleString()}</p><CountsTable counts={dash.imports[0].counts} /></> : <p className="text-sm text-text-muted">No imports yet.</p>}
             </div>
-            <div className="rounded-xl border bg-white p-5">
+            <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
               <h2 className="mb-2 font-semibold">Audit log (event counts)</h2>
               <table className="w-full text-sm"><tbody>
                 {dash.auditCounts.map((a) => <tr key={a.action} className="border-t"><td className="py-1.5 font-mono text-xs">{a.action}</td><td className="text-right">{a.n}</td></tr>)}
@@ -98,7 +98,7 @@ export default function Admin() {
 }
 
 function Stat({ label, value }: { label: string; value: number | string }) {
-  return <div className="rounded-xl border bg-white p-4"><p className="text-sm text-gray-matter">{label}</p><p className="font-serif text-3xl font-semibold">{value}</p></div>;
+  return <div className="rounded-lg border border-line bg-surface p-5 shadow-card"><p className="text-sm text-text-muted">{label}</p><p className="text-3xl font-semibold">{value}</p></div>;
 }
 
 function CountsTable({ counts }: { counts: Counts }) {
@@ -117,22 +117,22 @@ function CountsTable({ counts }: { counts: Counts }) {
 function Breakdown({ title, rows }: { title: string; rows: Row[] }) {
   const max = Math.max(1, ...rows.map((r) => r.sent));
   return (
-    <section className="rounded-xl border bg-white p-5">
+    <section className="rounded-lg border border-line bg-surface p-6 shadow-card">
       <h2 className="mb-3 font-semibold">{title}</h2>
-      {rows.length === 0 && <p className="text-sm text-gray-matter">No intros yet.</p>}
+      {rows.length === 0 && <p className="text-sm text-text-muted">No intros yet.</p>}
       <ul className="space-y-2.5">
         {rows.map((r) => (
           <li key={r.label} className="text-sm">
-            <div className="flex justify-between"><span>{r.label}</span><span className="tabular-nums text-gray-matter">{r.replied}/{r.sent} replied</span></div>
+            <div className="flex justify-between"><span>{r.label}</span><span className="tabular-nums text-text-muted">{r.replied}/{r.sent} replied</span></div>
             <div className="mt-1 h-2 rounded-full bg-muted" aria-hidden>
-              <div className="relative h-2 rounded-full bg-pi-mile" style={{ width: `${(100 * r.sent) / max}%` }}>
-                <div className="absolute inset-y-0 left-0 rounded-full bg-brand" style={{ width: `${r.sent ? (100 * r.replied) / r.sent : 0}%` }} />
+              <div className="relative h-2 rounded-full bg-line" style={{ width: `${(100 * r.sent) / max}%` }}>
+                <div className="absolute inset-y-0 left-0 rounded-full bg-primary" style={{ width: `${r.sent ? (100 * r.replied) / r.sent : 0}%` }} />
               </div>
             </div>
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-gray-matter"><span className="inline-block size-2 rounded-full bg-brand" /> replied · <span className="inline-block size-2 rounded-full bg-pi-mile" /> sent</p>
+      <p className="mt-3 text-xs text-text-muted"><span className="inline-block size-2 rounded-full bg-primary" /> replied · <span className="inline-block size-2 rounded-full bg-line" /> sent</p>
     </section>
   );
 }

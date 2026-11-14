@@ -43,6 +43,14 @@ All tables have Row Level Security enabled. `contact_points`, `shared_contact`, 
   - `agent.test.ts`: asserts no contact data in any LLM payload.
   - `sharedContact.test.ts`: opt-in, audit, revocation, and the unclaimed restriction.
 
+## 3a. Data sourcing (no scraping)
+
+- Profiles come only from **GT Alumni Association records** (with the §6 import rules and one-tap removal) or from **the person themself**.
+- **LinkedIn import is the member's own data.** They upload a LinkedIn PDF or their own "Get a copy of your data" export. From the .zip, only `Profile.csv`, `Positions.csv`, `Education.csv` and `Skills.csv` are decompressed (`src/server/linkedinExport.ts`). `Connections.csv`, messages, email addresses, phone numbers and invitations, which hold other people's data or private contact data, are never opened. Free text is scrubbed of emails, phones and links.
+- **No scraping or enrichment.** Venn never scrapes LinkedIn or any third-party site, never harvests contacts from members' inboxes, and never guesses email addresses.
+- **Invites.** "Invite a Yellow Jacket" sends one email. The invitee's address is used only for that send and is not stored. Venn keeps only a sha256 hash to block repeat invites for 30 days and to honor the "Don't send me invites" link. Members and opted-out or suppressed addresses are silently skipped, and the response is the same either way, so the endpoint can't reveal who is on Venn. Audit rows record that an invite was sent, never the address or hash. Invite hashes are deleted after 1 year.
+- **Verified by:** `growth.test.ts` (allowlist, contact stripping, hash-only storage, opt-out, no re-invite) and the invite E2E test.
+
 ## 4. FERPA (students)
 
 - Students appear **only** after they sign in and approve their profile. The Alumni Association import never creates student profiles (`class_year ≤ current year`, role `alum` only).

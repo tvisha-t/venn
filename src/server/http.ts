@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
+
+/** Any well-formed 8-4-4-4-12 hex id. Zod v4's .uuid() enforces RFC version/variant bits and
+ *  rejects valid Postgres uuids from the seed data, so never use .uuid() for ids. */
+export const zId = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, "Invalid id");
 
 export class HttpError extends Error {
   constructor(public status: number, message: string, public code?: string) {

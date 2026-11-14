@@ -10,5 +10,6 @@ export async function runRetention(now = new Date()) {
   const meta = await sql`delete from intro_requests where status in ('not_interested', 'no_response', 'bounced', 'suppressed', 'draft')
     and coalesce(sent_at, created_at) < ${d(365)} returning id`;
   await sql`delete from sandbox_emails where created_at < ${d(30)}`;
+  await sql`delete from invites where created_at < ${d(365)}`;
   return { bodiesDeleted: bodies.length, introsDeleted: meta.length };
 }

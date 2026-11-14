@@ -6,8 +6,9 @@ import { randomToken } from "../crypto";
 
 export type OutboundEmail = {
   introId: string | null;
-  mailbox: "recipient" | "sender";
-  toProfileId: string;
+  mailbox: "recipient" | "sender" | "invitee";
+  toProfileId: string | null;
+  toLabel?: string;           // sandbox display for people without a profile (masked email)
   toAddress: string;          // used only for live sends; never stored
   fromName: string;
   replyTo: string;            // relay address, or the consented real address on reply forwards
@@ -15,7 +16,7 @@ export type OutboundEmail = {
   subject: string;
   html: string;
   text: string;
-  kind: "intro" | "reminder" | "reply_forward" | "notification";
+  kind: "intro" | "reminder" | "reply_forward" | "notification" | "invite";
 };
 
 export class EmailDeliveryError extends Error {}
@@ -52,8 +53,8 @@ export async function deliver(e: OutboundEmail): Promise<string> {
   if (env.emailMode === "sandbox") {
     const id = `sandbox-${randomToken(12)}`;
     await sql`
-      insert into sandbox_emails (intro_id, mailbox, to_profile_id, from_name, reply_to_label, subject, html, text_body, kind)
-      values (${e.introId}, ${e.mailbox}, ${e.toProfileId}, ${e.fromName}, ${e.replyToLabel}, ${e.subject}, ${e.html}, ${e.text}, ${e.kind})`;
+      insert into sandbox_emails (intro_id, mailbox, to_profile_id, to_label, from_name, reply_to_label, subject, html, text_body, kind)
+      values (${e.introId}, ${e.mailbox}, ${e.toProfileId}, ${e.toLabel ?? null}, ${e.fromName}, ${e.replyToLabel}, ${e.subject}, ${e.html}, ${e.text}, ${e.kind})`;
     return id;
   }
   let lastErr: unknown;

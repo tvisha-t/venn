@@ -8,8 +8,8 @@ export const GET = route(async () => {
   requireSandbox();
   const rows = await sql`
     select e.id, e.intro_id, e.mailbox, e.from_name, e.reply_to_label, e.subject, e.html, e.text_body, e.kind, e.created_at,
-      p.first_name || ' ' || p.last_name as to_name, p.status as to_status, i.status as intro_status
-    from sandbox_emails e join profiles p on p.id = e.to_profile_id left join intro_requests i on i.id = e.intro_id
+      coalesce(p.first_name || ' ' || p.last_name, e.to_label, 'Invitee') as to_name, coalesce(p.status, 'invitee') as to_status, i.status as intro_status
+    from sandbox_emails e left join profiles p on p.id = e.to_profile_id left join intro_requests i on i.id = e.intro_id
     order by e.created_at desc limit 100`;
   return NextResponse.json({
     emails: rows.map((r) => ({

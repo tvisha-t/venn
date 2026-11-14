@@ -2,122 +2,242 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Venn tokens (BUILD_SPEC.md §12.1, plum rebrand 2026-11-14).
-   Soft blush UI · Venn plum for primary actions · petal only as a small accent. */
+/* Venn "Game Day" tokens (VENN_RESTYLE_INSTRUCTIONS, BUILD_SPEC §12).
+   Navy does the work, gold marks what matters. Components use these tokens only. */
 :root {
-  --bg: #F8F4F7;
-  --surface: #FFFFFF;
-  --line: #ECE3E9;
-  --text: #17131A;
-  --text-2: #625A66;
-  --text-3: #9C93A0;      /* icons / placeholders only — not AA for small text */
-  --brand: #7A3E6A;
-  --brand-hover: #693359;
-  --brand-tint: #F4E6EF;
-  --petal: #C0699B;
-  --petal-text: #8A3B6C;
-  --petal-tint: #F3DFEA;
-  --panel: #F1E2EB;
-  --success: #1F7A4D;
-  --success-bg: #E8F5EE;
-  --warn: #8A5A00;
-  --warn-bg: #FDF3E1;
-  --danger: #B42318;
-  --danger-bg: #FDECEA;
+  /* grounds */
+  --canvas: #f6f8fa;
+  --surface: #ffffff;
+  --surface-raised: #eef2f6;
+  /* text */
+  --text: #0d1b2a;
+  --text-muted: #4f5559;
+  --text-subtle: #5c6267;
+  /* lines */
+  --line: #e1e7ed;
+  --line-control: #7d878f;
+  /* navy = primary */
+  --primary: #003057;
+  --primary-hover: #00233f;
+  --on-primary: #ffffff;
+  --primary-soft: #e6edf4;
+  --primary-ink: #003057;
+  /* gold = accent */
+  --accent: #eaaa00;
+  --accent-hover: #d19900;
+  --on-accent: #003057;
+  --accent-soft: #fbefc6;
+  --accent-ink: #5f4c06;
+  --accent-text: #7a6418;
+  --highlight: #f5d77e;
+  /* navy brand panel */
+  --brand: #003057;
+  --on-brand: #ffffff;
+  --on-brand-muted: #b8c7d6;
+  --brand-raised: rgba(255, 255, 255, 0.08);
+  --brand-line: rgba(255, 255, 255, 0.14);
+  --brand-highlight: rgba(234, 170, 0, 0.55);
+  /* states */
+  --success: #116b33;
+  --success-soft: #e7f6ec;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --link: #00426f;
+  --focus: #003057;
+  --scrim: rgba(0, 24, 46, 0.48);
+  /* shadows */
+  --shadow-card: 0 1px 2px rgba(0, 48, 87, 0.05), 0 6px 16px rgba(0, 48, 87, 0.05);
+  --shadow-pop: 0 20px 48px rgba(0, 48, 87, 0.16);
 
-  /* shadcn mapping */
-  --radius: 0.625rem;              /* 10px cards; inputs use radius-md = 8px */
-  --background: var(--bg);
+  /* shadcn/ui variables → tokens */
+  --radius: 12px;
+  --background: var(--canvas);
   --foreground: var(--text);
   --card: var(--surface);
   --card-foreground: var(--text);
   --popover: var(--surface);
   --popover-foreground: var(--text);
-  --primary: var(--brand);
-  --primary-foreground: #FFFFFF;
-  --secondary: #F3EEF2;
+  --primary-foreground: var(--on-primary);
+  --secondary: var(--surface-raised);
   --secondary-foreground: var(--text);
-  --muted: #F3EEF2;
-  --muted-foreground: var(--text-2);
-  --accent: #F3EEF2;
-  --accent-foreground: var(--text);
+  --muted: var(--surface-raised);
+  --muted-foreground: var(--text-muted);
+  --accent-foreground: var(--on-accent);
   --destructive: var(--danger);
   --border: var(--line);
-  --input: var(--line);
-  --ring: var(--petal);
+  --input: var(--line-control);
+  --ring: var(--focus);
+  color-scheme: light;
+}
+
+/* Dark: explicit data-theme="dark", or the OS setting when no theme is forced. */
+:root[data-theme="dark"] {
+  --canvas: #00182e;
+  --surface: #00213d;
+  --surface-raised: #0a2c4b;
+  --text: #f2f5f8;
+  --text-muted: #a9b8c7;
+  --text-subtle: #93a3b3;
+  --line: #1a3a58;
+  --line-control: #5d7895;
+  --primary: #eaaa00;
+  --primary-hover: #f5c040;
+  --on-primary: #00182e;
+  --primary-soft: #13385b;
+  --primary-ink: #f5d77e;
+  --accent: #eaaa00;
+  --accent-hover: #f5c040;
+  --on-accent: #00182e;
+  --accent-soft: #3a2f06;
+  --accent-ink: #f5d77e;
+  --accent-text: #eaaa00;
+  --highlight: #5a4708;
+  --brand: #0a2c4b;
+  --on-brand: #f2f5f8;
+  --on-brand-muted: #a9b8c7;
+  --brand-raised: rgba(255, 255, 255, 0.06);
+  --brand-line: rgba(255, 255, 255, 0.12);
+  --success: #4ade80;
+  --success-soft: #0f3020;
+  --danger: #f97066;
+  --danger-soft: #3a1412;
+  --link: #f5c84a;
+  --focus: #eaaa00;
+  --scrim: rgba(0, 10, 20, 0.6);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-pop: 0 20px 48px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #00182e;
+    --surface: #00213d;
+    --surface-raised: #0a2c4b;
+    --text: #f2f5f8;
+    --text-muted: #a9b8c7;
+    --text-subtle: #93a3b3;
+    --line: #1a3a58;
+    --line-control: #5d7895;
+    --primary: #eaaa00;
+    --primary-hover: #f5c040;
+    --on-primary: #00182e;
+    --primary-soft: #13385b;
+    --primary-ink: #f5d77e;
+    --accent: #eaaa00;
+    --accent-hover: #f5c040;
+    --on-accent: #00182e;
+    --accent-soft: #3a2f06;
+    --accent-ink: #f5d77e;
+    --accent-text: #eaaa00;
+    --highlight: #5a4708;
+    --brand: #0a2c4b;
+    --on-brand: #f2f5f8;
+    --on-brand-muted: #a9b8c7;
+    --brand-raised: rgba(255, 255, 255, 0.06);
+    --brand-line: rgba(255, 255, 255, 0.12);
+    --success: #4ade80;
+    --success-soft: #0f3020;
+    --danger: #f97066;
+    --danger-soft: #3a1412;
+    --link: #f5c84a;
+    --focus: #eaaa00;
+    --scrim: rgba(0, 10, 20, 0.6);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-pop: 0 20px 48px rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* token colors as utilities: bg-canvas, text-text-muted, border-line-control, … */
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-line: var(--line);
+  --color-line-control: var(--line-control);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
+  --color-highlight: var(--highlight);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-on-brand-muted: var(--on-brand-muted);
+  --color-brand-raised: var(--brand-raised);
+  --color-brand-line: var(--brand-line);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-link: var(--link);
+  --color-focus: var(--focus);
+  --color-scrim: var(--scrim);
+
+  /* shadcn semantic names */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif; /* no serif */
-  --font-mono: var(--font-mono-jb), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-  --color-surface: var(--surface);
-  --color-line: var(--line);
-  --color-ink: var(--text);
-  --color-ink-2: var(--text-2);
-  --color-ink-3: var(--text-3);
-  --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-brand-tint: var(--brand-tint);
-  --color-petal: var(--petal);
-  --color-petal-text: var(--petal-text);
-  --color-petal-tint: var(--petal-tint);
-  --color-panel: var(--panel);
-  --color-success: var(--success);
-  --color-success-bg: var(--success-bg);
-  --color-warn: var(--warn);
-  --color-warn-bg: var(--warn-bg);
-  --color-danger: var(--danger);
-  --color-danger-bg: var(--danger-bg);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 
-  /* legacy names → new palette (keeps older screens consistent) */
-  --color-diploma: var(--bg);
-  --color-pi-mile: var(--line);
-  --color-gray-matter: var(--text-2);
-  --color-gold-dark: var(--petal-text);
-  --color-gold-medium: var(--petal-text);
-  --color-buzz: var(--petal-tint);
-
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 12px;
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+  html {
+    background: var(--canvas);
+  }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-size: 14px;
-    line-height: 1.5;
+    background: var(--canvas);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 22px;
+    -webkit-font-smoothing: antialiased;
   }
   ::placeholder {
-    color: var(--text-3);
+    color: var(--text-subtle);
   }
   :focus-visible {
-    outline: 2px solid var(--petal);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
+  }
+  .on-brand :focus-visible {
+    outline-color: var(--accent);
   }
   .skip-link {
     position: absolute;
@@ -128,18 +248,42 @@
   .skip-link:focus {
     left: 8px;
     background: var(--surface);
-    color: var(--brand);
+    color: var(--primary);
     padding: 8px 12px;
     border-radius: 8px;
   }
 }
 
-/* Type scale: 28 title · 20 section · 16 card title · 14 body · 13 meta */
-@utility text-title { font-size: 28px; line-height: 36px; font-weight: 700; letter-spacing: -0.02em; }
-@utility text-section { font-size: 20px; line-height: 28px; font-weight: 700; letter-spacing: -0.015em; }
-@utility text-cardtitle { font-size: 16px; line-height: 24px; font-weight: 600; }
-@utility text-body { font-size: 14px; line-height: 20px; }
-@utility text-meta { font-size: 13px; line-height: 18px; }
+/* Type scale */
+@utility text-display { font-size: 56px; line-height: 60px; font-weight: 800; letter-spacing: -0.035em; }
+@utility text-title-1 { font-size: 32px; line-height: 38px; font-weight: 800; letter-spacing: -0.025em; }
+@utility text-title-2 { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.015em; }
+@utility text-title-3 { font-size: 16px; line-height: 22px; font-weight: 700; letter-spacing: -0.01em; }
+@utility text-body { font-size: 15px; line-height: 22px; font-weight: 400; }
+@utility text-body-strong { font-size: 15px; line-height: 22px; font-weight: 600; }
+@utility text-body-sm { font-size: 13px; line-height: 18px; font-weight: 500; }
+@utility text-label { font-size: 12px; line-height: 16px; font-weight: 600; }
+@utility text-eyebrow { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+@utility text-metric { font-family: var(--font-mono); font-size: 32px; line-height: 36px; font-weight: 500; letter-spacing: -0.02em; }
+@utility text-mono-sm { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 400; }
+/* back-compat names used across screens */
+@utility text-title { font-size: 32px; line-height: 38px; font-weight: 800; letter-spacing: -0.025em; }
+@utility text-section { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.015em; }
+@utility text-cardtitle { font-size: 16px; line-height: 22px; font-weight: 700; letter-spacing: -0.01em; }
+@utility text-meta { font-size: 13px; line-height: 18px; font-weight: 500; }
+
+/* Highlighter: behind what two people share (one phrase per block). */
+@utility hl {
+  box-shadow: inset 0 -0.45em 0 var(--highlight);
+  border-radius: 3px;
+  padding: 0 2px;
+  box-decoration-break: clone;
+}
+@utility hl-brand {
+  box-shadow: inset 0 -0.38em 0 var(--brand-highlight);
+  border-radius: 3px;
+  padding: 0 2px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -158,7 +302,7 @@
   animation: venn-progress 1.4s ease-in-out infinite;
 }
 
-/* email preview rule (matches the recipient email's thin plum rule) */
+/* email preview: matches the recipient email's navy band */
 .brand-rule {
-  border-top: 2px solid var(--brand);
+  border-top: 2px solid var(--primary);
 }

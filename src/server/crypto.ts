@@ -26,7 +26,7 @@ function safeEq(a: string, b: string): boolean {
 }
 
 // ---------------------------------------------------------------- signed links (§8.4)
-export type LinkAction = "decline" | "claim" | "remove";
+export type LinkAction = "decline" | "claim" | "remove" | "noinvite";
 export const LINK_TTL_DAYS = 60;
 
 /** `${relayToken}.${expEpochSec}.${hmac}` — goes in /r/{signed}/{action}. */

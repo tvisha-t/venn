@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Bell, Bookmark, Compass, Home, Inbox, LogOut, Search, Send, Shield, UserRound } from "lucide-react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { Bell, Bookmark, Compass, Inbox, LogOut, MapPin, Search, Send, Shield, UserPlus, UserRound } from "lucide-react";
 import { api, type OwnProfile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,20 +10,26 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PersonAvatar } from "@/components/PersonAvatar";
+import { InviteDialog } from "@/components/InviteDialog";
 
 type Me = { profile: OwnProfile; unseenReplies: number; graduationPrompt: boolean; checkIn: boolean };
 const MeCtx = createContext<{ me: Me | null; refresh: () => void }>({ me: null, refresh: () => {} });
 export const useMe = () => useContext(MeCtx);
 
 const NAV = [
-  { href: "/home", label: "Home", icon: Home },
-  { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/requests", label: "Requests", icon: Send },
-  { href: "/goals", label: "Saved goals", icon: Bookmark },
+  { href: "/home", label: "Find", icon: Search, match: ["/home", "/goals"] },
+  { href: "/explore", label: "Explore", icon: Compass, match: ["/explore"] },
+  { href: "/requests", label: "Requests", icon: Send, match: ["/requests"] },
+  { href: "/profile", label: "Profile", icon: UserRound, match: ["/profile"] },
 ];
+
+export function Wordmark({ className }: { className?: string }) {
+  return <span className={cn("text-[24px] font-extrabold leading-none tracking-[-0.04em]", className)}>venn</span>;
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const path = usePathname();
   const router = useRouter();
   const refresh = useCallback(() => {
@@ -40,129 +46,95 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     router.replace("/signin");
   }
 
-  const isActive = (href: string) => path === href || path.startsWith(href + "/") || (href === "/goals" && path.startsWith("/goals"));
+  const isActive = (m: string[]) => m.some((x) => path === x || path.startsWith(x + "/"));
+  const unseen = me?.unseenReplies ?? 0;
 
   return (
     <MeCtx.Provider value={{ me, refresh }}>
-      <div className="min-h-screen md:grid md:grid-cols-[220px_1fr]">
-        {/* Sidebar (desktop) */}
-        <aside className="sticky top-0 hidden h-screen flex-col border-r bg-surface px-3 py-4 md:flex">
-          <Link href="/home" className="mb-6 flex items-baseline gap-2 px-2" aria-label="venn home">
-            <span className="text-[24px] font-bold leading-none tracking-[-0.04em] text-brand">venn</span>
-            <span className="rounded-full bg-petal-tint px-1.5 py-0.5 text-[11px] font-medium text-petal-text">Georgia Tech</span>
-          </Link>
-          <nav aria-label="Main" className="flex flex-col gap-0.5">
+      <header className="sticky top-0 z-30 border-b border-line bg-surface">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-8 px-5 sm:px-6">
+          <Link href="/home" aria-label="venn home" className="text-primary"><Wordmark /></Link>
+          <nav aria-label="Main" className="hidden h-full items-stretch gap-7 md:flex">
             {NAV.map((n) => {
-              const active = isActive(n.href);
+              const active = isActive(n.match);
               return (
-                <Link
-                  key={n.href} href={n.href} aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[14px] font-medium text-ink-2 transition-colors hover:bg-muted hover:text-ink",
-                    active && "bg-muted text-ink before:absolute before:inset-y-1.5 before:-left-3 before:w-[3px] before:rounded-r before:bg-petal",
-                  )}
-                >
-                  <n.icon className={cn("size-4", active ? "text-brand" : "text-ink-3")} aria-hidden />
+                <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}
+                  className={cn("relative flex items-center gap-2 text-body-strong text-text-muted transition-colors hover:text-text", active && "text-text")}>
                   {n.label}
-                  {n.href === "/requests" && (me?.unseenReplies ?? 0) > 0 && (
-                    <span className="ml-auto rounded-full bg-petal-tint px-1.5 text-[11px] font-semibold text-petal-text" aria-label={`${me!.unseenReplies} new replies`}>
-                      {me!.unseenReplies}
-                    </span>
+                  {n.href === "/requests" && unseen > 0 && (
+                    <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 font-mono text-[11px] font-medium leading-5 text-on-primary" aria-label={`${unseen} new replies`}>{unseen}</span>
                   )}
+                  {active && <span className="absolute inset-x-0 bottom-0 h-[3px] rounded-full bg-accent" aria-hidden />}
                 </Link>
               );
             })}
           </nav>
-          <p className="mt-auto px-2 text-[12px] leading-snug text-ink-2">Student project for Georgia Tech. Demo data is fictional.</p>
-        </aside>
-
-        <div className="flex min-w-0 flex-col">
-          <TopBar me={me} onSignOut={signOut} />
-          {me?.graduationPrompt && <GraduationBanner onDone={refresh} year={me.profile.classYear} />}
-          {me?.checkIn && !me.graduationPrompt && <CheckInBanner employer={me.profile.employer} onDone={refresh} />}
-          <main id="main" className="mx-auto w-full max-w-[1200px] flex-1 px-4 pb-24 pt-6 sm:px-6 md:pb-10 md:pt-8">{children}</main>
+          <div className="ml-auto flex items-center gap-3">
+            {me?.profile.city && (
+              <Link href="/explore?view=map" className="hidden h-9 items-center gap-1.5 rounded-full bg-surface-raised px-3 text-label text-text sm:inline-flex" aria-label={`Near ${me.profile.city}. Open map`}>
+                <MapPin className="size-4 text-text-muted" aria-hidden /> {me.profile.city}
+              </Link>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="rounded-full" aria-label="Account menu">
+                  {me ? <PersonAvatar first={me.profile.firstName} last={me.profile.lastName} size={32} /> : <span className="block size-8 rounded-full bg-surface-raised" />}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60 rounded-md shadow-pop">
+                {me && (
+                  <DropdownMenuLabel className="font-normal">
+                    <p className="text-title-3">{me.profile.firstName} {me.profile.lastName}</p>
+                    <p className="text-body-sm text-text-muted">{me.profile.major ?? me.profile.employer ?? "Georgia Tech"}</p>
+                  </DropdownMenuLabel>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild><Link href="/profile"><UserRound /> Profile</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/goals"><Bookmark /> Saved goals</Link></DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setInviteOpen(true)}><UserPlus /> Invite a Yellow Jacket</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild><Link href="/dev/inbox"><Inbox /> Sandbox inbox</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/admin"><Shield /> Admin (demo)</Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={signOut}><LogOut /> Sign out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
+      </header>
+
+      {me?.graduationPrompt && <GraduationBanner onDone={refresh} year={me.profile.classYear} />}
+      {me?.checkIn && !me.graduationPrompt && <CheckInBanner employer={me.profile.employer} onDone={refresh} />}
+      <main id="main" className="mx-auto w-full max-w-[1200px] px-5 pb-28 pt-6 sm:px-6 md:pb-12 md:pt-8">{children}</main>
+      <footer className="mx-auto hidden max-w-[1200px] px-6 pb-8 text-body-sm text-text-subtle md:block">
+        Venn is a student project, independent and not run by Georgia Tech. Demo data is fictional.
+      </footer>
 
       {/* Bottom tab bar (phones) */}
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-surface md:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
         {NAV.map((n) => {
-          const active = isActive(n.href);
+          const active = isActive(n.match);
           return (
             <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}
-              className={cn("relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium text-ink-2", active && "text-brand")}>
-              {active && <span className="absolute top-0 h-[2px] w-8 rounded-b bg-petal" aria-hidden />}
-              <n.icon className="size-5" aria-hidden />
-              {n.label === "Saved goals" ? "Goals" : n.label}
-              {n.href === "/requests" && (me?.unseenReplies ?? 0) > 0 && <span className="absolute right-[28%] top-1.5 size-2 rounded-full bg-petal" aria-label="new replies" />}
+              className={cn("relative flex h-16 flex-col items-center justify-center gap-1 text-label text-text-muted", active && "text-primary")}>
+              {active && <span className="absolute top-0 h-[3px] w-10 rounded-full bg-accent" aria-hidden />}
+              <n.icon className="size-[22px] stroke-[1.75]" aria-hidden />
+              {n.label}
+              {n.href === "/requests" && unseen > 0 && <span className="absolute right-[26%] top-2.5 size-2 rounded-full bg-primary" aria-label="new replies" />}
             </Link>
           );
         })}
       </nav>
+      <InviteDialog open={inviteOpen} onOpenChange={setInviteOpen} />
     </MeCtx.Provider>
-  );
-}
-
-function TopBar({ me, onSignOut }: { me: Me | null; onSignOut: () => void }) {
-  const router = useRouter();
-  const ref = useRef<HTMLInputElement>(null);
-  const [q, setQ] = useState("");
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); ref.current?.focus(); }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-surface/95 px-4 backdrop-blur sm:px-6">
-      <Link href="/home" className="text-[22px] font-bold leading-none tracking-[-0.04em] text-brand md:hidden" aria-label="venn home">venn</Link>
-      <form
-        role="search" className="relative flex-1 md:max-w-[520px]"
-        onSubmit={(e) => { e.preventDefault(); const v = q.trim(); if (v.length >= 2) { router.push(`/home?goal=${encodeURIComponent(v)}`); setQ(""); ref.current?.blur(); } }}
-      >
-        <label htmlFor="ask" className="sr-only">Ask Venn</label>
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
-        <input
-          id="ask" ref={ref} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask Venn…"
-          className="h-9 w-full rounded-md border bg-muted/60 pl-9 pr-14 text-[14px] outline-none transition-colors focus:border-line focus:bg-surface"
-        />
-        <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border bg-surface px-1.5 py-0.5 text-[11px] font-medium text-ink-2 sm:block">⌘K</kbd>
-      </form>
-      <div className="ml-auto">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="rounded-full" aria-label="Account menu">
-              {me ? <PersonAvatar first={me.profile.firstName} last={me.profile.lastName} size={32} /> : <span className="block size-8 rounded-full bg-muted" />}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            {me && (
-              <DropdownMenuLabel className="font-normal">
-                <p className="text-[14px] font-medium">{me.profile.firstName} {me.profile.lastName}</p>
-                <p className="text-meta text-ink-2">{me.profile.major ?? me.profile.employer ?? "Georgia Tech"}</p>
-              </DropdownMenuLabel>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild><Link href="/profile"><UserRound /> Profile</Link></DropdownMenuItem>
-            <DropdownMenuItem asChild><Link href="/dev/inbox"><Inbox /> Sandbox inbox</Link></DropdownMenuItem>
-            <DropdownMenuItem asChild><Link href="/admin"><Shield /> Admin (demo)</Link></DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={onSignOut}><LogOut /> Sign out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </header>
   );
 }
 
 function Banner({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border-b bg-surface">
-      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-4 py-2.5 text-[14px] sm:px-6">
-        <Bell className="size-4 text-petal-text" aria-hidden />
+    <div className="border-b border-line bg-surface">
+      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-5 py-3 sm:px-6">
+        <Bell className="size-5 stroke-[1.75] text-text-muted" aria-hidden />
         {children}
       </div>
     </div>
@@ -172,8 +144,8 @@ function Banner({ children }: { children: React.ReactNode }) {
 function GraduationBanner({ year, onDone }: { year: number | null; onDone: () => void }) {
   return (
     <Banner>
-      <span>Your class year ({year}) has passed. <strong className="font-medium">Did you graduate?</strong></span>
-      <Button size="sm" onClick={() => api("/api/me", { method: "PATCH", json: { graduated: true } }).then(onDone)}>Yes, I&apos;m an alum now</Button>
+      <span>Your class year (<span className="font-mono">{year}</span>) has passed. <strong className="font-semibold">Did you graduate?</strong></span>
+      <Button size="sm" onClick={() => api("/api/me", { method: "PATCH", json: { graduated: true } }).then(onDone)}>Yes, I&apos;m an alum</Button>
     </Banner>
   );
 }
@@ -181,7 +153,7 @@ function GraduationBanner({ year, onDone }: { year: number | null; onDone: () =>
 function CheckInBanner({ employer, onDone }: { employer: string | null; onDone: () => void }) {
   return (
     <Banner>
-      <span>Still at <strong className="font-medium">{employer}</strong>?</span>
+      <span>Still at <strong className="font-semibold">{employer}</strong>?</span>
       <Button size="sm" variant="outline" onClick={() => api("/api/me", { method: "PATCH", json: { touch: true } }).then(onDone)}>Yes</Button>
       <Button size="sm" variant="ghost" asChild><Link href="/profile">Update</Link></Button>
     </Banner>

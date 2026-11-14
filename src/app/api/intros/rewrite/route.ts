@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireSession } from "@/server/session";
-import { route, throttle } from "@/server/http";
+import { route, throttle, zId } from "@/server/http";
 import { rewriteDraft } from "@/server/intros";
 
 const Body = z.object({
-  introId: z.string().uuid(),
+  introId: zId,
   mode: z.enum(["shorter", "warmer"]),
   subject: z.string().max(120).optional(),
   body: z.string().max(3000).optional(),

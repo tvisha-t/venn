@@ -19,14 +19,16 @@ Venn turns Georgia Tech's network into an agent that works for you: a user types
 - The agent can never send an intro without an explicit user click.
 - Locations are rounded to ~1 km; hide map clusters with fewer than 3 people at close zoom.
 - No user quotas or reputation scores (product decision); only a per-minute bot throttle on API routes.
+- Never scrape LinkedIn or any third-party site for people's data, harvest contacts from members' inboxes, or guess email addresses. Profiles come only from GT Alumni Association records or the person themself (LinkedIn PDF / data-export import, profile builder). Invites store only an email hash.
 
 ## Stack
 Next.js (App Router) + TypeScript + Tailwind + shadcn/ui · Postgres (Supabase) + pgvector · Claude API · Postmark (or Resend) with inbound webhooks · MapLibre/Mapbox + supercluster · Vitest + Playwright.
 
 ## Style
-- Tokens and layout from BUILD_SPEC.md §12 (rebranded 2026-11-14 to the Venn plum palette from `Venn — Login.pdf`): plum #7A3E6A for primary actions, petal #C0699B only as a small accent (focus ring, active nav, selected map cluster), soft blush-gray background. Plus Jakarta Sans everywhere; lowercase "venn" wordmark. Never use official GT logos.
-- `#9C93A0` is for icons/placeholders only (fails AA for small text); readable secondary text uses `#625A66`.
-- Every screen has loading, empty and error states. WCAG AA contrast, keyboard navigable, split views stack under 900px.
+- "Game Day" navy + gold system (BUILD_SPEC.md §12, restyled 2026-11-14 per VENN_RESTYLE_INSTRUCTIONS). Navy (`--primary`) does the work; gold (`--accent`) only in small doses (gold button on navy panels, connected check, selected map pin, active-tab bar, chips). No plum, no Tech Gold #B3A369 fills, never gold text on white.
+- Use token utilities from `src/app/globals.css` (`bg-canvas`, `text-text-muted`, `bg-primary`, `bg-accent-soft`, `hl`, `text-title-1`, `text-mono-sm` …). Never hardcode hex, fonts, radii or shadows in components (emails and /r pages inline the light values).
+- Light + dark (`data-theme="dark"` or OS). Plus Jakarta Sans; Geist Mono for numbers/timestamps/distances. No emoji. Never use GT logos.
+- Every screen has loading, empty and error states. WCAG AA, keyboard navigable, split views stack under 900px.
 
 ## Commands
 - `npm run dev` — start the app (needs `.env`)

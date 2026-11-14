@@ -48,6 +48,13 @@ docker run -d --name venn-testdb -e POSTGRES_PASSWORD=venn -e POSTGRES_DB=venn -
 npm test && npm run build && npm run test:e2e
 ```
 
+## Growth without scraping
+
+- **Import from LinkedIn:** members upload their own LinkedIn PDF or data-export .zip. Only profile, positions, education and skills are read.
+- **Claim with LinkedIn:** every intro to an unclaimed alum invites them to claim their profile and import from LinkedIn.
+- **Invite a Yellow Jacket:** one email per invite. Only a hash of the address is kept, and there's a one-click "Don't send me invites" link.
+- **Demo people:** fictional or consenting demo profiles live in `mock-data/demo_people.json` (e.g. Morgan Ellis, a demo alum who receives intros).
+
 ## How it fits together
 
 - **Agent** (`src/server/agent/`): `parse_goal` → `search_profiles` (SQL filters + pgvector) → `rank_matches` → `draft_intro` / `rewrite_intro`. Steps stream to the UI over SSE. Every LLM call has a timeout and a rule-based fallback.

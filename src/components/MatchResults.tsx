@@ -42,7 +42,7 @@ export function MatchResults({ matches, goalId, onChanged }: { matches: Match[];
         <Segmented<View> label="Results view" value={view} onChange={setView}
           options={[{ value: "list", label: "List" }, { value: "map", label: "Map" }, { value: "companies", label: "Companies" }]} />
         {programs.length > 0 && <FilterPill label="Program" value={program} onChange={setProgram} options={programs} />}
-        <span className="ml-auto text-meta text-ink-2">{shown.length} {shown.length === 1 ? "person" : "people"}</span>
+        <span className="ml-auto text-body-sm text-text-muted"><span className="font-mono">{shown.length}</span> {shown.length === 1 ? "person" : "people"} · sorted by best match</span>
       </div>
 
       {view === "list" && (
@@ -51,7 +51,7 @@ export function MatchResults({ matches, goalId, onChanged }: { matches: Match[];
           empty={<EmptyState title="No matches in that program" />}
           renderRow={(i, ref) => {
             const m = shown[i];
-            return <ResultRow key={m.profile.id} ref={ref} profile={m.profile} reason={m.reason} isNew={m.isNew} selected={i === sel} onSelect={() => setSel(i)} />;
+            return <ResultRow key={m.profile.id} ref={ref} profile={m.profile} reason={m.reason} isNew={m.isNew} selected={i === sel} onSelect={() => setSel(i)} onRequest={() => setCompose(m.profile)} />;
           }}
           detail={current && <ProfileDetail key={current.profile.id} id={current.profile.id} reason={current.reason} onRequest={setCompose} />}
         />
@@ -86,7 +86,7 @@ function CityMap({ matches, onOpen }: { matches: Match[]; onOpen: (id: string) =
   }
 
   return (
-    <div className="grid items-start gap-4 min-[900px]:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[900px]:grid-cols-[minmax(0,1fr)_360px]">
       <ClusterMap
         reloadKey={matches.map((m) => m.profile.id).join()}
         selectedId={selected}
@@ -94,12 +94,12 @@ function CityMap({ matches, onOpen }: { matches: Match[]; onOpen: (id: string) =
         onSelect={async (c) => { setSelected(c.id); setList((await groups()).get(c.id)?.ms ?? []); }}
       />
       <aside aria-label="People in the selected city" className="overflow-hidden rounded-lg border bg-surface">
-        <p className="border-b px-4 py-2.5 text-[13px] font-medium text-ink-2">{list ? `${list.length} in ${selected?.split("|")[0]}` : "Select a city on the map"}</p>
+        <p className="border-b px-4 py-2.5 text-[13px] font-medium text-text-muted">{list ? `${list.length} in ${selected?.split("|")[0]}` : "Select a city on the map"}</p>
         {list ? (
-          <div role="listbox" aria-label="People" className="max-h-[420px] divide-y overflow-y-auto">
-            {list.map((m) => <ResultRow key={m.profile.id} profile={m.profile} reason={m.reason} onSelect={() => onOpen(m.profile.id)} />)}
-          </div>
-        ) : <p className="px-4 py-6 text-ink-2">Results are grouped by city.</p>}
+          <ul aria-label="People" className="max-h-[480px] space-y-3 overflow-y-auto p-3">
+            {list.map((m) => <li key={m.profile.id}><ResultRow profile={m.profile} reason={m.reason} onSelect={() => onOpen(m.profile.id)} /></li>)}
+          </ul>
+        ) : <p className="px-4 py-6 text-text-muted">Results are grouped by city.</p>}
       </aside>
     </div>
   );
@@ -115,24 +115,24 @@ function CompanyGroups({ matches, onOpen }: { matches: Match[]; onOpen: (id: str
   const [name, people] = companies[Math.min(sel, companies.length - 1)] ?? ["", []];
 
   return (
-    <div className="grid items-start gap-4 min-[900px]:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[900px]:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
       <ul role="listbox" aria-label="Companies" className="divide-y overflow-hidden rounded-lg border bg-surface">
         {companies.map(([c, ms], i) => (
           <li key={c}>
             <button role="option" aria-selected={i === sel} onClick={() => setSel(i)}
-              className={cn("flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/60", i === sel && "bg-brand-tint hover:bg-brand-tint")}>
-              <span className="grid size-8 place-items-center rounded-md bg-muted"><Building2 className="size-4 text-ink-2" aria-hidden /></span>
-              <span className="min-w-0 flex-1"><span className="block truncate font-medium">{c}</span><span className="text-meta text-ink-2">{ms.length} {ms.length === 1 ? "Yellow Jacket" : "Yellow Jackets"}</span></span>
-              <ChevronRight className="size-4 text-ink-3" aria-hidden />
+              className={cn("flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/60", i === sel && "bg-primary-soft hover:bg-primary-soft")}>
+              <span className="grid size-8 place-items-center rounded-md bg-muted"><Building2 className="size-4 text-text-muted" aria-hidden /></span>
+              <span className="min-w-0 flex-1"><span className="block truncate font-medium">{c}</span><span className="text-meta text-text-muted">{ms.length} {ms.length === 1 ? "Yellow Jacket" : "Yellow Jackets"}</span></span>
+              <ChevronRight className="size-4 text-text-subtle" aria-hidden />
             </button>
           </li>
         ))}
       </ul>
       <section aria-label={name} className="overflow-hidden rounded-lg border bg-surface">
         <h3 className="border-b px-4 py-3 text-cardtitle">{name}</h3>
-        <div role="listbox" aria-label={`People at ${name}`} className="divide-y">
-          {people.map((m) => <ResultRow key={m.profile.id} profile={m.profile} reason={m.reason} onSelect={() => onOpen(m.profile.id)} />)}
-        </div>
+        <ul aria-label={`People at ${name}`} className="space-y-3 p-4">
+          {people.map((m) => <li key={m.profile.id}><ResultRow profile={m.profile} reason={m.reason} onSelect={() => onOpen(m.profile.id)} /></li>)}
+        </ul>
       </section>
     </div>
   );

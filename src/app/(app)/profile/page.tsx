@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { FileUp, Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,10 @@ const fromProfile = (p: OwnProfile): Form => ({
 });
 const csv = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
-export default function ProfilePage() {
+function ProfileInner() {
   const { me, refresh } = useMe();
   const router = useRouter();
+  const fromClaim = useSearchParams().get("import") === "linkedin";
   const [vocab, setVocab] = useState<Vocab | null>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [mode, setMode] = useState<"import" | "edit">("edit");
@@ -45,7 +46,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (me && !form) {
       setForm(fromProfile(me.profile));
-      if (!me.profile.summaryApproved && !me.profile.employer && !me.profile.major) setMode("import");
+      if (fromClaim || (!me.profile.summaryApproved && !me.profile.employer && !me.profile.major)) setMode("import");
     }
   }, [me, form]);
 
@@ -69,7 +70,7 @@ export default function ProfilePage() {
         city: x.city ?? f.city, state: x.state ?? f.state, gtPrograms: x.gtPrograms, csThreads: x.csThreads,
         activities: x.activities.join(", "), summary: x.summary, openTo: x.openTo, interests: x.interests.join(", "),
       });
-      setAiNote(x.source === "llm" ? "Filled in by AI from your document. Check every field." : "Filled in with basic text matching (AI unavailable). Please review carefully.");
+      setAiNote(x.source === "linkedin_export" ? "Filled in from your LinkedIn data export. Check every field." : x.source === "llm" ? "Filled in by AI from your document. Check every field." : "Filled in with basic text matching (AI unavailable). Please review carefully.");
       setMode("edit");
     } catch (e) { setExtractErr((e as Error).message); }
     setExtracting(false);
@@ -103,39 +104,52 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <header>
-        <h1 className="font-serif text-3xl font-semibold">{approved ? "Your profile" : "Build your profile"}</h1>
-        <p className="text-gray-matter">
+        <h1 className="text-3xl font-semibold">{approved ? "Your profile" : "Build your profile"}</h1>
+        <p className="text-text-muted">
           {approved ? "This is what other GT members see. Contact details stay private unless you choose to share them below."
             : "Upload a LinkedIn “Save to PDF” or your resume. AI extracts your profile, and nothing goes public until you approve it."}
         </p>
       </header>
 
       {mode === "import" ? (
-        <section className="space-y-4 rounded-xl border bg-white p-5">
-          <h2 className="font-semibold">1 · Import</h2>
-          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center hover:border-petal">
-            <FileUp className="size-7 text-gray-matter" aria-hidden />
-            <span className="font-medium">{file ? file.name : "Choose a PDF (LinkedIn export or resume)"}</span>
-            <span className="text-xs text-gray-matter">Max 5 MB. Emails, phone numbers and links are stripped before AI sees it.</span>
-            <input type="file" accept="application/pdf,.pdf" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        <section className="space-y-4 rounded-lg border bg-surface p-5">
+          {fromClaim && (
+            <div className="rounded-lg bg-primary-soft px-4 py-3">
+              <p className="font-semibold">Welcome! Your Alumni Association record is prefilled.</p>
+              <p className="text-text-muted">Import from LinkedIn to bring it up to date in 30 seconds, or skip and edit it yourself. Nothing goes public until you approve.</p>
+            </div>
+          )}
+          <h2 className="text-[15px] font-semibold">1 · Import from LinkedIn or a resume</h2>
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors hover:border-primary/40 hover:bg-muted/40">
+            <FileUp className="size-7 text-text-subtle" aria-hidden />
+            <span className="font-medium">{file ? file.name : "Choose a LinkedIn data export (.zip), LinkedIn PDF, or resume PDF"}</span>
+            <span className="text-meta text-text-muted">From a LinkedIn export we read only your profile, positions, education and skills, never your connections or messages. Emails, phone numbers and links are stripped.</span>
+            <input type="file" accept="application/pdf,.pdf,application/zip,.zip" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           </label>
+          <details className="rounded-lg bg-muted/50 px-4 py-3 text-[14px]">
+            <summary className="cursor-pointer font-medium">How do I get my LinkedIn data?</summary>
+            <ol className="mt-2 list-decimal space-y-1 pl-5 text-text-muted">
+              <li><strong className="font-medium text-text">Quickest (PDF):</strong> open your LinkedIn profile → <em>More</em> → <em>Save to PDF</em>.</li>
+              <li><strong className="font-medium text-text">Most complete (.zip):</strong> LinkedIn → <em>Settings &amp; Privacy</em> → <em>Data privacy</em> → <em>Get a copy of your data</em>. Pick &ldquo;Profile&rdquo;, &ldquo;Positions&rdquo;, &ldquo;Education&rdquo; and &ldquo;Skills&rdquo; (or the full archive) and upload the .zip LinkedIn emails you.</li>
+            </ol>
+          </details>
           <div className="space-y-1.5">
             <Label htmlFor="paste">…or paste the text</Label>
-            <Textarea id="paste" rows={5} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder="Paste your LinkedIn About + Experience, or resume text" />
+            <Textarea id="paste" rows={4} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder="Paste your LinkedIn About + Experience, or resume text" />
           </div>
           {extractErr && <ErrorState message={extractErr} />}
           <div className="flex flex-wrap gap-2">
-            <Button onClick={extract} disabled={extracting || (!file && paste.trim().length < 40)}>{extracting && <Loader2 className="animate-spin" />} {extracting ? "Reading your document…" : "Extract my profile"}</Button>
+            <Button onClick={extract} disabled={extracting || (!file && paste.trim().length < 40)}>{extracting && <Loader2 className="animate-spin" />} {extracting ? "Reading your file…" : "Extract my profile"}</Button>
             <Button variant="ghost" onClick={() => setMode("edit")}>Skip — fill it in myself</Button>
           </div>
         </section>
       ) : (
-        <section className="space-y-5 rounded-xl border bg-white p-5">
+        <section className="space-y-5 rounded-lg border border-line bg-surface p-6 shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-semibold">{approved ? "Edit" : "2 · Review and edit"}</h2>
-            <Button variant="outline" size="sm" onClick={() => setMode("import")}><FileUp /> Import from PDF</Button>
+            <Button variant="outline" size="sm" onClick={() => setMode("import")}><FileUp /> Import from LinkedIn</Button>
           </div>
-          {aiNote && <p className="rounded-lg bg-diploma px-3 py-2 text-sm">{aiNote}</p>}
+          {aiNote && <p className="rounded-lg bg-canvas px-3 py-2 text-sm">{aiNote}</p>}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="fn" label="First name"><Input id="fn" value={form.firstName} onChange={(e) => set("firstName", e.target.value)} /></Field>
@@ -163,7 +177,7 @@ export default function ProfilePage() {
             <Field id="city" label="City"><Input id="city" list="cities" value={form.city} onChange={(e) => { set("city", e.target.value); const c = vocab?.cities.find((x) => x.city === e.target.value); if (c) set("state", c.state); }} /></Field>
             <Field id="st" label="State"><Input id="st" value={form.state} onChange={(e) => set("state", e.target.value)} /></Field>
           </div>
-          <p className="-mt-2 text-xs text-gray-matter">Your location is shown as a city and rounded to about 1 km on the map.</p>
+          <p className="-mt-2 text-xs text-text-muted">Your location is shown as a city and rounded to about 1 km on the map.</p>
           <ChipSet legend="GT programs" options={vocab?.programs ?? []} value={form.gtPrograms} onToggle={(v) => toggle("gtPrograms", v)} />
           {(form.major.toLowerCase().includes("computer") || form.csThreads.length > 0) && <ChipSet legend="CS threads" options={vocab?.csThreads ?? []} value={form.csThreads} onToggle={(v) => toggle("csThreads", v)} />}
           <ChipSet legend="Open to" options={vocab?.openTo ?? []} value={form.openTo} onToggle={(v) => toggle("openTo", v)} />
@@ -180,7 +194,7 @@ export default function ProfilePage() {
           <datalist id="cities">{vocab?.cities.map((c) => <option key={`${c.city}${c.state}`} value={c.city}>{c.state}</option>)}</datalist>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-            <p className="flex items-center gap-1.5 text-xs text-gray-matter"><ShieldCheck className="size-4" aria-hidden /> Your login email is never shown. Students appear only after approving.</p>
+            <p className="flex items-center gap-1.5 text-xs text-text-muted"><ShieldCheck className="size-4" aria-hidden /> Your login email is never shown. Students appear only after approving.</p>
             <Button onClick={approve} disabled={saving || !valid}>{saving && <Loader2 className="animate-spin" />}{approved ? "Save changes" : "Approve & publish"}</Button>
           </div>
         </section>
@@ -202,7 +216,7 @@ function ChipSet({ legend, options, value, onToggle }: { legend: string; options
       <div className="flex flex-wrap gap-1.5">
         {options.map((o) => (
           <button type="button" key={o} aria-pressed={value.includes(o)} onClick={() => onToggle(o)}
-            className={`rounded-full border px-2.5 py-1 text-xs ${value.includes(o) ? "border-brand bg-brand text-white" : "bg-white hover:border-petal"}`}>{o}</button>
+            className={`rounded-full border px-2.5 py-1 text-xs ${value.includes(o) ? "border-primary bg-primary text-on-primary" : "bg-surface hover:border-line-control"}`}>{o}</button>
         ))}
       </div>
     </fieldset>
@@ -242,10 +256,10 @@ function ContactSharing() {
   ];
 
   return (
-    <section aria-labelledby="share-h" className="space-y-4 rounded-xl border bg-white p-5">
+    <section aria-labelledby="share-h" className="space-y-4 rounded-lg border border-line bg-surface p-6 shadow-card">
       <div>
         <h2 id="share-h" className="font-semibold">Share contact details (optional)</h2>
-        <p className="text-sm text-gray-matter">Off by default. Anything you turn on is visible to <strong>signed-in GT members only</strong>, never to the public or to AI, and each view is logged. Without it, people reach you only through Venn&apos;s email relay.</p>
+        <p className="text-sm text-text-muted">Off by default. Anything you turn on is visible to <strong>signed-in GT members only</strong>, never to the public or to AI, and each view is logged. Without it, people reach you only through Venn&apos;s email relay.</p>
       </div>
       {!c && !err && <Skeleton className="h-24 w-full" />}
       {err && <ErrorState message={err} />}
@@ -266,4 +280,8 @@ function ContactSharing() {
       )}
     </section>
   );
+}
+
+export default function ProfilePage() {
+  return <Suspense><ProfileInner /></Suspense>;
 }

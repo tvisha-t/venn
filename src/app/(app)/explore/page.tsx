@@ -39,7 +39,7 @@ function Explore() {
 
   const setParam = useCallback((patch: Record<string, string | null>) => {
     const next = new URLSearchParams(sp.toString());
-    for (const [k, v] of Object.entries(patch)) v ? next.set(k, v) : next.delete(k);
+    for (const [k, v] of Object.entries(patch)) { if (v) next.set(k, v); else next.delete(k); }
     router.replace(`${path}?${next.toString()}`, { scroll: false });
   }, [sp, router, path]);
 
@@ -82,8 +82,8 @@ function Explore() {
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-title">Explore</h1>
-          <p className="mt-1 text-ink-2">{profiles ? `${total.toLocaleString()} Yellow Jackets${activeCount ? " match your filters" : ""}` : "Browse the GT network"}</p>
+          <h1 className="text-title-1">Explore</h1>
+          <p className="mt-1 text-text-muted">{profiles ? <><span className="font-mono">{total.toLocaleString()}</span> Yellow Jackets{activeCount ? " match your filters" : ""}</> : "Browse the GT network"}</p>
         </div>
         <Segmented<View> label="View" value={view} onChange={(v) => setParam({ view: v === "list" ? null : v })}
           options={[{ value: "list", label: "List" }, { value: "map", label: "Map" }, { value: "companies", label: "Companies" }]} />
@@ -93,13 +93,13 @@ function Explore() {
       <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Filters" role="group">
         <form className="relative shrink-0" role="search" onSubmit={(e) => { e.preventDefault(); setParam({ q: q.trim() || null }); }}>
           <label htmlFor="q" className="sr-only">Search by name, company, title or major</label>
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-ink-3" aria-hidden />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-text-subtle" aria-hidden />
           <input id="q" value={q} onChange={(e) => setQ(e.target.value)} onBlur={() => (q.trim() || null) !== (sp.get("q") || null) && setParam({ q: q.trim() || null })}
-            placeholder="Search people" className="h-8 w-44 rounded-full border bg-surface pl-8 pr-3 text-[13px] outline-none focus:border-brand/30" />
+            placeholder="Search people" className="h-8 w-44 rounded-full border bg-surface pl-8 pr-3 text-[13px] outline-none focus:border-primary/30" />
         </form>
         {pills.map((pill) => <FilterPill key={pill.label} loading={!f} {...pill} />)}
         {activeCount > 0 && (
-          <button className="shrink-0 px-2 text-[13px] font-medium text-brand hover:underline" onClick={() => { setQ(""); router.replace(`${path}${view !== "list" ? `?view=${view}` : ""}`); }}>
+          <button className="shrink-0 px-2 text-[13px] font-medium text-primary hover:underline" onClick={() => { setQ(""); router.replace(`${path}${view !== "list" ? `?view=${view}` : ""}`); }}>
             Clear all
           </button>
         )}
@@ -121,7 +121,7 @@ function Explore() {
               }
               renderRow={(i, ref) => {
                 const p = profiles[i];
-                return <ResultRow key={p.id} ref={ref} profile={p} selected={i === sel} onSelect={() => setSel(i)} />;
+                return <ResultRow key={p.id} ref={ref} profile={p} selected={i === sel} onSelect={() => setSel(i)} onRequest={() => setCompose(p)} />;
               }}
               detail={current && <ProfileDetail key={current.id} id={current.id} onRequest={setCompose} />}
               footer={profiles.length < total && (
@@ -207,9 +207,9 @@ function MapView({ filters, onOpen }: { filters: Record<string, string>; onOpen:
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <p className="flex items-center gap-1.5 text-[14px]">
-          <MapPin className="size-4 text-petal-text" aria-hidden />
+          <MapPin className="size-4 text-accent-text" aria-hidden />
           Showing people near <strong className="font-semibold">{origin.label}</strong>
-          {nearby && <span className="text-ink-2">· {nearby.within25km} within 25 km</span>}
+          {nearby && <span className="text-text-muted">· {nearby.within25km} within 25 km</span>}
         </p>
         <div className="ml-auto flex gap-2">
           <Button size="sm" variant="outline" onClick={useMyLocation} disabled={locate === "locating"}>
@@ -220,11 +220,11 @@ function MapView({ filters, onOpen }: { filters: Record<string, string>; onOpen:
           </Button>
         </div>
       </div>
-      {locate === "denied" && <p role="status" className="rounded-lg bg-warn-bg px-3 py-2 text-[13px] text-warn">Location is blocked for this site, so we&apos;re using your profile city. You can allow location in your browser settings.</p>}
-      {locate === "unsupported" && <p role="status" className="rounded-lg bg-muted px-3 py-2 text-[13px] text-ink-2">This browser can&apos;t share location. Showing people near your profile city.</p>}
+      {locate === "denied" && <p role="status" className="rounded-lg bg-accent-soft px-3 py-2 text-[13px] text-accent-ink">Location is blocked for this site, so we&apos;re using your profile city. You can allow location in your browser settings.</p>}
+      {locate === "unsupported" && <p role="status" className="rounded-lg bg-muted px-3 py-2 text-[13px] text-text-muted">This browser can&apos;t share location. Showing people near your profile city.</p>}
       {nearErr && <ErrorState message={nearErr} onRetry={() => loadNearby(device ?? undefined)} />}
 
-      <div className="grid items-start gap-4 min-[900px]:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[900px]:grid-cols-[minmax(0,1fr)_360px]">
         <ClusterMap
           reloadKey={fq} selectedId={selected}
           center={[origin.lng, origin.lat]} initialZoom={9}
@@ -239,35 +239,35 @@ function MapView({ filters, onOpen }: { filters: Record<string, string>; onOpen:
         />
         <aside aria-label={people ? "People in the selected group" : "Closest to you"} className="overflow-hidden rounded-lg border bg-surface">
           <div className="flex items-center justify-between gap-2 border-b px-4 py-2.5">
-            <p className="text-[13px] font-medium text-ink-2">
+            <p className="text-[13px] font-medium text-text-muted">
               {people
                 ? (people.length < groupSize ? `Showing ${people.length} of ${groupSize} in this group` : `${people.length} ${people.length === 1 ? "person" : "people"} in this group`)
                 : "Closest to you"}
             </p>
-            {people && <button className="text-[13px] font-medium text-brand hover:underline" onClick={() => { setPeople(null); setSelected(null); }}>Closest to you</button>}
+            {people && <button className="text-[13px] font-medium text-primary hover:underline" onClick={() => { setPeople(null); setSelected(null); }}>Closest to you</button>}
           </div>
           {loading && <LoadingRows n={3} />}
-          {!loading && people?.length === 0 && <p className="px-4 py-6 text-ink-2">This group is too small to show at this zoom. Zoom out a little.</p>}
+          {!loading && people?.length === 0 && <p className="px-4 py-6 text-text-muted">This group is too small to show at this zoom. Zoom out a little.</p>}
           {!loading && people && people.length > 0 && (
-            <div role="listbox" aria-label="People" className="max-h-[480px] divide-y overflow-y-auto">
-              {people.map((p) => <ResultRow key={p.id} profile={p} onSelect={() => onOpen(p.id)} />)}
-            </div>
+            <ul aria-label="People" className="max-h-[520px] space-y-3 overflow-y-auto p-3">
+              {people.map((p) => <li key={p.id}><ResultRow profile={p} onSelect={() => onOpen(p.id)} /></li>)}
+            </ul>
           )}
           {!loading && !people && nearby && (
-            nearby.people.length === 0 ? <p className="px-4 py-6 text-ink-2">No one with a location matches these filters.</p> : (
-              <div role="listbox" aria-label="Closest to you" className="max-h-[480px] overflow-y-auto">
+            nearby.people.length === 0 ? <p className="px-4 py-6 text-text-muted">No one with a location matches these filters.</p> : (
+              <div aria-label="Closest to you" className="max-h-[520px] overflow-y-auto">
                 {bandGroups(nearby.people).map(([band, rows]) => (
-                  <div key={band} role="group" aria-label={band}>
-                    <p className="bg-muted/60 px-4 py-1.5 text-[12px] font-medium text-ink-2" aria-hidden>{band}</p>
-                    <div className="divide-y">{rows.map(({ profile: p }) => <ResultRow key={p.id} profile={p} onSelect={() => onOpen(p.id)} />)}</div>
-                  </div>
+                  <section key={band} aria-label={band}>
+                    <h3 className="sticky top-0 z-10 bg-surface px-4 pb-1 pt-3 text-eyebrow text-accent-text">{band}</h3>
+                    <ul className="space-y-3 px-3 pb-3">{rows.map(({ profile: p }) => <li key={p.id}><ResultRow profile={p} onSelect={() => onOpen(p.id)} /></li>)}</ul>
+                  </section>
                 ))}
               </div>
             )
           )}
         </aside>
       </div>
-      <p className="text-meta text-ink-2">Your location stays approximate (about 1 km) and is never saved. Distances are shown as ranges, not exact numbers.</p>
+      <p className="text-meta text-text-muted">Your location stays approximate (about 1 km) and is never saved. Distances are shown as ranges, not exact numbers.</p>
     </div>
   );
 }
@@ -303,18 +303,18 @@ function CompaniesView({ filters, onOpen }: { filters: Record<string, string>; o
   if (!rows) return <LoadingRows />;
   if (!rows.length) return <EmptyState title="No companies match these filters" icon={Building2} />;
   return (
-    <div className="grid items-start gap-4 min-[900px]:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[900px]:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
       <ul role="listbox" aria-label="Companies" className="divide-y overflow-hidden rounded-lg border bg-surface min-[900px]:max-h-[calc(100vh-260px)] min-[900px]:overflow-y-auto">
         {rows.map((c) => (
           <li key={c.employer}>
             <button role="option" aria-selected={c.employer === sel} onClick={() => pick(c.employer)}
-              className={cn("flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/60", c.employer === sel && "bg-brand-tint hover:bg-brand-tint")}>
-              <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted"><Building2 className="size-4 text-ink-2" aria-hidden /></span>
+              className={cn("flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/60", c.employer === sel && "bg-primary-soft hover:bg-primary-soft")}>
+              <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted"><Building2 className="size-4 text-text-muted" aria-hidden /></span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{c.employer}</span>
-                <span className="text-meta text-ink-2">{c.count} {c.count === 1 ? "Yellow Jacket" : "Yellow Jackets"}{c.industry ? ` · ${c.industry}` : ""}</span>
+                <span className="text-meta text-text-muted">{c.count} {c.count === 1 ? "Yellow Jacket" : "Yellow Jackets"}{c.industry ? ` · ${c.industry}` : ""}</span>
               </span>
-              <ChevronRight className="size-4 shrink-0 text-ink-3" aria-hidden />
+              <ChevronRight className="size-4 shrink-0 text-text-subtle" aria-hidden />
             </button>
           </li>
         ))}
@@ -322,15 +322,15 @@ function CompaniesView({ filters, onOpen }: { filters: Record<string, string>; o
       <section ref={peopleRef} aria-label={sel ?? "Company"} className="scroll-mt-20 overflow-hidden rounded-lg border bg-surface">
         <header className="border-b px-5 py-4">
           <h2 className="text-cardtitle">{sel}</h2>
-          {groups && <p className="text-meta text-ink-2">{groups.reduce((a, g) => a + g.people.length, 0)} people · grouped by title</p>}
+          {groups && <p className="text-meta text-text-muted">{groups.reduce((a, g) => a + g.people.length, 0)} people · grouped by title</p>}
         </header>
         {!groups && <div className="p-4"><LoadingRows n={3} /></div>}
         {groups?.map((g) => (
           <div key={g.title}>
-            <h3 className="bg-muted/50 px-5 py-2 text-[13px] font-medium text-ink-2">{g.title} · {g.people.length}</h3>
-            <div role="listbox" aria-label={g.title} className="divide-y">
-              {g.people.map((p) => <ResultRow key={p.id} profile={p} onSelect={() => onOpen(p.id)} />)}
-            </div>
+            <h3 className="border-t border-line bg-surface-raised px-5 py-2 text-body-sm font-semibold text-text-muted">{g.title} · <span className="font-mono font-normal">{g.people.length}</span></h3>
+            <ul aria-label={g.title} className="space-y-3 p-4">
+              {g.people.map((p) => <li key={p.id}><ResultRow profile={p} onSelect={() => onOpen(p.id)} /></li>)}
+            </ul>
           </div>
         ))}
       </section>
