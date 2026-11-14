@@ -28,10 +28,21 @@ export function requireSchoolEmail(raw: string): string {
   return email;
 }
 
-export async function requestCode(raw: string, ip: string) {
+/**
+ * May this address get a sign-in code? A school email always; a personal email only during sign-up
+ * after a transcript/diploma upload (`personal`), or if it already belongs to an account verified that way.
+ */
+async function emailAllowed(email: string | null, personal: boolean): Promise<boolean> {
+  if (!email) return false;
+  if (schoolForEmail(email) || personal) return true;
+  const [u] = await sql`select 1 from users where lower(login_email) = ${email} and verified_via is not null limit 1`;
+  return Boolean(u);
+}
+
+export async function requestCode(raw: string, ip: string, opts: { personal?: boolean } = {}) {
   const email = normalizeEmail(raw);
   const eh = email ? emailHash(email)! : null;
-  if (!email || !schoolForEmail(email)) {
+  if (!email || !(await emailAllowed(email, Boolean(opts.personal)))) {
     await audit("anon", "auth.wrong_domain", null, eh ? { email_hash: eh } : {});
     throw new HttpError(400, wrongDomainMessage(), "wrong_domain");
   }
@@ -66,8 +77,9 @@ export async function requestCode(raw: string, ip: string) {
 }
 
 /** Checks the code. Returns the verified, normalized email or throws a friendly error. */
-export async function verifyCode(raw: string, code: string): Promise<string> {
-  const email = requireSchoolEmail(raw);
+export async function verifyCode(raw: string, code: string, opts: { personal?: boolean } = {}): Promise<string> {
+  const email = normalizeEmail(raw);
+  if (!email || !(await emailAllowed(email, Boolean(opts.personal)))) throw new HttpError(400, wrongDomainMessage(), "wrong_domain");
   const eh = emailHash(email)!;
   const clean = code.replace(/\D/g, "");
   const [row] = await sql`select id, code_hash, attempts, expires_at < now() as expired from signin_codes

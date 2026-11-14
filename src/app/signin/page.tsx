@@ -73,9 +73,13 @@ function SignIn() {
   }
   useEffect(() => { if (open && !ids) loadIds(); }, [open, ids]);
 
+  // Lookalike school domains are refused here; other addresses go to the server, which allows a personal
+  // email only for an account verified with a transcript or diploma (otherwise the same wrong-domain error).
   function checkDomain(v: string) {
     if (!v.trim()) return "Enter your school email.";
-    if (!normalizeEmail(v) || !schoolForEmail(v)) return WRONG_DOMAIN;
+    const e = normalizeEmail(v);
+    if (!e) return "Enter a valid email address.";
+    if (!schoolForEmail(e) && /gatech/i.test(e.split("@")[1] ?? "")) return WRONG_DOMAIN;
     return null;
   }
 
@@ -141,7 +145,7 @@ function SignIn() {
         />
         {emailErr
           ? <p id="email-err" role="alert" className="flex items-start gap-1.5 text-[13px] font-medium text-danger"><AlertCircle className="mt-px size-4 shrink-0" aria-hidden />{emailErr}</p>
-          : <p id="email-hint" className="text-body-sm text-text-muted">We&apos;ll send a 6-digit code. No password to remember.</p>}
+          : <p id="email-hint" className="text-body-sm text-text-muted">We&apos;ll send a 6-digit code. Verified with a transcript or diploma? Use your personal email.</p>}
         {wrongDomain && (
           <div className="rounded-md bg-surface-raised px-4 py-3 text-body-sm text-text-muted">
             <p><strong className="font-semibold text-text">Graduated?</strong> Use your GT alumni forwarding address. It also ends in @gatech.edu.</p>

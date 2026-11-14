@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.max(0, s % 60)).padStart(2, "0")}`;
 
 /** Step 2 of school-email sign-in: six single-digit boxes, paste-to-fill, auto-submit on the 6th digit. */
-export function SignInCode({ email, expiresIn, resendIn, onBack, onDone }: {
+export function SignInCode({ email, expiresIn, resendIn, onBack, onDone, verifyUrl = "/api/auth/verify-code", resendUrl = "/api/auth/request-code" }: {
   email: string; expiresIn: number; resendIn: number; onBack: () => void; onDone: (next: string) => void;
+  /** Where the code is checked / re-sent (the personal-email sign-up uses its own endpoints). */
+  verifyUrl?: string; resendUrl?: string;
 }) {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
   const [err, setErr] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function SignInCode({ email, expiresIn, resendIn, onBack, onDone }: {
     if (busy || code.length !== 6) return;
     setBusy(true); setErr(null);
     try {
-      const r = await api<{ next: string }>("/api/auth/verify-code", { method: "POST", json: { email, code } });
+      const r = await api<{ next: string }>(verifyUrl, { method: "POST", json: { email, code } });
       onDone(r.next);
     } catch (e) {
       setErr((e as Error).message);
@@ -53,7 +55,7 @@ export function SignInCode({ email, expiresIn, resendIn, onBack, onDone }: {
   async function resend() {
     setErr(null); setResent(false);
     try {
-      const r = await api<{ expiresIn: number; resendIn: number }>("/api/auth/request-code", { method: "POST", json: { email } });
+      const r = await api<{ expiresIn: number; resendIn: number }>(resendUrl, { method: "POST", json: { email } });
       setExpiry(r.expiresIn); setCooldown(r.resendIn); setResent(true); setDigits(Array(6).fill(""));
       boxes.current[0]?.focus();
     } catch (e) {
