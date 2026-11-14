@@ -4,7 +4,7 @@ import { runReminders } from "@/server/intros";
 import { rerunStandingGoals } from "@/server/agent/orchestrator";
 import { runRetention } from "@/server/retention";
 
-// Hourly job (Vercel Cron / Supabase cron): reminders, no-response, standing goals, retention.
+// Daily job (Vercel Cron; Hobby plans allow daily only): reminders, no-response, standing goals, retention.
 export const GET = route(async (req: Request) => {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization");
