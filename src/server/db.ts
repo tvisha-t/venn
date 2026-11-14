@@ -9,7 +9,11 @@ export const sql: postgres.Sql =
   postgres(env.databaseUrl, {
     prepare: false, // required for Supabase transaction pooler
     max: 5,
-    idle_timeout: 20,
+    // Serverless: functions freeze between requests, so pooled sockets can go stale.
+    // Drop idle connections quickly, recycle old ones, and never wait forever to connect.
+    idle_timeout: process.env.VERCEL ? 5 : 20,
+    max_lifetime: 60 * 5,
+    connect_timeout: 10,
     onnotice: () => {},
     types: {
       // return numeric as JS number (lat/lng/score)

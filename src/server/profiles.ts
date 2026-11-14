@@ -15,6 +15,17 @@ export async function getPublicProfile(id: string): Promise<PublicProfile | null
   return rows[0] ? toPublicProfile(rows[0]) : null;
 }
 
+/** Batch version of getPublicProfile: one query; hidden/removed people are simply absent. */
+export async function getPublicProfiles(ids: string[]): Promise<Map<string, PublicProfile>> {
+  const valid = [...new Set(ids.filter((id) => /^[0-9a-f-]{36}$/i.test(id)))];
+  if (!valid.length) return new Map();
+  const rows = await sql.unsafe(
+    `select ${PUBLIC_COLUMNS}, ${ACCEPTING} as accepting_intros from profiles p where p.id = any($1::uuid[]) and ${VISIBLE_PREDICATE}`,
+    [valid],
+  );
+  return new Map(rows.map((r) => { const p = toPublicProfile(r); return [p.id, p] as const; }));
+}
+
 /** The signed-in user's own profile, including unapproved state. Still no contact data. */
 export async function getOwnProfile(profileId: string) {
   const [r] = await sql.unsafe(

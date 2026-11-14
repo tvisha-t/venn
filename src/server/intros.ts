@@ -3,7 +3,7 @@ import { sql } from "./db";
 import { audit } from "./audit";
 import { emailHash, randomToken, signLink, verifyLink, type LinkAction } from "./crypto";
 import { flagBounced, resolveRecipientAddress } from "./contact";
-import { getOwnProfile, getPublicProfile } from "./profiles";
+import { getOwnProfile, getPublicProfile, getPublicProfiles } from "./profiles";
 import { HttpError } from "./http";
 import { draftIntro, rewriteIntro, senderContext } from "./agent/draft";
 import { deliver, relayAddress } from "./email/provider";
@@ -354,9 +354,11 @@ export async function listIntros(senderId: string) {
   const rows = await sql`select id, recipient_profile_id, goal_id, subject, message, status, reply_preview, sender_seen_reply,
       sent_at, reminder_sent_at, replied_at, created_at from intro_requests
     where sender_profile_id = ${senderId} and status <> 'draft' order by coalesce(replied_at, sent_at, created_at) desc`;
+  // One query for all recipients (was one query per intro).
+  const people = await getPublicProfiles(rows.map((r) => r.recipient_profile_id as string));
   const out = [];
   for (const r of rows) {
-    const p = await getPublicProfile(r.recipient_profile_id);
+    const p = people.get(r.recipient_profile_id as string) ?? null;
     out.push({
       id: r.id as string,
       recipient: p ? { id: p.id, firstName: p.firstName, lastName: p.lastName, jobTitle: p.jobTitle, employer: p.employer, classYear: p.classYear, status: p.status } : null,

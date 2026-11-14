@@ -73,9 +73,10 @@ function HomeInner() {
   // People per intent, closest first (distance bands only; counts within 25 km).
   useEffect(() => {
     let live = true;
-    Promise.all(INTENTS.map((i) =>
-      api<Nearby>(`/api/explore/nearby?openTo=${encodeURIComponent(i.openTo)}`).then((r) => [i.key, r] as const).catch(() => [i.key, null] as const),
-    )).then((rows) => { if (live) setNearby(Object.fromEntries(rows)); });
+    const qs = INTENTS.map((i) => `openTo=${encodeURIComponent(i.openTo)}`).join("&");
+    api<{ intents: Record<string, Nearby> }>(`/api/explore/intents?${qs}`)
+      .then((r) => { if (live) setNearby(Object.fromEntries(INTENTS.map((i) => [i.key, r.intents[i.openTo] ?? null]))); })
+      .catch(() => { if (live) setNearby(Object.fromEntries(INTENTS.map((i) => [i.key, null]))); });
     return () => { live = false; };
   }, []);
 

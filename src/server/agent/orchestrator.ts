@@ -36,6 +36,8 @@ export async function runGoal(raw: string, profileId: string, emit: (e: AgentEve
   const me = await getOwnProfile(profileId);
 
   emit({ type: "step", id: "parse", label: "Understanding your goal", status: "running" });
+  const totalP = countSearchable(); // runs while Claude reads the goal
+  totalP.catch(() => {});
   const parsed = await parseGoal(raw, { roles: me.roles, major: me.major, classYear: me.classYear, employer: me.employer, jobTitle: me.jobTitle, city: me.city });
   emit({ type: "step", id: "parse", label: "Understanding your goal", status: "done" });
 
@@ -44,7 +46,7 @@ export async function runGoal(raw: string, profileId: string, emit: (e: AgentEve
     return null;
   }
 
-  const total = await countSearchable();
+  const total = await totalP;
   const searchLabel = `Searching ${fmt(total)} Yellow Jackets`;
   emit({ type: "step", id: "search", label: searchLabel, status: "running" });
   const { candidates, relaxed } = await searchProfiles(parsed, profileId);
@@ -75,8 +77,10 @@ async function saveGoal(owner: string, raw: string, parsed: ParsedGoal, relaxed:
     const [g] = await tx`
       insert into goals (owner_profile_id, raw_text, parsed, standing, relaxed)
       values (${owner}, ${raw}, ${tx.json(parsed as never)}, ${standing}, ${relaxed}) returning id`;
-    for (const [i, m] of matches.entries()) {
-      await tx`insert into goal_matches (goal_id, profile_id, score, reason, rank) values (${g.id}, ${m.profileId}, ${m.score}, ${m.reason}, ${i + 1})`;
+    if (matches.length) {
+      // One multi-row insert instead of one round trip per match.
+      const rows = matches.map((m, i) => ({ goal_id: g.id, profile_id: m.profileId, score: m.score, reason: m.reason, rank: i + 1 }));
+      await tx`insert into goal_matches ${tx(rows, "goal_id", "profile_id", "score", "reason", "rank")}`;
     }
     return g.id as string;
   });

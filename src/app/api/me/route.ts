@@ -8,10 +8,11 @@ import { sql } from "@/server/db";
 export const GET = route(async (req: Request) => {
   throttle(req);
   const s = await requireSession();
-  const profile = await getOwnProfile(s.profileId);
-  const [counts] = await sql`
-    select count(*) filter (where status = 'replied' and not sender_seen_reply)::int as unseen_replies
-    from intro_requests where sender_profile_id = ${s.profileId}`;
+  const [profile, [counts]] = await Promise.all([
+    getOwnProfile(s.profileId),
+    sql`select count(*) filter (where status = 'replied' and not sender_seen_reply)::int as unseen_replies
+      from intro_requests where sender_profile_id = ${s.profileId}`,
+  ]);
   const thisYear = new Date().getFullYear();
   const graduationPrompt = profile.roles.includes("student") && profile.classYear != null && profile.classYear < thisYear;
   // monthly employer check-in
