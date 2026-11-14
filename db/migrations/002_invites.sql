@@ -20,7 +20,7 @@ alter table invite_optouts enable row level security;
 alter table sandbox_emails add column if not exists to_label text;
 alter table sandbox_emails alter column to_profile_id drop not null;
 alter table sandbox_emails drop constraint if exists sandbox_emails_mailbox_check;
-alter table sandbox_emails add constraint sandbox_emails_mailbox_check check (mailbox in ('recipient','sender','invitee'));
+alter table sandbox_emails add constraint sandbox_emails_mailbox_check check (mailbox in ('recipient','sender','invitee','signin')); -- 'signin' added by 003; every file re-runs on migrate
 
 do $$ begin
   if exists (select 1 from pg_roles where rolname = 'authenticated') then
