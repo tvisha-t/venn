@@ -50,6 +50,26 @@ const MAP: Record<keyof ProfileEdit, string> = {
   jobTitle: "job_title", city: "city", state: "state", country: "country", summary: "summary", openTo: "open_to", interests: "interests",
 };
 
+/**
+ * Self-repair for a published member: if their search entry (embedding) or map location is missing
+ * (e.g. an unlisted city, or a failed embed), rebuild it. Never needs the member to re-save.
+ */
+export async function repairSearchable(profileId: string): Promise<boolean> {
+  const [r] = await sql`select * from profiles where id = ${profileId} and status = 'claimed' and summary_approved
+    and (embedding is null or (lat is null and (city is not null or state is not null)))`;
+  if (!r) return false;
+  if (r.lat == null) {
+    const { geocode } = await import("./geo");
+    const { lat, lng } = geocode(r.city, r.state, profileId);
+    if (lat != null) await sql`update profiles set lat = ${lat}, lng = ${lng} where id = ${profileId}`;
+  }
+  if (r.embedding == null) {
+    const v = await embedOne(profileEmbedText(r), "document");
+    await sql`update profiles set embedding = ${toPgVector(v)}::vector where id = ${profileId}`;
+  }
+  return true;
+}
+
 export async function updateOwnProfile(profileId: string, edit: ProfileEdit, opts: { approve?: boolean } = {}) {
   const sets: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(edit)) if (v !== undefined && k in MAP) sets[MAP[k as keyof ProfileEdit]] = v;
@@ -60,7 +80,7 @@ export async function updateOwnProfile(profileId: string, edit: ProfileEdit, opt
   // Re-embed after any change
   const [r] = await sql`select * from profiles where id = ${profileId}`;
   if (r) {
-    if (sets.city !== undefined) {
+    if (sets.city !== undefined || sets.state !== undefined || (r.city && r.lat == null)) {
       const { geocode } = await import("./geo");
       const { lat, lng } = geocode(r.city, r.state, profileId);
       await sql`update profiles set lat = ${lat}, lng = ${lng} where id = ${profileId}`;

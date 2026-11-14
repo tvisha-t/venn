@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "node -e \"require('fs').copyFileSync('node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs','public/maplibre-gl-worker.mjs')\"",
     "db:seed:demo": "tsx scripts/seed-demo.ts",
-    "email:test": "tsx scripts/test-email.ts"
+    "email:test": "tsx scripts/test-email.ts",
+    "db:repair": "tsx scripts/repair-profiles.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",

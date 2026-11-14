@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { requireSession } from "@/server/session";
-import { getOwnProfile, updateOwnProfile } from "@/server/profiles";
+import { getOwnProfile, repairSearchable, updateOwnProfile } from "@/server/profiles";
 import { route, throttle } from "@/server/http";
 import { sql } from "@/server/db";
 
@@ -17,6 +17,9 @@ export const GET = route(async (req: Request) => {
   const graduationPrompt = profile.roles.includes("student") && profile.classYear != null && profile.classYear < thisYear;
   // monthly employer check-in
   const checkIn = Boolean(profile.employer) && profile.summaryApproved && Date.now() - new Date(profile.updatedAt).getTime() > 30 * 86400_000;
+  // Keep published members findable without them re-saving: rebuild a missing search entry or map
+  // location after the response is sent.
+  if (profile.summaryApproved) after(() => repairSearchable(s.profileId).catch((e) => console.warn("[repair]", e)));
   return NextResponse.json({ profile, unseenReplies: counts.unseen_replies, graduationPrompt, checkIn });
 });
 

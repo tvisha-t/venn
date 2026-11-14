@@ -2,7 +2,7 @@
 // claimed and approved their profile; the "you'll know" phrase comes from real overlap or is omitted.
 import { sql } from "./db";
 import { HttpError } from "./http";
-import { findCity, ATLANTA } from "./geo";
+import { findCity, placeFor, ATLANTA } from "./geo";
 import { getOwnProfile } from "./profiles";
 import { PUBLIC_COLUMNS, VISIBLE_PREDICATE, toPublicProfile, type PublicProfile } from "./dto";
 import { goingPhrase, overlapScore, sharedCount, topOverlaps, type OverlapPerson } from "@/lib/eventPhrase";
@@ -107,7 +107,7 @@ export async function listEvents(viewerId: string, opts: { city?: string | null;
     where r.profile_id = ${viewerId} and e.starts_at >= now() - interval '3 hours'`;
 
   const att = await attendeesFor(rows.map((r) => r.id as string));
-  const origin = findCity(me.city, me.state) ?? findCity(city) ?? { ...ATLANTA };
+  const origin = placeFor(me.city, me.state) ?? findCity(city) ?? { ...ATLANTA };
   const meO = toOverlap(me as unknown as PublicProfile);
   const events: EventItem[] = rows.map((r) => {
     const people = att.get(r.id as string) ?? [];
@@ -140,7 +140,7 @@ export async function getEvent(viewerId: string, id: string): Promise<EventDetai
   const ov = people.map(toOverlap);
   const byId = new Map(people.map((p) => [p.id, p]));
   const tops = topOverlaps(meO, ov, 3);
-  const origin = findCity(me.city, me.state) ?? findCity(r.city) ?? { ...ATLANTA };
+  const origin = placeFor(me.city, me.state) ?? findCity(r.city) ?? { ...ATLANTA };
   const others = people.filter((p) => p.id !== viewerId);
   return {
     ...baseItem(r, viewerId),

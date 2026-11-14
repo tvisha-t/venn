@@ -179,9 +179,10 @@ export async function nearbyOrigin(viewer: string, lat?: number, lng?: number): 
   if (lat != null && lng != null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
     return { lat: Math.round(lat * 100) / 100, lng: Math.round(lng * 100) / 100, label: "your location", source: "device" };
   }
-  const { findCity, ATLANTA } = await import("./geo");
+  const { findCity, placeFor, ATLANTA } = await import("./geo");
   const [me] = await sql`select city, state from profiles where id = ${viewer}`;
-  const c = findCity(me?.city, me?.state);
+  const known = findCity(me?.city, me?.state);
+  const c = known ?? (placeFor(me?.city, me?.state) ? { ...placeFor(me?.city, me?.state)!, city: me?.city as string } : undefined);
   if (c) return { lat: c.lat, lng: c.lng, label: `${c.city} (your profile city)`, source: "profile" };
   return { lat: ATLANTA.lat, lng: ATLANTA.lng, label: "Georgia Tech campus", source: "campus" };
 }

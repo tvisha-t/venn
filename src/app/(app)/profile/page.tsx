@@ -22,7 +22,7 @@ type Form = {
 };
 
 const fromProfile = (p: OwnProfile): Form => ({
-  firstName: p.firstName, lastName: p.lastName === "-" ? "" : p.lastName, roles: p.roles, classYear: p.classYear ? String(p.classYear) : "",
+  firstName: p.firstName, lastName: p.lastName === "-" || (p.lastName === "Member" && !p.summaryApproved) ? "" : p.lastName, roles: p.roles, classYear: p.classYear ? String(p.classYear) : "",
   degree: p.degree ?? "", major: p.major ?? "", industry: p.industry ?? "", employer: p.employer ?? "", jobTitle: p.jobTitle ?? "",
   city: p.city ?? "", state: p.state ?? "", gtPrograms: p.gtPrograms, csThreads: p.csThreads, activities: p.activities.join(", "),
   summary: p.summary ?? "", openTo: p.openTo, interests: p.interests.join(", "),
