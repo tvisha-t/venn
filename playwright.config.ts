@@ -21,6 +21,7 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       DATABASE_URL: DB, EMAIL_MODE: "sandbox", RATE_LIMIT_MULTIPLIER: "50", ANTHROPIC_API_KEY: "", VOYAGE_API_KEY: "",
+      SANDBOX_SHOW_SIGNIN_CODES: "true", DEMO_INBOX_EMAIL: "", EMAIL_SANDBOX_ALLOWLIST: "", POSTMARK_SERVER_TOKEN: "", GMAIL_APP_PASSWORD: "",
       LINK_SIGNING_SECRET: "e2e-link-secret", INBOUND_WEBHOOK_SECRET: "e2e-inbound-secret", APP_URL: `http://localhost:${PORT}`,
     },
   },

@@ -69,6 +69,20 @@ export default function Requests() {
   }
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Live status: while any request is still open, re-check every 5s so a reply flips it to "Replied" on screen.
+  const waiting = intros?.some((i) => i.status === "sent") ?? false;
+  useEffect(() => {
+    if (!waiting) return;
+    const t = setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      api<{ intros: Intro[] }>("/api/intros").then((r) => {
+        setIntros(r.intros);
+        if (r.intros.some((i) => i.unseen)) api("/api/intros/seen", { method: "POST" }).then(refresh).catch(() => {});
+      }).catch(() => {});
+    }, 5000);
+    return () => clearInterval(t);
+  }, [waiting, refresh]);
+
   async function suggest(i: Intro) {
     const r = await api<{ next: Match | null }>(`/api/intros/${i.id}/next-best`);
     setNextBest((m) => ({ ...m, [i.id]: r.next }));

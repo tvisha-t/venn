@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyLink, signSession, type LinkAction } from "@/server/crypto";
-import { claimTargetByLink, declineByLink, removeByLink } from "@/server/intros";
+import { claimTargetByLink, connectByLink, connectPreview, declineByLink, removeByLink } from "@/server/intros";
 import { optOutOfInvites } from "@/server/invites";
 import { throttle } from "@/server/http";
 
-const ACTIONS: LinkAction[] = ["decline", "claim", "remove", "noinvite"];
+const ACTIONS: LinkAction[] = ["connect", "decline", "claim", "remove", "noinvite"];
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+const CLOSED = () => page("Intro closed", "<h1>This intro already closed</h1><p>It may have been declined or withdrawn. Nothing was shared.</p>", 410);
 
 // Venn mark, white strokes + gold overlap, for the navy band (light values inlined).
 const MARK_SVG = `<svg width="28" height="28" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="vm"><rect x="21" y="3.7" width="30" height="92.6" rx="15" transform="rotate(-26.57 36 50)"/></clipPath></defs><rect x="21" y="3.7" width="30" height="92.6" rx="15" transform="rotate(-26.57 36 50)" fill="#fff"/><rect x="49" y="3.7" width="30" height="92.6" rx="15" transform="rotate(26.57 64 50)" fill="#fff"/><g clip-path="url(#vm)"><rect x="49" y="3.7" width="30" height="92.6" rx="15" transform="rotate(26.57 64 50)" fill="#eaaa00"/></g></svg>`;
@@ -23,6 +25,7 @@ button:focus-visible{outline:2px solid #003057;outline-offset:2px}.band{backgrou
 }
 
 const CONFIRM: Record<LinkAction, { title: string; text: string; button: string }> = {
+  connect: { title: "Connect?", text: "", button: "" },
   decline: { title: "Not interested?", text: "We'll let them know you're not available right now. Nothing about you is shared.", button: "Confirm — not interested" },
   remove: { title: "Remove me from Venn", text: "We'll delete your listing and never list or contact you again.", button: "Remove me" },
   claim: { title: "Claim your profile", text: "", button: "" },
@@ -48,6 +51,14 @@ export async function GET(req: Request, ctx: { params: Promise<{ token: string; 
     jar.set("venn_claim", signSession({ userId: "claim", profileId: r.profileId }), { httpOnly: true, sameSite: "lax", path: "/", maxAge: 1800, secure: process.env.NODE_ENV === "production" });
     return NextResponse.redirect(new URL("/signin?claim=1", req.url));
   }
+  if (action === "connect") {
+    const r = await connectPreview(token);
+    if ("error" in r) return BAD(r.error);
+    if (r.status === "replied") return page("Connected", `<h1>You're already connected</h1><p>Check your email: you and ${esc(r.senderName)} have each other's address.</p>`);
+    if (!["sent", "no_response", "not_interested"].includes(r.status)) return CLOSED();
+    const first = esc(r.senderName.split(" ")[0]);
+    return page("Connect?", `<h1>Share your email with ${esc(r.senderName)}?</h1><p>Venn will email you both each other's address so you can talk directly. Nothing else about you is shared.</p><form method="post"><button type="submit">Share my email and connect</button></form><p style="margin-top:16px;font-size:14px">Changed your mind? Just close this page. ${first} won't be told.</p>`);
+  }
   const c = CONFIRM[action as LinkAction];
   return page(c.title, `<h1>${c.title}</h1><p>${c.text}</p><form method="post"><button type="submit">${c.button}</button></form>`);
 }
@@ -55,6 +66,11 @@ export async function GET(req: Request, ctx: { params: Promise<{ token: string; 
 export async function POST(req: Request, ctx: { params: Promise<{ token: string; action: string }> }) {
   try { throttle(req); } catch { return page("Slow down", "<h1>Too many requests</h1><p>Please try again in a minute.</p>", 429); }
   const { token, action } = await ctx.params;
+  if (action === "connect") {
+    const r = await connectByLink(token);
+    if ("error" in r) return r.error === "closed" ? CLOSED() : BAD(r.error!);
+    return page("You're connected", `<h1>You're connected!</h1><p>We just emailed you both each other's address. Reply to that email to start talking.</p>`);
+  }
   if (action === "decline") {
     const r = await declineByLink(token);
     if ("error" in r) return BAD(r.error!);

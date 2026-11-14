@@ -15,18 +15,18 @@ export function randomToken(bytes = 32): string {
   return randomBytes(bytes).toString("base64url");
 }
 
-function hmac(data: string, secret = env.linkSecret): string {
+export function hmac(data: string, secret = env.linkSecret): string {
   return createHmac("sha256", secret).update(data).digest("base64url");
 }
 
-function safeEq(a: string, b: string): boolean {
+export function safeEq(a: string, b: string): boolean {
   const ab = Buffer.from(a);
   const bb = Buffer.from(b);
   return ab.length === bb.length && timingSafeEqual(ab, bb);
 }
 
 // ---------------------------------------------------------------- signed links (§8.4)
-export type LinkAction = "decline" | "claim" | "remove" | "noinvite";
+export type LinkAction = "decline" | "claim" | "remove" | "noinvite" | "connect";
 export const LINK_TTL_DAYS = 60;
 
 /** `${relayToken}.${expEpochSec}.${hmac}` — goes in /r/{signed}/{action}. */

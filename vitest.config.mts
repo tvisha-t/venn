@@ -15,6 +15,8 @@ export default defineConfig({
       LINK_SIGNING_SECRET: "test-link-secret",
       INBOUND_WEBHOOK_SECRET: "test-inbound-secret",
       EMAIL_MODE: "sandbox",
+      // Never send real mail from tests, whatever is in .env.
+      POSTMARK_SERVER_TOKEN: "", GMAIL_APP_PASSWORD: "", DEMO_INBOX_EMAIL: "", EMAIL_SANDBOX_ALLOWLIST: "", POSTMARK_INBOUND_ADDRESS: "", SANDBOX_SHOW_SIGNIN_CODES: "true",
       ANTHROPIC_API_KEY: "",
       VOYAGE_API_KEY: "",
     },

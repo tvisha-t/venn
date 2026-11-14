@@ -3,13 +3,17 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, ArrowRight, GraduationCap, KeyRound, Loader2, Lock, Search } from "lucide-react";
-import { api, ROLE_LABEL } from "@/lib/api";
+import { api, ApiError, ROLE_LABEL } from "@/lib/api";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { VennLogo } from "@/components/brand/VennLogo";
+import { SignInCode } from "@/components/SignInCode";
+import { normalizeEmail, schoolForEmail } from "@/lib/schoolDomain";
+
+const WRONG_DOMAIN = "Use your Georgia Tech email, ending in @gatech.edu.";
 
 type Identity = { id: string; displayName: string; affiliation: string; detail: string; isNew: boolean };
 
@@ -59,6 +63,7 @@ function SignIn() {
   const [ids, setIds] = useState<Identity[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [picking, setPicking] = useState<string | null>(null);
+  const [sent, setSent] = useState<{ email: string; expiresIn: number; resendIn: number } | null>(null);
 
   function loadIds() {
     setErr(null);
@@ -66,17 +71,28 @@ function SignIn() {
   }
   useEffect(() => { if (open && !ids) loadIds(); }, [open, ids]);
 
+  function checkDomain(v: string) {
+    if (!v.trim()) return "Enter your school email.";
+    if (!normalizeEmail(v) || !schoolForEmail(v)) return WRONG_DOMAIN;
+    return null;
+  }
+
   async function continueWithEmail(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) { setEmailErr("Enter your school email."); return; }
+    const bad = checkDomain(email);
+    if (bad) { setEmailErr(bad); return; }
     setBusy(true); setEmailErr(null);
+    const clean = normalizeEmail(email)!;
     try {
-      const r = await api<{ next: string }>("/api/auth/mock-signin", { method: "POST", json: { email: email.trim() } });
-      router.replace(r.next);
+      const r = await api<{ expiresIn: number; resendIn: number }>("/api/auth/request-code", { method: "POST", json: { email: clean } });
+      setSent({ email: clean, expiresIn: r.expiresIn, resendIn: r.resendIn });
     } catch (x) {
-      setEmailErr((x as Error).message);
-      setBusy(false);
+      const code = x instanceof ApiError ? x.code : undefined;
+      // A recent code is still valid: go to the code step instead of erroring.
+      if (code?.startsWith("cooldown:")) setSent({ email: clean, expiresIn: 600, resendIn: Number(code.split(":")[1]) || 60 });
+      else setEmailErr((x as Error).message);
     }
+    setBusy(false);
   }
 
   async function pick(id: string) {
@@ -90,7 +106,15 @@ function SignIn() {
     }
   }
 
-  const form = (
+  const wrongDomain = emailErr === WRONG_DOMAIN;
+  const form = sent ? (
+    <SignInCode
+      key={sent.email}
+      email={sent.email} expiresIn={sent.expiresIn} resendIn={sent.resendIn}
+      onBack={() => setSent(null)}
+      onDone={(next) => router.replace(next)}
+    />
+  ) : (
     <>
       {claim && (
         <div className="mb-6 rounded-md bg-primary-soft px-4 py-3 text-primary-ink">
@@ -103,10 +127,19 @@ function SignIn() {
         <input
           id="email" type="email" inputMode="email" autoComplete="email" placeholder="you@gatech.edu"
           value={email} onChange={(e) => { setEmail(e.target.value); setEmailErr(null); }}
-          aria-invalid={!!emailErr} aria-describedby={emailErr ? "email-err" : undefined}
-          className={cn("h-12 w-full rounded-md border border-line-control bg-surface px-4 text-[15px] text-text outline-none transition-colors focus:border-primary", emailErr && "border-danger")}
+          onBlur={() => { if (email.trim() && checkDomain(email)) setEmailErr(checkDomain(email)); }}
+          aria-invalid={!!emailErr} aria-describedby={emailErr ? "email-err" : "email-hint"}
+          className={cn("h-12 w-full rounded-md border border-line-control bg-surface px-4 text-[15px] text-text outline-none transition-colors focus:border-primary", emailErr && "border-2 border-danger focus:border-danger")}
         />
-        {emailErr && <p id="email-err" role="alert" className="flex items-start gap-1.5 text-[13px] font-medium text-danger"><AlertCircle className="mt-px size-4 shrink-0" aria-hidden />{emailErr}</p>}
+        {emailErr
+          ? <p id="email-err" role="alert" className="flex items-start gap-1.5 text-[13px] font-medium text-danger"><AlertCircle className="mt-px size-4 shrink-0" aria-hidden />{emailErr}</p>
+          : <p id="email-hint" className="text-body-sm text-text-muted">We&apos;ll send a 6-digit code. No password to remember.</p>}
+        {wrongDomain && (
+          <div className="rounded-md bg-surface-raised px-4 py-3 text-body-sm text-text-muted">
+            <p><strong className="font-semibold text-text">Graduated?</strong> Use your GT alumni forwarding address. It also ends in @gatech.edu.</p>
+            <p className="mt-1"><strong className="font-semibold text-text">Another school?</strong> Venn is Georgia Tech only for now.</p>
+          </div>
+        )}
         <Button type="submit" size="lg" className="w-full" disabled={busy}>
           {busy ? <Loader2 className="animate-spin" /> : null} Continue {!busy && <ArrowRight />}
         </Button>

@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "postinstall": "node -e \"require('fs').copyFileSync('node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs','public/maplibre-gl-worker.mjs')\"",
-    "db:seed:demo": "tsx scripts/seed-demo.ts"
+    "db:seed:demo": "tsx scripts/seed-demo.ts",
+    "email:test": "tsx scripts/test-email.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
@@ -24,6 +25,7 @@
     "lucide-react": "^1.72.0",
     "maplibre-gl": "^6.18.0",
     "next": "15.5.29",
+    "nodemailer": "^7.0.13",
     "papaparse": "^5.7.1",
     "postgres": "^4.1.1",
     "radix-ui": "^1.8.1",
@@ -40,6 +42,7 @@
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.19.2",
+    "@types/nodemailer": "^8.0.2",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",

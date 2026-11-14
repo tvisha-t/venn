@@ -2,19 +2,82 @@
   "_comment": "Demo profiles loaded by `npm run db:seed`. ONLY fictional people, or real people who gave explicit consent (BUILD_SPEC.md §14). Never scrape or copy anyone's LinkedIn. To add a consenting teammate, copy an entry, set consent to their name + date, and fill in what they approved. Emails must use reserved domains unless the person asked to receive real demo emails.",
   "people": [
     {
+      "id": "d3e0a000-0000-4000-8000-000000000002",
+      "consent": "fictional",
+      "demo_label": "Demo student · full profile, sent requests",
+      "first_name": "Alex",
+      "last_name": "Kim",
+      "login_email": "alex.kim@students.example.gatech.test",
+      "roles": [
+        "student"
+      ],
+      "class_year": 2029,
+      "degree": "BS",
+      "major": "Computer Science",
+      "gt_programs": [
+        "CREATE-X",
+        "VIP",
+        "Grand Challenges"
+      ],
+      "cs_threads": [
+        "Intelligence",
+        "People"
+      ],
+      "activities": [
+        "RoboJackets",
+        "HackGT",
+        "Women in Computing"
+      ],
+      "industry": "Software",
+      "employer": null,
+      "job_title": null,
+      "city": "Atlanta",
+      "state": "GA",
+      "country": "US",
+      "summary": "First-year CS student on the RoboJackets software team, moving toward product design. Built a campus bus tracker at HackGT and doing a VIP on accessible interfaces. Looking for advice from Yellow Jackets in design, airline tech and startups.",
+      "open_to": [
+        "meeting people new to my city",
+        "being hired",
+        "speaking to student orgs"
+      ],
+      "interests": [
+        "product design",
+        "accessibility",
+        "robotics",
+        "airline tech",
+        "startups"
+      ],
+      "shared_contact": {
+        "preferred_email": "alex.kim@example.com",
+        "phone": null,
+        "linkedin_url": "https://www.linkedin.com/in/example-alex-kim",
+        "website_url": "https://example.com/alex-kim"
+      }
+    },
+    {
       "id": "d3e0a000-0000-4000-8000-000000000001",
       "consent": "fictional",
-      "demo_label": "Demo alum · receives intros",
+      "demo_label": "Demo alum · gets intro requests by email",
       "first_name": "Morgan",
       "last_name": "Ellis",
       "login_email": "morgan.ellis@alumni.example.gatech.test",
-      "roles": ["alum"],
+      "roles": [
+        "alum"
+      ],
       "class_year": 2015,
       "degree": "BS",
       "major": "Computer Science",
-      "gt_programs": ["CREATE-X", "Co-op"],
-      "cs_threads": ["Intelligence", "Information Internetworks"],
-      "activities": ["RoboJackets"],
+      "gt_programs": [
+        "CREATE-X",
+        "Co-op"
+      ],
+      "cs_threads": [
+        "Intelligence",
+        "Information Internetworks"
+      ],
+      "activities": [
+        "RoboJackets"
+      ],
       "industry": "Aerospace",
       "employer": "Delta Air Lines",
       "job_title": "Engineering Manager, Tech Ops",
@@ -22,8 +85,16 @@
       "state": "GA",
       "country": "US",
       "summary": "Engineering manager on Delta's Tech Ops team, building the tools that keep aircraft maintenance on schedule. CS '15 and a CREATE-X alum. Happy to talk airline ops tech, product engineering and first jobs out of Tech.",
-      "open_to": ["mentoring students", "giving career advice"],
-      "interests": ["aviation", "operations research", "robotics", "mentoring"],
+      "open_to": [
+        "mentoring students",
+        "giving career advice"
+      ],
+      "interests": [
+        "aviation",
+        "operations research",
+        "robotics",
+        "mentoring"
+      ],
       "shared_contact": {
         "preferred_email": "morgan.ellis@example.com",
         "phone": "+1 404 555 0142",

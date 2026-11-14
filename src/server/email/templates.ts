@@ -47,7 +47,7 @@ export type IntroEmailInput = {
   subject: string;
   message: string;
   unclaimed: boolean;
-  links: { decline: string; claim?: string; remove?: string };
+  links: { decline: string; connect?: string; claim?: string; remove?: string };
   reminder?: boolean;
 };
 
@@ -69,8 +69,9 @@ export function introEmail(i: IntroEmailInput) {
       ${paras(i.message)}
     </div>
     <p style="margin:0 0 4px;font-size:16px;font-weight:700">Reply to connect.</p>
-    <p style="margin:0 0 16px;font-size:14px;line-height:20px;color:${T.muted}">Just reply to this email. Replying shares your email address with ${esc(i.senderFirstName)}. Not interested? One click and nothing is shared.</p>
+    <p style="margin:0 0 16px;font-size:14px;line-height:20px;color:${T.muted}">${i.links.connect ? (env.canReceiveReplies ? "Tap the button or just reply to this email." : "Tap the button below.") : "Just reply to this email."} Connecting shares your email address with ${esc(i.senderFirstName)} and theirs with you. Not interested? One click and nothing is shared.</p>
     <div>
+      ${i.links.connect ? btn(url(i.links.connect), "Reply to connect", true) : ""}
       ${btn(url(i.links.decline), "Not interested")}
       ${i.unclaimed && i.links.claim ? btn(url(i.links.claim), "Claim your profile", true) : ""}
     </div>
@@ -80,7 +81,7 @@ export function introEmail(i: IntroEmailInput) {
     i.reminder ? `A gentle reminder: ${i.senderFirstName} reached out a few days ago. This is the only reminder you'll get.\n` : "",
     `${i.senderFirstName}, ${i.senderContext}, asked Venn to introduce you.\n`,
     i.message,
-    `\n---\nReply to connect: just reply to this email. Replying shares your email address with ${i.senderFirstName}.`,
+    `\n---\nReply to connect: ${i.links.connect ? `${url(i.links.connect)}${env.canReceiveReplies ? " (or just reply to this email)" : ""}` : "just reply to this email"}. Connecting shares your email address with ${i.senderFirstName} and theirs with you.`,
     `Not interested: ${url(i.links.decline)}`,
     i.unclaimed && i.links.claim ? `Claim your profile (import from LinkedIn in 30 seconds): ${url(i.links.claim)}` : "",
     i.unclaimed && i.links.remove ? `Remove me from Venn: ${url(i.links.remove)}` : "",
@@ -98,6 +99,45 @@ export function replyForwardEmail(i: { recipientName: string; subject: string; r
     <p style="margin:0;font-size:14px;line-height:20px;color:${T.muted}">${esc(i.recipientName)} chose to share their email by replying. Hit reply to continue the conversation directly. Tip: reply within a day and say thanks after you meet.</p>`);
   const text = `${i.recipientName} replied to your intro:\n\n${i.replyText}\n\n${i.recipientName} chose to share their email by replying. Hit reply to continue directly.`;
   return { subject: `Re: ${i.subject}`, html, text };
+}
+
+/**
+ * "You're connected" (sent to BOTH people when the recipient connects). This is the only email that
+ * carries the other person's address: the consented share.
+ */
+export function connectedEmail(i: { otherName: string; otherEmail: string; otherContext?: string; subject: string; theirMessage?: string | null; messageLabel: string }) {
+  const first = i.otherName.split(" ")[0];
+  const html = shell("You're connected", `
+    <p style="margin:0 0 8px;font-size:22px;line-height:28px;font-weight:800">You're connected with ${esc(i.otherName)}!</p>
+    ${i.otherContext ? `<p style="margin:0 0 16px;color:${T.muted}">${esc(i.otherContext)}</p>` : ""}
+    <div style="border:1px solid ${T.line};border-radius:12px;padding:16px 20px;margin:0 0 16px">
+      <p style="margin:0 0 4px;font-size:12px;line-height:16px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${T.accentText}">${esc(first)}'s email</p>
+      <p style="margin:0;font:600 17px/24px ${FONT}"><a href="mailto:${esc(i.otherEmail)}" style="color:${T.link}">${esc(i.otherEmail)}</a></p>
+    </div>
+    ${i.theirMessage ? `<div style="background:${T.raised};border-radius:12px;padding:20px;margin:0 0 16px">
+      <p style="margin:0 0 8px;font-size:12px;line-height:16px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${T.accentText}">${esc(i.messageLabel)}</p>
+      ${paras(i.theirMessage)}
+    </div>` : ""}
+    <p style="margin:0;font-size:14px;line-height:20px;color:${T.muted}">Hit reply to write to ${esc(first)} directly. Venn isn't in the thread from here. Tip: reply within a day and say thanks after you meet.</p>`);
+  const text = [
+    `You're connected with ${i.otherName}!`,
+    i.otherContext ?? "",
+    `${first}'s email: ${i.otherEmail}`,
+    i.theirMessage ? `\n${i.messageLabel}:\n${i.theirMessage}\n` : "",
+    `Hit reply to write to ${first} directly. Venn isn't in the thread from here.`,
+  ].filter(Boolean).join("\n");
+  return { subject: `You're connected: ${i.subject}`, html, text };
+}
+
+/** 6-digit sign-in code. */
+export function signinCodeEmail(code: string) {
+  const html = shell("Sign-in code", `
+    <p style="margin:0 0 16px;font-size:22px;line-height:28px;font-weight:800">Your Venn sign-in code</p>
+    <p style="margin:0 0 16px">Enter this code to finish signing in. It works once and expires in 10 minutes.</p>
+    <p style="margin:0 0 20px;padding:16px 20px;background:${T.raised};border-radius:12px;font:500 32px/40px 'Geist Mono',ui-monospace,Menlo,monospace;letter-spacing:0.3em;text-align:center;color:${T.text}">${esc(code)}</p>
+    <p style="margin:0;font-size:14px;line-height:20px;color:${T.muted}">Didn't try to sign in? Ignore this email. Nobody can sign in without this code.</p>`);
+  const text = `Your Venn sign-in code: ${code}\n\nIt works once and expires in 10 minutes.\nDidn't try to sign in? Ignore this email.`;
+  return { subject: "Your Venn sign-in code", html, text };
 }
 
 /** Strip quoted history and signatures for the in-app preview (§8.2). */

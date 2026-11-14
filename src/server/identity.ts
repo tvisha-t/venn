@@ -75,7 +75,7 @@ export class MockGtLogin implements IdentityProvider {
       detail: demo.find((d) => d.id === r.id)?.demo_label ?? "Demo profile",
       isNew: false,
     }));
-    return [...seeded.filter((x) => !demoIds.some((d) => d.id === x.id)), ...demoIds, ...NEW_IDENTITIES.map(({ email: _e, ...rest }) => rest)];
+    return [...demoIds, ...seeded.filter((x) => !demoIds.some((d) => d.id === x.id)), ...NEW_IDENTITIES.map(({ email: _e, ...rest }) => rest)];
   }
 
   async signIn(input: { identityId: string } | { email: string }): Promise<Identity> {

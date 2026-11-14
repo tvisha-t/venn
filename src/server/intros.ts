@@ -7,7 +7,7 @@ import { getOwnProfile, getPublicProfile } from "./profiles";
 import { HttpError } from "./http";
 import { draftIntro, rewriteIntro, senderContext } from "./agent/draft";
 import { deliver, relayAddress } from "./email/provider";
-import { introEmail, replyForwardEmail, stripReply } from "./email/templates";
+import { connectedEmail, introEmail, replyForwardEmail, stripReply } from "./email/templates";
 import { suggestNextBest } from "./agent/orchestrator";
 import type { ParsedGoal } from "./agent/parse";
 
@@ -111,7 +111,7 @@ export async function sendIntro(senderId: string, actorUserId: string, introId: 
   const token: string = i.relay_token;
   const email = introEmail({
     senderFirstName: sender.firstName, senderContext: senderContext(sender), subject, message: body, unclaimed,
-    links: { decline: `/r/${signLink(token, "decline")}/decline`, claim: `/r/${signLink(token, "claim")}/claim`, remove: `/r/${signLink(token, "remove")}/remove` },
+    links: introLinks(token),
   });
 
   // Claim the row first so a double click can't send twice.
@@ -120,7 +120,7 @@ export async function sendIntro(senderId: string, actorUserId: string, introId: 
   if (!claimed) throw new HttpError(409, "This intro was already sent.", "already_sent");
   try {
     const msgId = await deliver({
-      introId, mailbox: "recipient", toProfileId: recipient.id, toAddress: addr.address,
+      introId, mailbox: "recipient", toProfileId: recipient.id, toAddress: addr.address, toName: `${recipient.firstName} ${recipient.lastName}`,
       fromName: `${sender.firstName} via Venn`, replyTo: relayAddress(token), replyToLabel: "Venn relay (reply to connect)",
       subject: email.subject, html: email.html, text: email.text, kind: "intro",
     });
@@ -134,12 +134,37 @@ export async function sendIntro(senderId: string, actorUserId: string, introId: 
 }
 
 // ---------------------------------------------------------------- inbound relay
-export async function processInbound(input: { to: string; providerMessageId: string; text: string }) {
-  const { parseRelayToken } = await import("./email/provider");
+export function introLinks(token: string) {
+  return {
+    connect: `/r/${signLink(token, "connect")}/connect`,
+    decline: `/r/${signLink(token, "decline")}/decline`,
+    claim: `/r/${signLink(token, "claim")}/claim`,
+    remove: `/r/${signLink(token, "remove")}/remove`,
+  };
+}
+
+/**
+ * Inbound relay reply. `fromAddress` + `requireFrom` (set for real provider webhooks): the reply must come from
+ * the recipient's own address (or the demo inbox, for a fictional recipient). Auto-replies are ignored.
+ * A reply counts as "connect": both people get each other's email.
+ */
+export async function processInbound(input: { to: string; providerMessageId: string; text: string; fromAddress?: string; requireFrom?: boolean; autoReply?: boolean }) {
+  const { parseRelayToken, realDestination } = await import("./email/provider");
   const token = parseRelayToken(input.to);
   if (!token) return { ok: false as const, reason: "no_token" };
   const [i] = await sql`select * from intro_requests where relay_token = ${token}`;
   if (!i) return { ok: false as const, reason: "unknown_intro" };
+  if (input.autoReply) return { ok: true as const, duplicate: false, ignored: "auto_reply", introId: i.id as string };
+
+  if (input.requireFrom) {
+    const expected = await resolveRecipientAddress(i.recipient_profile_id, "system:relay", "inbound.verify_sender");
+    const dest = expected.ok ? realDestination(expected.address) : null;
+    const from = (input.fromAddress ?? "").trim().toLowerCase();
+    if (!dest || !from || from !== dest.to) {
+      await audit("system:relay", "email.inbound_rejected", i.id, { reason: "sender_mismatch" });
+      return { ok: false as const, reason: "sender_mismatch" };
+    }
+  }
 
   // idempotency: webhooks retry
   const ins = await sql`insert into relay_messages (intro_id, direction, provider_message_id) values (${i.id}, 'inbound', ${input.providerMessageId})
@@ -151,25 +176,72 @@ export async function processInbound(input: { to: string; providerMessageId: str
   const first = Boolean(next);
   if (next) {
     await sql`update intro_requests set status = ${next}, replied_at = now(), reply_preview = ${preview}, sender_seen_reply = false where id = ${i.id}`;
+    await audit("system:relay", "intro.connect", i.id, { via: "reply" });
   }
+  await shareContacts(i, stripReply(input.text) || input.text.slice(0, 2000), first);
+  return { ok: true as const, duplicate: false, introId: i.id as string, firstReply: first };
+}
 
-  // Forward to the sender with the recipient's real address in Reply-To (the consented share).
-  const recipient = await sql`select first_name, last_name from profiles where id = ${i.recipient_profile_id}`;
-  const recipientName = recipient[0] ? `${recipient[0].first_name} ${recipient[0].last_name}` : "Your contact";
-  const senderAddr = await resolveRecipientAddress(i.sender_profile_id, "system:relay", "reply.forward");
-  const recipientAddr = await resolveRecipientAddress(i.recipient_profile_id, "system:relay", "reply.forward.reply_to");
+/** "Reply to connect" button (POST from the confirm page). Idempotent. */
+export async function connectByLink(signed: string) {
+  const r = await introFromLink(signed, "connect");
+  if ("error" in r) return r;
+  const i = r.intro;
+  if (i.status === "replied") return { ok: true as const, already: true };
+  const next = nextStatus(i.status, "reply");
+  if (!next) return { error: "closed" };
+  const [won] = await sql`update intro_requests set status = ${next}, replied_at = now(), sender_seen_reply = false
+    where id = ${i.id} and status = ${i.status} returning id`;
+  if (!won) return { ok: true as const, already: true }; // a concurrent click got there first
+  await audit("recipient", "intro.connect", i.id, { via: "link" });
+  await shareContacts(i, null, true);
+  return { ok: true as const, already: false };
+}
+
+/** Name shown on the connect confirm page (no contact data). */
+export async function connectPreview(signed: string) {
+  const r = await introFromLink(signed, "connect");
+  if ("error" in r) return r;
+  const [s] = await sql`select first_name, last_name from profiles where id = ${r.intro.sender_profile_id}`;
+  return { senderName: s ? `${s.first_name} ${s.last_name}` : "them", status: r.intro.status as IntroStatus };
+}
+
+/**
+ * The consented share: the sender gets the recipient's email (and their reply, if any); on the first connect
+ * the recipient gets the sender's email and the original message. The only place addresses leave contact_points.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function shareContacts(i: any, replyText: string | null, firstConnect: boolean) {
+  const people = await sql`select id, first_name, last_name from profiles where id in (${i.sender_profile_id}, ${i.recipient_profile_id})`;
+  const nameOf = (id: string) => { const p = people.find((x) => x.id === id); return p ? `${p.first_name} ${p.last_name}` : "Your contact"; };
+  const senderName = nameOf(i.sender_profile_id);
+  const recipientName = nameOf(i.recipient_profile_id);
+  const senderAddr = await resolveRecipientAddress(i.sender_profile_id, "system:relay", "intro.connect.share");
+  const recipientAddr = await resolveRecipientAddress(i.recipient_profile_id, "system:relay", "intro.connect.share");
+  const subject = i.subject ?? "your intro";
+
   if (senderAddr.ok) {
-    const fwd = replyForwardEmail({ recipientName, subject: i.subject ?? "your intro", replyText: stripReply(input.text) || input.text.slice(0, 2000) });
+    const mail = recipientAddr.ok
+      ? connectedEmail({ otherName: recipientName, otherEmail: recipientAddr.address, subject, theirMessage: replyText, messageLabel: `${recipientName.split(" ")[0]} wrote` })
+      : replyForwardEmail({ recipientName, subject, replyText: replyText ?? "" });
     await deliver({
-      introId: i.id, mailbox: "sender", toProfileId: i.sender_profile_id, toAddress: senderAddr.address,
+      introId: i.id, mailbox: "sender", toProfileId: i.sender_profile_id, toAddress: senderAddr.address, toName: senderName,
       fromName: `${recipientName} via Venn`,
-      replyTo: recipientAddr.ok ? recipientAddr.address : relayAddress(token),
-      replyToLabel: `${recipientName}'s email (shared because they replied)`,
-      subject: fwd.subject, html: fwd.html, text: fwd.text, kind: "reply_forward",
+      replyTo: recipientAddr.ok ? recipientAddr.address : relayAddress(i.relay_token),
+      replyToLabel: `${recipientName}'s email (shared because they connected)`,
+      subject: mail.subject, html: mail.html, text: mail.text, kind: replyText ? "reply_forward" : "connected",
     });
     await audit("system:relay", "intro.reply_forward", i.id);
   }
-  return { ok: true as const, duplicate: false, introId: i.id as string, firstReply: first };
+  if (firstConnect && senderAddr.ok && recipientAddr.ok) {
+    const mail = connectedEmail({ otherName: senderName, otherEmail: senderAddr.address, subject, theirMessage: i.message, messageLabel: "Their intro" });
+    await deliver({
+      introId: i.id, mailbox: "recipient", toProfileId: i.recipient_profile_id, toAddress: recipientAddr.address, toName: recipientName,
+      fromName: `${senderName} via Venn`, replyTo: senderAddr.address,
+      replyToLabel: `${senderName}'s email (shared because you connected)`,
+      subject: mail.subject, html: mail.html, text: mail.text, kind: "connected",
+    });
+  }
 }
 
 // ---------------------------------------------------------------- signed links (§8.4)
@@ -257,11 +329,11 @@ export async function runReminders(now = new Date()) {
     const unclaimed = recipient.status === "unclaimed";
     const e = introEmail({
       senderFirstName: sender.firstName, senderContext: senderContext(sender), subject: i.subject ?? "Intro", message: i.message, unclaimed, reminder: true,
-      links: { decline: `/r/${signLink(i.relay_token, "decline")}/decline`, claim: `/r/${signLink(i.relay_token, "claim")}/claim`, remove: `/r/${signLink(i.relay_token, "remove")}/remove` },
+      links: introLinks(i.relay_token),
     });
     try {
       const msgId = await deliver({
-        introId: i.id, mailbox: "recipient", toProfileId: recipient.id, toAddress: addr.address, fromName: `${sender.firstName} via Venn`,
+        introId: i.id, mailbox: "recipient", toProfileId: recipient.id, toAddress: addr.address, toName: `${recipient.firstName} ${recipient.lastName}`, fromName: `${sender.firstName} via Venn`,
         replyTo: relayAddress(i.relay_token), replyToLabel: "Venn relay (reply to connect)", subject: e.subject, html: e.html, text: e.text, kind: "reminder",
       });
       await sql`insert into relay_messages (intro_id, direction, provider_message_id) values (${i.id}, 'outbound', ${msgId})`;

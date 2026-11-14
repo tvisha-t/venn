@@ -13,6 +13,9 @@ const MOCK = path.join(ROOT, "mock-data");
 
 export const GT_CONFIG = {
   brand: { primary: "#003057", accent: "#EAAA00" },
+  // Sign-up domains (exact or subdomain). demo_domains = the reserved fictional seed-data domains.
+  domains: ["gatech.edu"],
+  demo_domains: ["example.gatech.test"],
   mapCenter: { lat: 33.7756, lng: -84.3963, zoom: 10 },
   programs: ["CREATE-X", "VIP", "Co-op", "Internship Program", "Grand Challenges", "Honors Program", "Study Abroad", "OMSCS", "Professional Education", "Startup Launch"],
   csThreads: ["Intelligence", "Systems & Architecture", "Theory", "Modeling & Simulation", "Devices", "Information Internetworks", "Media", "People"],
@@ -26,7 +29,7 @@ export async function migrate(db = defaultSql) {
 }
 
 export async function resetDatabase(db = defaultSql) {
-  await db.unsafe(`drop table if exists invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
+  await db.unsafe(`drop table if exists signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
     goal_parse_cache, goals, suppression_list, contact_points, profiles, users, schools cascade`);
 }
 
@@ -179,6 +182,83 @@ export async function seedDemoIntros(db = defaultSql) {
   return n;
 }
 
+export const DEMO_STUDENT_ID = "d3e0a000-0000-4000-8000-000000000002"; // Alex Kim
+export const DEMO_ALUM_ID = "d3e0a000-0000-4000-8000-000000000001"; // Morgan Ellis
+
+/**
+ * The demo pair's history, built through the real intro pipeline (draft → explicit send → relay reply).
+ * - Alex → Morgan: sent, and Morgan replied through the relay (connected; Morgan's opted-in contact shows).
+ * - Alex → two other alumni: sent, awaiting replies.
+ * - Two other students → Morgan: sent, waiting in Morgan's sandbox inbox to answer.
+ * - Morgan → one alum: sent (so Morgan's own Requests page isn't empty).
+ * - Alex has one watched goal.
+ * Sandbox only; idempotent (existing pairs are skipped).
+ */
+export async function seedDemoConversations(db = defaultSql) {
+  if (env.emailMode !== "sandbox") return { intros: 0, replies: 0, goals: 0 };
+  const { templateDraft } = await import("./agent/draft");
+  const { sendIntro, processInbound } = await import("./intros");
+  const { getOwnProfile, getPublicProfile } = await import("./profiles");
+  const { relayAddress } = await import("./email/provider");
+  const out = { intros: 0, replies: 0, goals: 0 };
+  const demoIds = [DEMO_STUDENT_ID, DEMO_ALUM_ID];
+
+  const userOf = async (id: string) => (await db`select user_id from profiles where id = ${id}`)[0]?.user_id as string | undefined;
+  async function intro(from: string, to: string, goal: string, ask: string) {
+    const [exists] = await db`select id, status, relay_token from intro_requests where sender_profile_id = ${from} and recipient_profile_id = ${to}`;
+    if (exists) return exists;
+    const uid = await userOf(from);
+    const recipient = await getPublicProfile(to);
+    if (!uid || !recipient) return null;
+    const d = templateDraft(await getOwnProfile(from), recipient, ask, goal);
+    const [row] = await db`insert into intro_requests (sender_profile_id, recipient_profile_id, subject, message, status, relay_token)
+      values (${from}, ${to}, ${d.subject}, ${d.body}, 'draft', ${randomToken(32)}) returning id`;
+    try {
+      await sendIntro(from, uid, row.id, { subject: d.subject, body: d.body, userConfirmed: true });
+    } catch (e) {
+      await db`delete from intro_requests where id = ${row.id}`;
+      console.warn(`  skipped intro ${from} → ${to}: ${(e as Error).message}`);
+      return null;
+    }
+    out.intros++;
+    return (await db`select id, status, relay_token from intro_requests where id = ${row.id}`)[0];
+  }
+
+  // Alex → Morgan, and Morgan replies through the relay.
+  const am = await intro(DEMO_STUDENT_ID, DEMO_ALUM_ID, "GT alumni at Delta who could give advice on ops tech", "15-min advice call");
+  if (am && am.status === "sent") {
+    await processInbound({
+      to: relayAddress(am.relay_token), providerMessageId: `demo-reply-${am.id}`,
+      text: "Hi Alex! Always happy to help a fellow RoboJacket. I'm free Thursday after 4. Grab a time that works and bring a couple of projects you'd want feedback on.\n\nMorgan",
+    });
+    out.replies++;
+  }
+
+  // Alex → two other claimed alumni open to mentoring.
+  const alumni = await db`select id from profiles where status = 'claimed' and 'alum' = any(roles) and not (id = any(${demoIds}))
+    and summary_approved and 'mentoring students' = any(open_to) order by last_name limit 2`;
+  for (const a of alumni) await intro(DEMO_STUDENT_ID, a.id, "Product designers in Atlanta open to mentoring", "15-min advice call");
+
+  // Two other students → Morgan (pending in Morgan's inbox).
+  const students = await db`select id from profiles where status = 'claimed' and 'student' = any(roles) and not ferpa_restricted
+    and summary_approved and not (id = any(${demoIds})) order by last_name limit 2`;
+  for (const s of students) await intro(s.id, DEMO_ALUM_ID, "Alumni at Delta who mentor students", "15-min advice call");
+
+  // Morgan → one alum (Morgan's own sent request).
+  const [peer] = await db`select id from profiles where status = 'claimed' and 'alum' = any(roles) and not (id = any(${demoIds}))
+    and summary_approved and 'hiring' = any(open_to) order by last_name limit 1`;
+  if (peer) await intro(DEMO_ALUM_ID, peer.id, "Engineering leaders hiring in Atlanta", "intro call about hiring");
+
+  // One watched goal for Alex.
+  const [g] = await db`select 1 from goals where owner_profile_id = ${DEMO_STUDENT_ID}`;
+  if (!g) {
+    const { runGoal } = await import("./agent/orchestrator");
+    await runGoal("Product designers at Delta who mentor", DEMO_STUDENT_ID, () => {}, { standing: true });
+    out.goals++;
+  }
+  return out;
+}
+
 export async function seedAll(db = defaultSql): Promise<{ members: number; intros: number; aa: ImportCounts; demo: number }> {
   await migrate(db);
   const schoolId = await seedSchool(db);
@@ -188,5 +268,6 @@ export async function seedAll(db = defaultSql): Promise<{ members: number; intro
   const intros = await seedIntros(db);
   const demo = (await seedDemoPeople(schoolId, db)).length;
   await seedDemoIntros(db);
+  await seedDemoConversations(db);
   return { members, intros, aa, demo };
 }

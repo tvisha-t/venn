@@ -170,3 +170,36 @@ describe("location privacy", () => {
     expect(close.clusters.every((c) => c.count >= 3)).toBe(true);
   });
 });
+
+describe("Reply to connect (button + inbound sender check)", () => {
+  it("connect link shares both addresses once; replies from a stranger are ignored", async () => {
+    const { connectByLink, processInbound: inbound } = await import("@/server/intros");
+    const { DEMO_ALUM_ID } = await import("@/server/seed");
+    const [i] = await sql`select * from intro_requests where recipient_profile_id = ${DEMO_ALUM_ID} and status = 'sent' limit 1`;
+    expect(i).toBeTruthy();
+
+    // The intro email carries the button.
+    const [mail] = await sql`select html from sandbox_emails where intro_id = ${i.id} and kind = 'intro'`;
+    expect(mail.html).toContain("/connect");
+    expect(mail.html).toContain("Reply to connect");
+
+    // A reply that isn't from the recipient's address doesn't connect anything.
+    const stranger = await inbound({ to: relayAddress(i.relay_token), providerMessageId: "pm-stranger", text: "hi", fromAddress: "someone@else.com", requireFrom: true });
+    expect(stranger).toMatchObject({ ok: false, reason: "sender_mismatch" });
+    const autoReply = await inbound({ to: relayAddress(i.relay_token), providerMessageId: "pm-ooo", text: "Out of office", autoReply: true });
+    expect(autoReply).toMatchObject({ ok: true, ignored: "auto_reply" });
+    expect((await sql`select status from intro_requests where id = ${i.id}`)[0].status).toBe("sent");
+
+    const link = signLink(i.relay_token, "connect");
+    expect(await connectByLink(link)).toEqual({ ok: true, already: false });
+    expect(await connectByLink(link)).toEqual({ ok: true, already: true }); // idempotent, no second emails
+    expect((await sql`select status from intro_requests where id = ${i.id}`)[0].status).toBe("replied");
+
+    const out = await sql`select mailbox, kind, text_body from sandbox_emails where intro_id = ${i.id} and kind in ('connected', 'reply_forward') order by created_at`;
+    expect(out.map((o) => o.mailbox).sort()).toEqual(["recipient", "sender"]);
+    const [cpS] = await sql`select email_primary from contact_points where profile_id = ${i.sender_profile_id}`;
+    const [cpR] = await sql`select email_primary from contact_points where profile_id = ${i.recipient_profile_id}`;
+    expect(out.find((o) => o.mailbox === "sender")!.text_body).toContain(cpR.email_primary);
+    expect(out.find((o) => o.mailbox === "recipient")!.text_body).toContain(cpS.email_primary);
+  });
+});
