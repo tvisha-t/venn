@@ -1,0 +1,2590 @@
+[
+  {
+    "id": "1ef540d6-f5d9-8936-7085-770fb7e1cb21",
+    "aa_constituent_id": "AA100003",
+    "login_email": "jason.singh20@example.com",
+    "first_name": "Jason",
+    "last_name": "Singh",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2003,
+    "degree": "BS",
+    "major": "Biomedical Engineering",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Venture & Startups",
+    "employer": "Relay Robotics Co (startup)",
+    "job_title": "Vice President",
+    "city": "New York",
+    "state": "NY",
+    "country": "US",
+    "lat": 40.72,
+    "lng": -74.02,
+    "summary": "Vice President at Relay Robotics Co (startup), New York. Into college football and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "college football",
+      "startups"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "27baa3dd-2c2b-d5a3-2e89-bdbd53691c45",
+    "aa_constituent_id": "AA100352",
+    "login_email": "maya.hernandez4@example.com",
+    "first_name": "Maya",
+    "last_name": "Hernandez",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1986,
+    "degree": "BS",
+    "major": "Industrial Engineering",
+    "gt_programs": [
+      "Internship Program",
+      "Study Abroad"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Marching Band",
+      "Startup Exchange",
+      "Solar Racing"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech Research Institute",
+    "job_title": "Vice President, Research & Academia",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.75,
+    "lng": -84.41,
+    "summary": "Vice President, Research & Academia at Georgia Tech Research Institute, Atlanta. Internship Program, Study Abroad alum. Into angel investing and podcasts.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "giving career advice",
+      "cofounding"
+    ],
+    "interests": [
+      "angel investing",
+      "podcasts",
+      "startups",
+      "climbing"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "da970edb-a841-588d-53b3-4dafcca5ac2e",
+    "aa_constituent_id": "AA100044",
+    "login_email": "lauren.nelson14@example.com",
+    "first_name": "Lauren",
+    "last_name": "Nelson",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2020,
+    "degree": "BS",
+    "major": "Industrial Engineering",
+    "gt_programs": [
+      "Co-op"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Women in Engineering",
+      "Investment Club"
+    ],
+    "industry": "Software",
+    "employer": "Amazon",
+    "job_title": "Solutions Architect",
+    "city": "Los Angeles",
+    "state": "CA",
+    "country": "US",
+    "lat": 34.08,
+    "lng": -118.22,
+    "summary": "Solutions Architect at Amazon, Los Angeles. Co-op alum. Into robotics and volunteering.",
+    "summary_approved": true,
+    "open_to": [
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "robotics",
+      "volunteering"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "f08fecf7-8e52-5adc-51f8-deb6340407f4",
+    "aa_constituent_id": "AA100039",
+    "login_email": "omar.tanaka54@example.com",
+    "first_name": "Omar",
+    "last_name": "Tanaka",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2007,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "CREATE-X",
+      "VIP",
+      "Internship Program"
+    ],
+    "cs_threads": [
+      "Cybersecurity & Privacy",
+      "People"
+    ],
+    "activities": [
+      "Marching Band",
+      "Habitat for Humanity"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Research Scientist",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.72,
+    "lng": -84.4,
+    "summary": "Research Scientist at Georgia Tech, Atlanta. CREATE-X, VIP alum. Into music production and photography.",
+    "summary_approved": true,
+    "open_to": [
+      "hiring",
+      "giving career advice",
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "music production",
+      "photography",
+      "college football"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "0501e79e-f120-4008-3f44-42454a332325",
+    "aa_constituent_id": "AA100246",
+    "login_email": "raj.johnson50@example.com",
+    "first_name": "Raj",
+    "last_name": "Johnson",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2011,
+    "degree": "BS",
+    "major": "Biomedical Engineering",
+    "gt_programs": [
+      "Study Abroad"
+    ],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Consulting",
+    "employer": "McKinsey & Company",
+    "job_title": "Associate",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.74,
+    "lng": -84.41,
+    "summary": "Associate at McKinsey & Company, Atlanta. Study Abroad alum. Into photography and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "meeting people new to my city",
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "photography",
+      "startups",
+      "hiking"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "2ca0ed97-922f-e35d-2fd1-c77500b02a82",
+    "aa_constituent_id": "AA100499",
+    "login_email": "arjun.davis63@example.com",
+    "first_name": "Arjun",
+    "last_name": "Davis",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1998,
+    "degree": "BS",
+    "major": "Biology",
+    "gt_programs": [
+      "CREATE-X",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Fintech",
+    "employer": "Stripe",
+    "job_title": "Product Manager, Payments",
+    "city": "Dallas",
+    "state": "TX",
+    "country": "US",
+    "lat": 32.77,
+    "lng": -96.78,
+    "summary": "Product Manager, Payments at Stripe, Dallas. CREATE-X, Internship Program alum. Into robotics and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "investing",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "robotics",
+      "startups",
+      "board games",
+      "college football"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "53ae322e-d147-b235-e537-cd52b53a2800",
+    "aa_constituent_id": "AA100286",
+    "login_email": "imani.young51@example.com",
+    "first_name": "Imani",
+    "last_name": "Young",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2020,
+    "degree": "BS",
+    "major": "Computer Engineering",
+    "gt_programs": [
+      "VIP",
+      "Grand Challenges"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting",
+      "Big Data Big Impact"
+    ],
+    "industry": "Architecture & Design",
+    "employer": "IDEO",
+    "job_title": "Industrial Designer",
+    "city": "Seattle",
+    "state": "WA",
+    "country": "US",
+    "lat": 47.58,
+    "lng": -122.36,
+    "summary": "Industrial Designer at IDEO, Seattle. VIP, Grand Challenges alum. Into space and robotics.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding"
+    ],
+    "interests": [
+      "space",
+      "robotics",
+      "angel investing",
+      "travel"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "baad0da4-65aa-6c06-5d43-3dc2cb115be6",
+    "aa_constituent_id": "AA100033",
+    "login_email": "isabel.okafor84@example.com",
+    "first_name": "Isabel",
+    "last_name": "Okafor",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2008,
+    "degree": "BS",
+    "major": "Aerospace Engineering",
+    "gt_programs": [
+      "VIP",
+      "Honors Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Big Data Big Impact",
+      "Startup Exchange",
+      "Grand Challenges LLC"
+    ],
+    "industry": "Fintech",
+    "employer": "Goldman Sachs",
+    "job_title": "Vice President",
+    "city": "San Francisco",
+    "state": "CA",
+    "country": "US",
+    "lat": 37.78,
+    "lng": -122.42,
+    "summary": "Vice President at Goldman Sachs, San Francisco. VIP, Honors Program alum. Into robotics and AI policy.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "giving career advice",
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "robotics",
+      "AI policy"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "f091f0f9-cf92-bd95-9b48-d3027d2b8714",
+    "aa_constituent_id": "AA100224",
+    "login_email": "noah.thompson56@example.com",
+    "first_name": "Noah",
+    "last_name": "Thompson",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2018,
+    "degree": "BS",
+    "major": "Aerospace Engineering",
+    "gt_programs": [
+      "Honors Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Startup Exchange"
+    ],
+    "industry": "Healthcare & Biotech",
+    "employer": "Boston Scientific",
+    "job_title": "R&D Engineer",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.39,
+    "summary": "R&D Engineer at Boston Scientific, Atlanta. Honors Program alum. Into cooking and college football.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "cooking",
+      "college football"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "a32e6cb4-3c9e-a73a-2f45-a1125b7c3988",
+    "aa_constituent_id": "AA100524",
+    "login_email": "leah.hall63@example.com",
+    "first_name": "Leah",
+    "last_name": "Hall",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2008,
+    "degree": "BS",
+    "major": "Chemical and Biomolecular Engineering",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "Solar Racing",
+      "Grand Challenges LLC"
+    ],
+    "industry": "Energy & Climate",
+    "employer": "Southern Company",
+    "job_title": "Analyst",
+    "city": "London",
+    "state": "",
+    "country": "UK",
+    "lat": 51.53,
+    "lng": -0.13,
+    "summary": "Analyst at Southern Company, London. Into music production and sustainability.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "hiring",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "music production",
+      "sustainability"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "a5396212-634a-35eb-ec2b-e3083c7d53a0",
+    "aa_constituent_id": "AA100531",
+    "login_email": "julian.kim51@example.com",
+    "first_name": "Julian",
+    "last_name": "Kim",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2010,
+    "degree": "BS",
+    "major": "Aerospace Engineering",
+    "gt_programs": [
+      "Internship Program",
+      "Grand Challenges"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "HackGT / Hexlabs",
+      "Club sports",
+      "Marching Band"
+    ],
+    "industry": "Venture & Startups",
+    "employer": "Peachtree Seed Fund (fictional)",
+    "job_title": "Partner",
+    "city": "Austin",
+    "state": "TX",
+    "country": "US",
+    "lat": 30.26,
+    "lng": -97.77,
+    "summary": "Partner at Peachtree Seed Fund (fictional), Austin. Internship Program, Grand Challenges alum. Into cooking and soccer.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired"
+    ],
+    "interests": [
+      "cooking",
+      "soccer"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "ba5b70e7-df3b-d35c-35c5-edf0f43f847a",
+    "aa_constituent_id": "AA100508",
+    "login_email": "sean.kim43@example.com",
+    "first_name": "Sean",
+    "last_name": "Kim",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2008,
+    "degree": "BS",
+    "major": "Mechanical Engineering",
+    "gt_programs": [
+      "Co-op"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Grand Challenges LLC",
+      "National Society of Black Engineers"
+    ],
+    "industry": "Software",
+    "employer": "Salesforce",
+    "job_title": "Product Manager",
+    "city": "San Francisco",
+    "state": "CA",
+    "country": "US",
+    "lat": 37.79,
+    "lng": -122.4,
+    "summary": "Product Manager at Salesforce, San Francisco. Co-op alum. Into music production and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "mentoring students",
+      "being hired"
+    ],
+    "interests": [
+      "music production",
+      "startups"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "7a5c28ca-32e7-2520-4d83-b05517ac720e",
+    "aa_constituent_id": "AA100291",
+    "login_email": "lauren.nguyen80@example.com",
+    "first_name": "Lauren",
+    "last_name": "Nguyen",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1981,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "VIP",
+      "Internship Program",
+      "Research (UROP)"
+    ],
+    "cs_threads": [
+      "Intelligence",
+      "Theory"
+    ],
+    "activities": [
+      "Big Data Big Impact",
+      "HackGT / Hexlabs"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Research Scientist",
+    "city": "Boston",
+    "state": "MA",
+    "country": "US",
+    "lat": 42.38,
+    "lng": -71.04,
+    "summary": "Research Scientist at Georgia Tech, Boston. VIP, Internship Program alum. Into podcasts and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "hiring"
+    ],
+    "interests": [
+      "podcasts",
+      "startups",
+      "music production",
+      "climbing"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "97eea179-afd0-63d6-35dd-e53415286855",
+    "aa_constituent_id": "AA100019",
+    "login_email": "aisha.thompson46@example.com",
+    "first_name": "Aisha",
+    "last_name": "Thompson",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1987,
+    "degree": "BS",
+    "major": "Mechanical Engineering",
+    "gt_programs": [
+      "VIP"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting",
+      "RoboJackets"
+    ],
+    "industry": "Healthcare & Biotech",
+    "employer": "Emory Healthcare",
+    "job_title": "Biomedical Engineer",
+    "city": "New York",
+    "state": "NY",
+    "country": "US",
+    "lat": 40.72,
+    "lng": -73.99,
+    "summary": "Biomedical Engineer at Emory Healthcare, New York. VIP alum. Into angel investing and climbing.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "angel investing",
+      "climbing",
+      "volunteering",
+      "space"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "1e3a7063-284b-aa23-350e-0c9a1d955056",
+    "aa_constituent_id": "AA100578",
+    "login_email": "claire.mensah81@example.com",
+    "first_name": "Claire",
+    "last_name": "Mensah",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2024,
+    "degree": "BS",
+    "major": "Civil Engineering",
+    "gt_programs": [
+      "Co-op",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "HackGT / Hexlabs"
+    ],
+    "industry": "Software",
+    "employer": "Amazon",
+    "job_title": "SDE II",
+    "city": "Houston",
+    "state": "TX",
+    "country": "US",
+    "lat": 29.74,
+    "lng": -95.34,
+    "summary": "SDE II at Amazon, Houston. Co-op, Internship Program alum. Into AI policy and travel.",
+    "summary_approved": true,
+    "open_to": [
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "AI policy",
+      "travel"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "67171ab7-61f0-e5c5-1cda-89181dadd807",
+    "aa_constituent_id": "AA100293",
+    "login_email": "noah.tanaka55@example.com",
+    "first_name": "Noah",
+    "last_name": "Tanaka",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1997,
+    "degree": "BS",
+    "major": "Business Administration",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Energy & Climate",
+    "employer": "Georgia Power",
+    "job_title": "Distribution Engineer",
+    "city": "Austin",
+    "state": "TX",
+    "country": "US",
+    "lat": 30.29,
+    "lng": -97.72,
+    "summary": "Distribution Engineer at Georgia Power, Austin. Into AI policy and running.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "AI policy",
+      "running",
+      "robotics",
+      "F1"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "3fa916f9-eeb1-ecb9-7008-f9e0c28c36b8",
+    "aa_constituent_id": "AA100398",
+    "login_email": "elena.jackson11@example.com",
+    "first_name": "Elena",
+    "last_name": "Jackson",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1992,
+    "degree": "BS",
+    "major": "Architecture",
+    "gt_programs": [
+      "Study Abroad"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting",
+      "Marching Band"
+    ],
+    "industry": "Aerospace",
+    "employer": "Boeing",
+    "job_title": "Program Manager",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.73,
+    "lng": -84.41,
+    "summary": "Program Manager at Boeing, Atlanta. Study Abroad alum. Into AI policy and chess.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "AI policy",
+      "chess",
+      "sustainability"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "8941069b-3559-d3c6-565a-2822615a443c",
+    "aa_constituent_id": "AA100325",
+    "login_email": "sean.haddad90@example.com",
+    "first_name": "Sean",
+    "last_name": "Haddad",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 1989,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [],
+    "cs_threads": [
+      "Cybersecurity & Privacy",
+      "Theory"
+    ],
+    "activities": [
+      "Startup Exchange"
+    ],
+    "industry": "Venture & Startups",
+    "employer": "Relay Robotics Co (startup)",
+    "job_title": "Robotics Engineer",
+    "city": "Washington",
+    "state": "DC",
+    "country": "US",
+    "lat": 38.93,
+    "lng": -77.02,
+    "summary": "Robotics Engineer at Relay Robotics Co (startup), Washington. Into podcasts and angel investing.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "podcasts",
+      "angel investing",
+      "volunteering"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "d709acc3-0461-a44d-20f9-85d86025cf7c",
+    "aa_constituent_id": null,
+    "login_email": "arjun591@student.example.gatech.test",
+    "first_name": "Arjun",
+    "last_name": "Garcia",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Aerospace Engineering",
+    "gt_programs": [
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Big Data Big Impact",
+      "Grand Challenges LLC"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.78,
+    "lng": -84.37,
+    "summary": "Aerospace Engineering student, Atlanta. Involved in Internship Program. Into travel and soccer.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "being hired"
+    ],
+    "interests": [
+      "travel",
+      "soccer"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": true
+  },
+  {
+    "id": "5be87a2a-ef67-39d2-6c82-3a4130d569ed",
+    "aa_constituent_id": null,
+    "login_email": "luis795@student.example.gatech.test",
+    "first_name": "Luis",
+    "last_name": "Cohen",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Economics",
+    "gt_programs": [
+      "Honors Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Solar Racing",
+      "SGA",
+      "Big Data Big Impact"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.79,
+    "lng": -84.4,
+    "summary": "Economics student, Atlanta. Involved in Honors Program. Into robotics and AI policy.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "robotics",
+      "AI policy",
+      "cooking"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "f6c84ff5-b8b7-5626-b805-f666716ff4f5",
+    "aa_constituent_id": null,
+    "login_email": "jason237@student.example.gatech.test",
+    "first_name": "Jason",
+    "last_name": "Adams",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2030,
+    "degree": "BS",
+    "major": "Mechanical Engineering",
+    "gt_programs": [
+      "Co-op",
+      "Internship Program",
+      "Research (UROP)"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "HackGT / Hexlabs",
+      "Startup Exchange"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.75,
+    "lng": -84.39,
+    "summary": "Mechanical Engineering student, Atlanta. Involved in Co-op, Internship Program. Into startups and running.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "giving career advice"
+    ],
+    "interests": [
+      "startups",
+      "running"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "f4e30570-67d1-7836-e7b4-638be871690e",
+    "aa_constituent_id": null,
+    "login_email": "megan34@student.example.gatech.test",
+    "first_name": "Megan",
+    "last_name": "Hall",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2029,
+    "degree": "BS",
+    "major": "Economics",
+    "gt_programs": [
+      "CREATE-X",
+      "VIP",
+      "Co-op"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "RoboJackets"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.38,
+    "summary": "Economics student, Atlanta. Involved in CREATE-X, VIP. Into climbing and music production.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "being hired"
+    ],
+    "interests": [
+      "climbing",
+      "music production"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "1e56a4fb-c4e7-770d-0f34-bd088e10a3c7",
+    "aa_constituent_id": null,
+    "login_email": "victor857@student.example.gatech.test",
+    "first_name": "Victor",
+    "last_name": "Murphy",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2028,
+    "degree": "BS",
+    "major": "Chemical and Biomolecular Engineering",
+    "gt_programs": [
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Club sports",
+      "Greek life"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.38,
+    "summary": "Chemical and Biomolecular Engineering student, Atlanta. Involved in Internship Program. Into climbing and robotics.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "giving career advice"
+    ],
+    "interests": [
+      "climbing",
+      "robotics",
+      "running"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "8224153c-320b-5ab7-159d-880c76a5025c",
+    "aa_constituent_id": null,
+    "login_email": "chloe459@student.example.gatech.test",
+    "first_name": "Chloe",
+    "last_name": "Lee",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2029,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "Internship Program"
+    ],
+    "cs_threads": [
+      "People",
+      "Intelligence"
+    ],
+    "activities": [
+      "RoboJackets",
+      "Society of Hispanic Professional Engineers"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.75,
+    "lng": -84.38,
+    "summary": "Computer Science student, Atlanta. Involved in Internship Program. Into climbing and robotics.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "climbing",
+      "robotics",
+      "chess",
+      "running"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "6df2b925-b412-87fb-6d08-55077262c8cb",
+    "aa_constituent_id": null,
+    "login_email": "andre18@student.example.gatech.test",
+    "first_name": "Andre",
+    "last_name": "Young",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "CREATE-X"
+    ],
+    "cs_threads": [
+      "Modeling & Simulation",
+      "Theory"
+    ],
+    "activities": [
+      "Big Data Big Impact"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.38,
+    "summary": "Computer Science student, Atlanta. Involved in CREATE-X. Into college football and sustainability.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "being hired"
+    ],
+    "interests": [
+      "college football",
+      "sustainability",
+      "music production"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "6a3098aa-6729-fb46-4418-dce5fad5ab17",
+    "aa_constituent_id": null,
+    "login_email": "ryan538@student.example.gatech.test",
+    "first_name": "Ryan",
+    "last_name": "Scott",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "VIP",
+      "Co-op"
+    ],
+    "cs_threads": [
+      "Modeling & Simulation",
+      "Theory"
+    ],
+    "activities": [
+      "Big Data Big Impact",
+      "Startup Exchange"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.79,
+    "lng": -84.42,
+    "summary": "Computer Science student, Atlanta. Involved in VIP, Co-op. Into space and climbing.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "being hired"
+    ],
+    "interests": [
+      "space",
+      "climbing",
+      "running",
+      "college football"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "b52db8c8-ff5b-2d52-aaef-05913fd180e5",
+    "aa_constituent_id": null,
+    "login_email": "marcus557@student.example.gatech.test",
+    "first_name": "Marcus",
+    "last_name": "Ali",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2028,
+    "degree": "BS",
+    "major": "Neuroscience",
+    "gt_programs": [
+      "VIP",
+      "Co-op",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.75,
+    "lng": -84.39,
+    "summary": "Neuroscience student, Atlanta. Involved in VIP, Co-op. Into cooking and podcasts.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "cofounding"
+    ],
+    "interests": [
+      "cooking",
+      "podcasts",
+      "climbing",
+      "chess"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "197ddceb-f498-816e-61cb-03f3e877a70d",
+    "aa_constituent_id": null,
+    "login_email": "jason834@student.example.gatech.test",
+    "first_name": "Jason",
+    "last_name": "Garcia",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [],
+    "cs_threads": [
+      "Cybersecurity & Privacy",
+      "Modeling & Simulation"
+    ],
+    "activities": [
+      "Women in Engineering",
+      "Grand Challenges LLC",
+      "HackGT / Hexlabs"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.39,
+    "summary": "Computer Science student, Atlanta. Into college football and soccer.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "giving career advice"
+    ],
+    "interests": [
+      "college football",
+      "soccer",
+      "robotics",
+      "volunteering"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "0d0d13d3-779e-e83d-36df-223906bc0d71",
+    "aa_constituent_id": null,
+    "login_email": "grace827@student.example.gatech.test",
+    "first_name": "Grace",
+    "last_name": "Scott",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2030,
+    "degree": "BS",
+    "major": "Computer Engineering",
+    "gt_programs": [
+      "CREATE-X",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "National Society of Black Engineers",
+      "Ramblin' Rafting"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.78,
+    "lng": -84.42,
+    "summary": "Computer Engineering student, Atlanta. Involved in CREATE-X, Internship Program. Into cooking and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "cooking",
+      "startups",
+      "volunteering",
+      "AI policy"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "80ef2ccf-8999-b812-d616-76fcbb1ffaf4",
+    "aa_constituent_id": null,
+    "login_email": "rachel923@student.example.gatech.test",
+    "first_name": "Rachel",
+    "last_name": "Adams",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2030,
+    "degree": "BS",
+    "major": "Economics",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "SGA",
+      "Greek life"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.38,
+    "summary": "Economics student, Atlanta. Into board games and climbing.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "being hired"
+    ],
+    "interests": [
+      "board games",
+      "climbing"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "2c2de0bd-8a02-711e-02f3-e4d0eeb8c6eb",
+    "aa_constituent_id": null,
+    "login_email": "lauren535@student.example.gatech.test",
+    "first_name": "Lauren",
+    "last_name": "Anderson",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2029,
+    "degree": "BS",
+    "major": "Architecture",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.37,
+    "summary": "Architecture student, Atlanta. Into sustainability and music production.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "cofounding"
+    ],
+    "interests": [
+      "sustainability",
+      "music production",
+      "board games"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "c08d551f-b9e8-9990-769e-b31c26830a4c",
+    "aa_constituent_id": null,
+    "login_email": "tessa524@student.example.gatech.test",
+    "first_name": "Tessa",
+    "last_name": "Chen",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2028,
+    "degree": "BS",
+    "major": "Computer Engineering",
+    "gt_programs": [
+      "CREATE-X",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Big Data Big Impact",
+      "HackGT / Hexlabs"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.79,
+    "lng": -84.39,
+    "summary": "Computer Engineering student, Atlanta. Involved in CREATE-X, Internship Program. Into cooking and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "cofounding"
+    ],
+    "interests": [
+      "cooking",
+      "startups",
+      "volunteering",
+      "sustainability"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "1b64ef32-5aa2-88e1-609c-6c82b90db373",
+    "aa_constituent_id": null,
+    "login_email": "lauren182@student.example.gatech.test",
+    "first_name": "Lauren",
+    "last_name": "Mensah",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2028,
+    "degree": "BS",
+    "major": "Mathematics",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "Investment Club",
+      "HackGT / Hexlabs"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.42,
+    "summary": "Mathematics student, Atlanta. Into college football and travel.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "giving career advice"
+    ],
+    "interests": [
+      "college football",
+      "travel",
+      "photography",
+      "chess"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "56885791-8f92-c2c3-2727-aea402f93785",
+    "aa_constituent_id": null,
+    "login_email": "lauren273@student.example.gatech.test",
+    "first_name": "Lauren",
+    "last_name": "Mensah",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Biomedical Engineering",
+    "gt_programs": [
+      "Co-op"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Women in Engineering",
+      "Solar Racing"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.39,
+    "summary": "Biomedical Engineering student, Atlanta. Involved in Co-op. Into AI policy and F1.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "cofounding"
+    ],
+    "interests": [
+      "AI policy",
+      "F1",
+      "board games"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "86f73047-c0bd-beaf-fcce-4fb6fd97a595",
+    "aa_constituent_id": null,
+    "login_email": "chris902@student.example.gatech.test",
+    "first_name": "Chris",
+    "last_name": "Okafor",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "Co-op",
+      "Honors Program"
+    ],
+    "cs_threads": [
+      "Systems & Architecture",
+      "Theory"
+    ],
+    "activities": [
+      "Big Data Big Impact",
+      "Society of Hispanic Professional Engineers"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.79,
+    "lng": -84.41,
+    "summary": "Computer Science student, Atlanta. Involved in Co-op, Honors Program. Into hiking and space.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "being hired"
+    ],
+    "interests": [
+      "hiking",
+      "space",
+      "AI policy"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "eb19071b-0b35-e0a1-3fa5-e99ffb23a4b7",
+    "aa_constituent_id": null,
+    "login_email": "hiro219@student.example.gatech.test",
+    "first_name": "Hiro",
+    "last_name": "Hill",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2028,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "CREATE-X",
+      "Co-op",
+      "Internship Program"
+    ],
+    "cs_threads": [
+      "Systems & Architecture",
+      "Media"
+    ],
+    "activities": [
+      "Club sports",
+      "Investment Club",
+      "Habitat for Humanity"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.4,
+    "summary": "Computer Science student, Atlanta. Involved in CREATE-X, Co-op. Into climbing and chess.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "cofounding"
+    ],
+    "interests": [
+      "climbing",
+      "chess",
+      "startups"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "7854f2ce-102c-89ba-d85a-4e1a66edb71c",
+    "aa_constituent_id": null,
+    "login_email": "jason894@student.example.gatech.test",
+    "first_name": "Jason",
+    "last_name": "Nelson",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Industrial Engineering",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "Greek life"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.78,
+    "lng": -84.4,
+    "summary": "Industrial Engineering student, Atlanta. Into cooking and climbing.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "cofounding"
+    ],
+    "interests": [
+      "cooking",
+      "climbing",
+      "volunteering"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "43d8c607-f27a-b635-6064-62aea0683570",
+    "aa_constituent_id": null,
+    "login_email": "wei530@student.example.gatech.test",
+    "first_name": "Wei",
+    "last_name": "Haddad",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2030,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "Study Abroad"
+    ],
+    "cs_threads": [
+      "Intelligence",
+      "People"
+    ],
+    "activities": [
+      "Marching Band",
+      "HackGT / Hexlabs"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.4,
+    "summary": "Computer Science student, Atlanta. Involved in Study Abroad. Into travel and startups.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "travel",
+      "startups",
+      "hiking"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "2e3a9584-adf5-38fc-995f-2694b8edffe8",
+    "aa_constituent_id": null,
+    "login_email": "megan603@student.example.gatech.test",
+    "first_name": "Megan",
+    "last_name": "Roberts",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2029,
+    "degree": "BS",
+    "major": "Biomedical Engineering",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "National Society of Black Engineers",
+      "Solar Racing"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.8,
+    "lng": -84.42,
+    "summary": "Biomedical Engineering student, Atlanta. Into running and robotics.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding",
+      "giving career advice"
+    ],
+    "interests": [
+      "running",
+      "robotics",
+      "podcasts",
+      "AI policy"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "4289281d-944a-f6a6-83c1-4496199a2509",
+    "aa_constituent_id": null,
+    "login_email": "evan213@student.example.gatech.test",
+    "first_name": "Evan",
+    "last_name": "Rossi",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2030,
+    "degree": "BS",
+    "major": "Business Administration",
+    "gt_programs": [
+      "VIP",
+      "Grand Challenges"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "HackGT / Hexlabs",
+      "Greek life",
+      "Investment Club"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.78,
+    "lng": -84.38,
+    "summary": "Business Administration student, Atlanta. Involved in VIP, Grand Challenges. Into volunteering and AI policy.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "giving career advice"
+    ],
+    "interests": [
+      "volunteering",
+      "AI policy"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "296da4cd-431b-011f-6f90-d9afca07906e",
+    "aa_constituent_id": null,
+    "login_email": "olivia805@student.example.gatech.test",
+    "first_name": "Olivia",
+    "last_name": "Mitchell",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2029,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "VIP"
+    ],
+    "cs_threads": [
+      "Info Internetworks",
+      "Intelligence"
+    ],
+    "activities": [
+      "Big Data Big Impact"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.81,
+    "lng": -84.39,
+    "summary": "Computer Science student, Atlanta. Involved in VIP. Into volunteering and running.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "giving career advice"
+    ],
+    "interests": [
+      "volunteering",
+      "running",
+      "chess"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "a22f3da5-dab2-a215-217c-82b1c884fac6",
+    "aa_constituent_id": null,
+    "login_email": "kwame436@student.example.gatech.test",
+    "first_name": "Kwame",
+    "last_name": "Ali",
+    "roles": [
+      "student"
+    ],
+    "class_year": 2027,
+    "degree": "BS",
+    "major": "Electrical Engineering",
+    "gt_programs": [
+      "Grand Challenges"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Startup Exchange"
+    ],
+    "industry": "",
+    "employer": "",
+    "job_title": "Student",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.79,
+    "lng": -84.38,
+    "summary": "Electrical Engineering student, Atlanta. Involved in Grand Challenges. Into cooking and hiking.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "being hired"
+    ],
+    "interests": [
+      "cooking",
+      "hiking",
+      "podcasts"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "2d47d84c-143d-9bff-1a89-383c071a8d53",
+    "aa_constituent_id": null,
+    "login_email": "claire.walker0@example.org",
+    "first_name": "Claire",
+    "last_name": "Walker",
+    "roles": [
+      "faculty"
+    ],
+    "class_year": 1996,
+    "degree": "BS",
+    "major": "Civil Engineering",
+    "gt_programs": [
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting",
+      "Marching Band"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Assistant Professor",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.42,
+    "summary": "Assistant Professor at Georgia Tech, Atlanta. Internship Program alum. Into travel and F1.",
+    "summary_approved": true,
+    "open_to": [
+      "hiring",
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "travel",
+      "F1",
+      "hiking"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "cfde82ad-a37a-e656-2a03-1bf9da4d4948",
+    "aa_constituent_id": null,
+    "login_email": "imani.williams1@example.org",
+    "first_name": "Imani",
+    "last_name": "Williams",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2025,
+    "degree": "BS",
+    "major": "Mechanical Engineering",
+    "gt_programs": [
+      "Research (UROP)"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Solar Racing",
+      "Women in Engineering"
+    ],
+    "industry": "Logistics & Retail",
+    "employer": "Coca-Cola",
+    "job_title": "Brand Manager",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.39,
+    "summary": "Brand Manager at Coca-Cola, Atlanta. Research (UROP) alum. Into AI policy and volunteering.",
+    "summary_approved": true,
+    "open_to": [
+      "investing"
+    ],
+    "interests": [
+      "AI policy",
+      "volunteering",
+      "cooking"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "80e2ee40-3b89-1988-c04d-3ccab1d8ea69",
+    "aa_constituent_id": null,
+    "login_email": "ethan.okafor2@example.org",
+    "first_name": "Ethan",
+    "last_name": "Okafor",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2023,
+    "degree": "BS",
+    "major": "Mathematics",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "Solar Racing"
+    ],
+    "industry": "Software",
+    "employer": "Amazon",
+    "job_title": "SDE II",
+    "city": "Chicago",
+    "state": "IL",
+    "country": "US",
+    "lat": 41.9,
+    "lng": -87.64,
+    "summary": "SDE II at Amazon, Chicago. Into robotics and college football.",
+    "summary_approved": true,
+    "open_to": [
+      "hiring",
+      "cofounding"
+    ],
+    "interests": [
+      "robotics",
+      "college football"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "be04d96e-adb3-5ea8-a43a-5edaa522f92f",
+    "aa_constituent_id": null,
+    "login_email": "derek.wilson3@example.org",
+    "first_name": "Derek",
+    "last_name": "Wilson",
+    "roles": [
+      "faculty"
+    ],
+    "class_year": 2003,
+    "degree": "MBA",
+    "major": "Business Administration",
+    "gt_programs": [
+      "VIP",
+      "Co-op",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting",
+      "Grand Challenges LLC",
+      "National Society of Black Engineers"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Assistant Professor",
+    "city": "Seattle",
+    "state": "WA",
+    "country": "US",
+    "lat": 47.62,
+    "lng": -122.31,
+    "summary": "Assistant Professor at Georgia Tech, Seattle. VIP, Co-op alum. Into angel investing and photography.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "being hired",
+      "speaking to student orgs"
+    ],
+    "interests": [
+      "angel investing",
+      "photography",
+      "soccer"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "dcfc2b72-ebbb-ae74-db9b-4d430927d2fc",
+    "aa_constituent_id": null,
+    "login_email": "isabel.brown4@example.org",
+    "first_name": "Isabel",
+    "last_name": "Brown",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2026,
+    "degree": "MS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "VIP"
+    ],
+    "cs_threads": [
+      "People",
+      "Systems & Architecture"
+    ],
+    "activities": [
+      "Marching Band"
+    ],
+    "industry": "Healthcare & Biotech",
+    "employer": "Emory Healthcare",
+    "job_title": "Biomedical Engineer",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.72,
+    "lng": -84.39,
+    "summary": "Biomedical Engineer at Emory Healthcare, Atlanta. VIP alum. Into soccer and climbing.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired",
+      "hiring"
+    ],
+    "interests": [
+      "soccer",
+      "climbing"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "a6a21998-afad-738e-a44c-26d403fc5e6c",
+    "aa_constituent_id": null,
+    "login_email": "mateo.iyer5@example.org",
+    "first_name": "Mateo",
+    "last_name": "Iyer",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2026,
+    "degree": "BS",
+    "major": "Industrial Engineering",
+    "gt_programs": [
+      "Honors Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Solar Racing",
+      "Ramblin' Rafting"
+    ],
+    "industry": "Aerospace",
+    "employer": "Gulfstream",
+    "job_title": "Design Engineer",
+    "city": "Seattle",
+    "state": "WA",
+    "country": "US",
+    "lat": 47.58,
+    "lng": -122.34,
+    "summary": "Design Engineer at Gulfstream, Seattle. Honors Program alum. Into travel and angel investing.",
+    "summary_approved": true,
+    "open_to": [
+      "cofounding"
+    ],
+    "interests": [
+      "travel",
+      "angel investing",
+      "board games",
+      "robotics"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "6078ba69-40f8-95ff-2335-2f7fae57927f",
+    "aa_constituent_id": null,
+    "login_email": "arjun.taylor6@example.org",
+    "first_name": "Arjun",
+    "last_name": "Taylor",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2023,
+    "degree": "BS",
+    "major": "Biomedical Engineering",
+    "gt_programs": [
+      "Research (UROP)"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting"
+    ],
+    "industry": "Software",
+    "employer": "Salesforce",
+    "job_title": "Product Manager",
+    "city": "Huntsville",
+    "state": "AL",
+    "country": "US",
+    "lat": 34.74,
+    "lng": -86.57,
+    "summary": "Product Manager at Salesforce, Huntsville. Research (UROP) alum. Into cooking and board games.",
+    "summary_approved": true,
+    "open_to": [
+      "hiring",
+      "speaking to student orgs",
+      "being hired"
+    ],
+    "interests": [
+      "cooking",
+      "board games"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "93fca973-b631-5c55-0ca3-e980ec955752",
+    "aa_constituent_id": null,
+    "login_email": "jordan.martinez7@example.org",
+    "first_name": "Jordan",
+    "last_name": "Martinez",
+    "roles": [
+      "lifetime_learner"
+    ],
+    "class_year": 2026,
+    "degree": "MS",
+    "major": "Analytics",
+    "gt_programs": [
+      "Co-op",
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting",
+      "RoboJackets",
+      "Startup Exchange"
+    ],
+    "industry": "Research & Academia",
+    "employer": "CDC",
+    "job_title": "Health Scientist",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.37,
+    "summary": "Health Scientist at CDC, Atlanta. Co-op, Internship Program alum. Into sustainability and travel.",
+    "summary_approved": true,
+    "open_to": [
+      "being hired"
+    ],
+    "interests": [
+      "sustainability",
+      "travel"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "0fcc588e-49ec-6e32-17ca-f26bcbfefd65",
+    "aa_constituent_id": null,
+    "login_email": "ava.singh8@example.org",
+    "first_name": "Ava",
+    "last_name": "Singh",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2023,
+    "degree": "BS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "Internship Program"
+    ],
+    "cs_threads": [
+      "Cybersecurity & Privacy",
+      "Modeling & Simulation"
+    ],
+    "activities": [
+      "Big Data Big Impact",
+      "HackGT / Hexlabs",
+      "RoboJackets"
+    ],
+    "industry": "Consulting",
+    "employer": "Deloitte",
+    "job_title": "Consultant",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.77,
+    "lng": -84.42,
+    "summary": "Consultant at Deloitte, Atlanta. Internship Program alum. Into music production and hiking.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "speaking to student orgs",
+      "hiring"
+    ],
+    "interests": [
+      "music production",
+      "hiking"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "ea7eee0b-677e-be4d-c068-a64cd5d64a82",
+    "aa_constituent_id": null,
+    "login_email": "emily.nelson9@example.org",
+    "first_name": "Emily",
+    "last_name": "Nelson",
+    "roles": [
+      "faculty"
+    ],
+    "class_year": 2015,
+    "degree": "BS",
+    "major": "Physics",
+    "gt_programs": [
+      "Co-op"
+    ],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Assistant Professor",
+    "city": "Dallas",
+    "state": "TX",
+    "country": "US",
+    "lat": 32.76,
+    "lng": -96.78,
+    "summary": "Assistant Professor at Georgia Tech, Dallas. Co-op alum. Into climbing and board games.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "climbing",
+      "board games"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "9d36dea0-6619-4848-19bf-0f3b52ed2487",
+    "aa_constituent_id": null,
+    "login_email": "aarav.hernandez10@example.org",
+    "first_name": "Aarav",
+    "last_name": "Hernandez",
+    "roles": [
+      "faculty"
+    ],
+    "class_year": 2013,
+    "degree": "BS",
+    "major": "Neuroscience",
+    "gt_programs": [
+      "Internship Program",
+      "Grand Challenges"
+    ],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Assistant Professor",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.39,
+    "summary": "Assistant Professor at Georgia Tech, Atlanta. Internship Program, Grand Challenges alum. Into climbing and board games.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "meeting people new to my city",
+      "cofounding"
+    ],
+    "interests": [
+      "climbing",
+      "board games",
+      "college football"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "6dc2d7db-9763-7e6c-cd87-a06a5ef993c3",
+    "aa_constituent_id": null,
+    "login_email": "nina.murphy11@example.org",
+    "first_name": "Nina",
+    "last_name": "Murphy",
+    "roles": [
+      "lifetime_learner"
+    ],
+    "class_year": 2026,
+    "degree": "MS",
+    "major": "Analytics",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "Investment Club",
+      "Society of Hispanic Professional Engineers"
+    ],
+    "industry": "Logistics & Retail",
+    "employer": "UPS",
+    "job_title": "Operations Manager",
+    "city": "San Francisco",
+    "state": "CA",
+    "country": "US",
+    "lat": 37.78,
+    "lng": -122.43,
+    "summary": "Operations Manager at UPS, San Francisco. Into space and F1.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "being hired",
+      "investing"
+    ],
+    "interests": [
+      "space",
+      "F1",
+      "music production",
+      "climbing"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "12a59eaf-f0d4-ad0c-23a2-9fe4ef3cfc8f",
+    "aa_constituent_id": null,
+    "login_email": "olivia.allen12@example.org",
+    "first_name": "Olivia",
+    "last_name": "Allen",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2026,
+    "degree": "BS",
+    "major": "Industrial Engineering",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [],
+    "industry": "Software",
+    "employer": "Mailchimp",
+    "job_title": "Software Engineer",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.78,
+    "lng": -84.41,
+    "summary": "Software Engineer at Mailchimp, Atlanta. Into podcasts and music production.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "investing"
+    ],
+    "interests": [
+      "podcasts",
+      "music production"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "130f0872-966f-3d47-8321-4b1455928cd5",
+    "aa_constituent_id": null,
+    "login_email": "olivia.moore13@example.org",
+    "first_name": "Olivia",
+    "last_name": "Moore",
+    "roles": [
+      "lifetime_learner"
+    ],
+    "class_year": 2026,
+    "degree": "MS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "Co-op",
+      "Internship Program"
+    ],
+    "cs_threads": [
+      "Devices",
+      "People"
+    ],
+    "activities": [
+      "Investment Club"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Research Scientist",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.72,
+    "lng": -84.37,
+    "summary": "Research Scientist at Georgia Tech, Atlanta. Co-op, Internship Program alum. Into travel and space.",
+    "summary_approved": true,
+    "open_to": [
+      "hiring",
+      "giving career advice"
+    ],
+    "interests": [
+      "travel",
+      "space"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "57988711-e602-8d06-b441-a695ece321fd",
+    "aa_constituent_id": null,
+    "login_email": "priya.reddy14@example.org",
+    "first_name": "Priya",
+    "last_name": "Reddy",
+    "roles": [
+      "faculty"
+    ],
+    "class_year": 2006,
+    "degree": "BS",
+    "major": "Business Administration",
+    "gt_programs": [],
+    "cs_threads": [],
+    "activities": [
+      "Ramblin' Rafting"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Assistant Professor",
+    "city": "Charlotte",
+    "state": "NC",
+    "country": "US",
+    "lat": 35.22,
+    "lng": -80.86,
+    "summary": "Assistant Professor at Georgia Tech, Charlotte. Into running and F1.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "running",
+      "F1",
+      "hiking",
+      "photography"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "b2b11b81-a438-0f8a-8ffd-43cff1668e89",
+    "aa_constituent_id": null,
+    "login_email": "nina.shah15@example.org",
+    "first_name": "Nina",
+    "last_name": "Shah",
+    "roles": [
+      "staff"
+    ],
+    "class_year": 1999,
+    "degree": "MS",
+    "major": "Computer Science",
+    "gt_programs": [
+      "CREATE-X"
+    ],
+    "cs_threads": [
+      "Devices",
+      "Info Internetworks"
+    ],
+    "activities": [
+      "SGA",
+      "Startup Exchange"
+    ],
+    "industry": "Research & Academia",
+    "employer": "Georgia Tech",
+    "job_title": "Career Advisor",
+    "city": "Huntsville",
+    "state": "AL",
+    "country": "US",
+    "lat": 34.75,
+    "lng": -86.6,
+    "summary": "Career Advisor at Georgia Tech, Huntsville. CREATE-X alum. Into running and music production.",
+    "summary_approved": true,
+    "open_to": [
+      "meeting people new to my city",
+      "mentoring students",
+      "being hired"
+    ],
+    "interests": [
+      "running",
+      "music production"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "f4fcb6bc-012d-b1c4-03c3-c30dae344b14",
+    "aa_constituent_id": null,
+    "login_email": "sofia.nguyen16@example.org",
+    "first_name": "Sofia",
+    "last_name": "Nguyen",
+    "roles": [
+      "lifetime_learner"
+    ],
+    "class_year": 2026,
+    "degree": "MS",
+    "major": "Analytics",
+    "gt_programs": [
+      "Co-op"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Startup Exchange"
+    ],
+    "industry": "Software",
+    "employer": "Microsoft",
+    "job_title": "Program Manager",
+    "city": "Bengaluru",
+    "state": "",
+    "country": "IN",
+    "lat": 12.98,
+    "lng": 77.58,
+    "summary": "Program Manager at Microsoft, Bengaluru. Co-op alum. Into F1 and volunteering.",
+    "summary_approved": true,
+    "open_to": [
+      "mentoring students"
+    ],
+    "interests": [
+      "F1",
+      "volunteering",
+      "chess"
+    ],
+    "contact_channel": "email",
+    "status": "claimed",
+    "ferpa_restricted": false
+  },
+  {
+    "id": "36956a38-1528-0e7c-89d5-e178cf998da3",
+    "aa_constituent_id": null,
+    "login_email": "ryan.cohen17@example.org",
+    "first_name": "Ryan",
+    "last_name": "Cohen",
+    "roles": [
+      "alum"
+    ],
+    "class_year": 2025,
+    "degree": "BS",
+    "major": "Industrial Design",
+    "gt_programs": [
+      "Internship Program"
+    ],
+    "cs_threads": [],
+    "activities": [
+      "Greek life",
+      "Startup Exchange"
+    ],
+    "industry": "Logistics & Retail",
+    "employer": "Manhattan Associates",
+    "job_title": "Software Engineer",
+    "city": "Atlanta",
+    "state": "GA",
+    "country": "US",
+    "lat": 33.76,
+    "lng": -84.37,
+    "summary": "Software Engineer at Manhattan Associates, Atlanta. Internship Program alum. Into AI policy and space.",
+    "summary_approved": true,
+    "open_to": [
+      "giving career advice",
+      "investing",
+      "meeting people new to my city"
+    ],
+    "interests": [
+      "AI policy",
+      "space",
+      "angel investing",
+      "soccer"
+    ],
+    "contact_channel": "sms",
+    "status": "claimed",
+    "ferpa_restricted": false
+  }
+]

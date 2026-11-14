@@ -1,0 +1,62 @@
+[
+  {
+    "id": "275ac9d6-0b9f-97a5-5510-f78642004a56",
+    "sender_id": "f6c84ff5-b8b7-5626-b805-f666716ff4f5",
+    "recipient_profile_id": "27baa3dd-2c2b-d5a3-2e89-bdbd53691c45",
+    "goal_text": "Advice on breaking into Research & Academia roles",
+    "message": "Hi Maya, I'm Jason, a Mechanical Engineering student at Georgia Tech. I'm exploring Research & Academia and would really value 15 minutes of your advice on how you got to Georgia Tech Research Institute. Would you be open to a short call?",
+    "status": "sent",
+    "sent_at": "2026-11-08T15:00:00Z",
+    "reminder_sent": false
+  },
+  {
+    "id": "673d7804-9c5b-ad2e-a9fb-1b548fbd2cfd",
+    "sender_id": "80ef2ccf-8999-b812-d616-76fcbb1ffaf4",
+    "recipient_profile_id": "12a59eaf-f0d4-ad0c-23a2-9fe4ef3cfc8f",
+    "goal_text": "Advice on breaking into Software roles",
+    "message": "Hi Olivia, I'm Rachel, a Economics student at Georgia Tech. I'm exploring Software and would really value 15 minutes of your advice on how you got to Mailchimp. Would you be open to a short call?",
+    "status": "replied",
+    "sent_at": "2026-11-08T15:00:00Z",
+    "reminder_sent": false
+  },
+  {
+    "id": "e47472d0-77e0-ad89-1197-aeb02ee49d62",
+    "sender_id": "6a3098aa-6729-fb46-4418-dce5fad5ab17",
+    "recipient_profile_id": "a6a21998-afad-738e-a44c-26d403fc5e6c",
+    "goal_text": "Advice on breaking into Aerospace roles",
+    "message": "Hi Mateo, I'm Ryan, a Computer Science student at Georgia Tech. I'm exploring Aerospace and would really value 15 minutes of your advice on how you got to Gulfstream. Would you be open to a short call?",
+    "status": "not_interested",
+    "sent_at": "2026-11-08T15:00:00Z",
+    "reminder_sent": false
+  },
+  {
+    "id": "ca6935bd-c89e-b2f2-e1b3-b9d1f887ac21",
+    "sender_id": "197ddceb-f498-816e-61cb-03f3e877a70d",
+    "recipient_profile_id": "53ae322e-d147-b235-e537-cd52b53a2800",
+    "goal_text": "Advice on breaking into Architecture & Design roles",
+    "message": "Hi Imani, I'm Jason, a Computer Science student at Georgia Tech. I'm exploring Architecture & Design and would really value 15 minutes of your advice on how you got to IDEO. Would you be open to a short call?",
+    "status": "no_response",
+    "sent_at": "2026-11-08T15:00:00Z",
+    "reminder_sent": true
+  },
+  {
+    "id": "c391a132-8626-09ab-418b-6aa27016f6ad",
+    "sender_id": "a22f3da5-dab2-a215-217c-82b1c884fac6",
+    "recipient_profile_id": "ba5b70e7-df3b-d35c-35c5-edf0f43f847a",
+    "goal_text": "Advice on breaking into Software roles",
+    "message": "Hi Sean, I'm Kwame, a Electrical Engineering student at Georgia Tech. I'm exploring Software and would really value 15 minutes of your advice on how you got to Salesforce. Would you be open to a short call?",
+    "status": "replied",
+    "sent_at": "2026-11-08T15:00:00Z",
+    "reminder_sent": false
+  },
+  {
+    "id": "6bb17a8b-26c1-18f2-eb1c-0430df114270",
+    "sender_id": "6a3098aa-6729-fb46-4418-dce5fad5ab17",
+    "recipient_profile_id": "a5396212-634a-35eb-ec2b-e3083c7d53a0",
+    "goal_text": "Advice on breaking into Venture & Startups roles",
+    "message": "Hi Julian, I'm Ryan, a Computer Science student at Georgia Tech. I'm exploring Venture & Startups and would really value 15 minutes of your advice on how you got to Peachtree Seed Fund (fictional). Would you be open to a short call?",
+    "status": "sent",
+    "sent_at": "2026-11-08T15:00:00Z",
+    "reminder_sent": false
+  }
+]

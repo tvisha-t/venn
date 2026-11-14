@@ -1,0 +1,40 @@
+{
+  "_comment": "Demo profiles loaded by `npm run db:seed`. ONLY fictional people, or real people who gave explicit consent (BUILD_SPEC.md §14). Never scrape or copy anyone's LinkedIn. To add a consenting teammate, copy an entry, set consent to their name + date, and fill in what they approved. Emails must use reserved domains unless the person asked to receive real demo emails.",
+  "people": [
+    {
+      "id": "d3e0a000-0000-4000-8000-000000000001",
+      "consent": "fictional",
+      "demo_label": "Demo alum · receives intros",
+      "first_name": "Morgan",
+      "last_name": "Ellis",
+      "login_email": "morgan.ellis@alumni.example.gatech.test",
+      "roles": ["alum"],
+      "class_year": 2015,
+      "degree": "BS",
+      "major": "Computer Science",
+      "gt_programs": ["CREATE-X", "Co-op"],
+      "cs_threads": ["Intelligence", "Information Internetworks"],
+      "activities": ["RoboJackets"],
+      "industry": "Aerospace",
+      "employer": "Delta Air Lines",
+      "job_title": "Engineering Manager, Tech Ops",
+      "city": "Atlanta",
+      "state": "GA",
+      "country": "US",
+      "summary": "Engineering manager on Delta's Tech Ops team, building the tools that keep aircraft maintenance on schedule. CS '15 and a CREATE-X alum. Happy to talk airline ops tech, product engineering and first jobs out of Tech.",
+      "open_to": ["mentoring students", "giving career advice"],
+      "interests": ["aviation", "operations research", "robotics", "mentoring"],
+      "shared_contact": {
+        "preferred_email": "morgan.ellis@example.com",
+        "phone": "+1 404 555 0142",
+        "linkedin_url": null,
+        "website_url": "https://example.com/morgan-ellis"
+      },
+      "seed_intro": {
+        "from": "first_demo_student",
+        "goal": "GT alumni at Delta who could give advice on ops tech",
+        "ask": "15-min advice call"
+      }
+    }
+  ]
+}
