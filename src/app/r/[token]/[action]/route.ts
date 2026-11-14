@@ -7,6 +7,9 @@ import { throttle } from "@/server/http";
 
 const ACTIONS: LinkAction[] = ["decline", "claim", "remove", "noinvite"];
 
+// Venn mark, white strokes + gold overlap, for the navy band (light values inlined).
+const MARK_SVG = `<svg width="28" height="28" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="vm"><rect x="21" y="3.7" width="30" height="92.6" rx="15" transform="rotate(-26.57 36 50)"/></clipPath></defs><rect x="21" y="3.7" width="30" height="92.6" rx="15" transform="rotate(-26.57 36 50)" fill="#fff"/><rect x="49" y="3.7" width="30" height="92.6" rx="15" transform="rotate(26.57 64 50)" fill="#fff"/><g clip-path="url(#vm)"><rect x="49" y="3.7" width="30" height="92.6" rx="15" transform="rotate(26.57 64 50)" fill="#eaaa00"/></g></svg>`;
+
 function page(title: string, body: string, status = 200) {
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} · venn</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><style>
@@ -15,7 +18,7 @@ main{max-width:460px;width:100%;background:#fff;border:1px solid #e1e7ed;border-
 h1{font-size:22px;line-height:1.3;font-weight:700;letter-spacing:-.02em;margin:0 0 10px}p{margin:0 0 16px;color:#4f5559}
 button{background:#003057;color:#fff;height:48px;padding:0 20px;border:0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
 button:focus-visible{outline:2px solid #003057;outline-offset:2px}.band{background:#003057;color:#fff;height:72px;display:flex;align-items:center;padding:0 28px;font-size:26px;font-weight:800;letter-spacing:-.04em}.body{padding:28px}
-</style></head><body><main><div class="band">venn</div><div class="body">${body}</div></main></body></html>`;
+.band svg{margin-right:8px}</style><link rel="icon" href="/icon.svg"></head><body><main><div class="band">${MARK_SVG}venn</div><div class="body">${body}</div></main></body></html>`;
   return new NextResponse(html, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
 }
 

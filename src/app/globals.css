@@ -37,6 +37,11 @@
   --brand-raised: rgba(255, 255, 255, 0.08);
   --brand-line: rgba(255, 255, 255, 0.14);
   --brand-highlight: rgba(234, 170, 0, 0.55);
+  /* logo (VENN_LOGO_AND_HOME): navy strokes, gold overlap */
+  --primary-brand: #003057;
+  --mark-stroke: var(--primary-brand);
+  --mark-overlap: #eaaa00;
+  --wordmark: var(--primary-brand);
   /* states */
   --success: #116b33;
   --success-soft: #e7f6ec;
@@ -70,7 +75,7 @@
   color-scheme: light;
 }
 
-/* Dark: explicit data-theme="dark", or the OS setting when no theme is forced. */
+/* Dark: only when the user picks it (ThemeToggle sets data-theme="dark"). Light is the default. */
 :root[data-theme="dark"] {
   --canvas: #00182e;
   --surface: #00213d;
@@ -97,6 +102,9 @@
   --on-brand-muted: #a9b8c7;
   --brand-raised: rgba(255, 255, 255, 0.06);
   --brand-line: rgba(255, 255, 255, 0.12);
+  --primary-brand: #003057;
+  --mark-stroke: #ffffff;
+  --wordmark: var(--text);
   --success: #4ade80;
   --success-soft: #0f3020;
   --danger: #f97066;
@@ -108,46 +116,6 @@
   --shadow-pop: 0 20px 48px rgba(0, 0, 0, 0.55);
   color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --canvas: #00182e;
-    --surface: #00213d;
-    --surface-raised: #0a2c4b;
-    --text: #f2f5f8;
-    --text-muted: #a9b8c7;
-    --text-subtle: #93a3b3;
-    --line: #1a3a58;
-    --line-control: #5d7895;
-    --primary: #eaaa00;
-    --primary-hover: #f5c040;
-    --on-primary: #00182e;
-    --primary-soft: #13385b;
-    --primary-ink: #f5d77e;
-    --accent: #eaaa00;
-    --accent-hover: #f5c040;
-    --on-accent: #00182e;
-    --accent-soft: #3a2f06;
-    --accent-ink: #f5d77e;
-    --accent-text: #eaaa00;
-    --highlight: #5a4708;
-    --brand: #0a2c4b;
-    --on-brand: #f2f5f8;
-    --on-brand-muted: #a9b8c7;
-    --brand-raised: rgba(255, 255, 255, 0.06);
-    --brand-line: rgba(255, 255, 255, 0.12);
-    --success: #4ade80;
-    --success-soft: #0f3020;
-    --danger: #f97066;
-    --danger-soft: #3a1412;
-    --link: #f5c84a;
-    --focus: #eaaa00;
-    --scrim: rgba(0, 10, 20, 0.6);
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-pop: 0 20px 48px rgba(0, 0, 0, 0.55);
-    color-scheme: dark;
-  }
-}
-
 @theme inline {
   --font-sans: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: var(--font-jakarta), system-ui, sans-serif;
@@ -179,6 +147,7 @@
   --color-on-brand-muted: var(--on-brand-muted);
   --color-brand-raised: var(--brand-raised);
   --color-brand-line: var(--brand-line);
+  --color-wordmark: var(--wordmark);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
@@ -228,6 +197,7 @@
     font-size: 15px;
     line-height: 22px;
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip; /* full-bleed bands (home hero) never cause sideways scroll */
   }
   ::placeholder {
     color: var(--text-subtle);
@@ -305,4 +275,16 @@
 /* email preview: matches the recipient email's navy band */
 .brand-rule {
   border-top: 2px solid var(--primary);
+}
+
+/* Full-page loading: the mark pulses slowly (reduced-motion rule above stops it). */
+@keyframes venn-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.venn-pulse {
+  animation: venn-pulse 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .venn-pulse { animation: none !important; }
 }

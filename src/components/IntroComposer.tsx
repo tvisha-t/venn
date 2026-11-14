@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/states";
 import { PersonAvatar } from "@/components/PersonAvatar";
+import { VennLogo } from "@/components/brand/VennLogo";
 import { titleCompany } from "@/components/ResultRow";
 import { useMe } from "@/components/AppShell";
 import { overlap } from "@/lib/overlap";
@@ -156,7 +157,7 @@ export function IntroComposer({
           {draft && !suppressed && preview && (
             <section aria-label="Email preview" className="overflow-hidden rounded-md border border-line">
               <div className="flex items-center justify-between bg-brand px-5 py-4 text-on-brand">
-                <span className="text-[20px] font-extrabold tracking-[-0.04em]">venn</span>
+                <VennLogo size="mobile" onBrand href={null} />
                 <span className="text-eyebrow text-accent">Intro request</span>
               </div>
               <dl className="grid grid-cols-[72px_1fr] gap-y-0.5 border-b border-line bg-surface-raised px-5 py-2.5 text-body-sm">

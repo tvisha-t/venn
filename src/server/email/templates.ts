@@ -12,13 +12,18 @@ const T = {
 };
 const FONT = "'Plus Jakarta Sans',Helvetica,Arial,sans-serif";
 
+// Mark as a PNG (white strokes, gold overlap): Gmail and Outlook strip inline SVG.
+const LOGO_IMG_TAG = () =>
+  `<img src="${env.appUrl}/venn-mark-white-2x.png" width="28" height="28" alt="" style="display:inline-block;vertical-align:middle;margin-right:8px;border:0">`;
+
 function shell(eyebrow: string, inner: string, footer = "") {
+  const LOGO_IMG = LOGO_IMG_TAG();
   return `<!doctype html><html><body style="margin:0;background:${T.canvas};font-family:${FONT};color:${T.text}">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${T.canvas}"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:${T.surface};border:1px solid ${T.line};border-radius:20px;overflow:hidden">
 <tr><td style="background:${T.primary};height:72px;padding:0 32px;border-radius:20px 20px 0 0">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-    <td style="font:800 26px/1 ${FONT};letter-spacing:-0.04em;color:#ffffff">venn</td>
+    <td style="font:800 26px/1 ${FONT};letter-spacing:-0.04em;color:#ffffff;white-space:nowrap">${LOGO_IMG}<span style="vertical-align:middle">venn</span></td>
     <td align="right" style="font:700 12px/16px ${FONT};letter-spacing:0.08em;text-transform:uppercase;color:${T.accent}">${esc(eyebrow)}</td>
   </tr></table>
 </td></tr>

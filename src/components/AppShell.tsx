@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PersonAvatar } from "@/components/PersonAvatar";
 import { InviteDialog } from "@/components/InviteDialog";
+import { VennLogo } from "@/components/brand/VennLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type Me = { profile: OwnProfile; unseenReplies: number; graduationPrompt: boolean; checkIn: boolean };
 const MeCtx = createContext<{ me: Me | null; refresh: () => void }>({ me: null, refresh: () => {} });
@@ -22,10 +24,6 @@ const NAV = [
   { href: "/requests", label: "Requests", icon: Send, match: ["/requests"] },
   { href: "/profile", label: "Profile", icon: UserRound, match: ["/profile"] },
 ];
-
-export function Wordmark({ className }: { className?: string }) {
-  return <span className={cn("text-[24px] font-extrabold leading-none tracking-[-0.04em]", className)}>venn</span>;
-}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
@@ -53,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <MeCtx.Provider value={{ me, refresh }}>
       <header className="sticky top-0 z-30 border-b border-line bg-surface">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-8 px-5 sm:px-6">
-          <Link href="/home" aria-label="venn home" className="text-primary"><Wordmark /></Link>
+          <VennLogo size="nav" className="shrink-0 max-md:[&>span]:text-[20px]" />
           <nav aria-label="Main" className="hidden h-full items-stretch gap-7 md:flex">
             {NAV.map((n) => {
               const active = isActive(n.match);
@@ -69,12 +67,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
             {me?.profile.city && (
               <Link href="/explore?view=map" className="hidden h-9 items-center gap-1.5 rounded-full bg-surface-raised px-3 text-label text-text sm:inline-flex" aria-label={`Near ${me.profile.city}. Open map`}>
                 <MapPin className="size-4 text-text-muted" aria-hidden /> {me.profile.city}
               </Link>
             )}
+            <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full" aria-label="Account menu">
@@ -106,7 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {me?.graduationPrompt && <GraduationBanner onDone={refresh} year={me.profile.classYear} />}
       {me?.checkIn && !me.graduationPrompt && <CheckInBanner employer={me.profile.employer} onDone={refresh} />}
       <main id="main" className="mx-auto w-full max-w-[1200px] px-5 pb-28 pt-6 sm:px-6 md:pb-12 md:pt-8">{children}</main>
-      <footer className="mx-auto hidden max-w-[1200px] px-6 pb-8 text-body-sm text-text-subtle md:block">
+      <footer className="mx-auto hidden max-w-[1200px] truncate px-6 pb-6 text-[12px] leading-4 text-text-subtle md:block">
         Venn is a student project, independent and not run by Georgia Tech. Demo data is fictional.
       </footer>
 

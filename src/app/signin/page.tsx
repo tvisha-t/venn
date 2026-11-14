@@ -9,12 +9,10 @@ import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { VennLogo } from "@/components/brand/VennLogo";
 
 type Identity = { id: string; displayName: string; affiliation: string; detail: string; isNew: boolean };
 
-function Wordmark({ className }: { className?: string }) {
-  return <span className={cn("font-extrabold leading-none tracking-[-0.04em]", className)}>venn</span>;
-}
 
 function SchoolPill({ onBrand }: { onBrand?: boolean }) {
   return (
@@ -130,7 +128,7 @@ function SignIn() {
           {/* Phones: navy header */}
           <div className="on-brand bg-brand px-6 pb-16 pt-8 text-on-brand lg:hidden">
             <div className="flex items-center justify-between">
-              <Link href="/signin" aria-label="venn"><Wordmark className="text-[32px]" /></Link>
+              <VennLogo size="login" onBrand href="/signin" />
               <SchoolPill onBrand />
             </div>
             <p className="mt-10 text-[44px] font-extrabold leading-[1.05] tracking-[-0.035em]" aria-hidden>Find your <span className="hl-brand">people</span>.</p>
@@ -138,7 +136,7 @@ function SignIn() {
           </div>
           {/* Desktop: top row */}
           <div className="hidden items-center justify-between lg:flex">
-            <Link href="/signin" aria-label="venn" className="text-primary"><Wordmark className="text-[30px]" /></Link>
+            <VennLogo size="login" href="/signin" />
             <SchoolPill />
           </div>
 
