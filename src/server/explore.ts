@@ -63,16 +63,18 @@ export type Facet = { value: string; count: number };
 
 export async function facets(f: Filters, viewer?: string): Promise<Record<string, Facet[]>> {
   // Each facet ignores its own filter so chips show alternatives.
-  const [industry, program, major, city, role, decade] = await Promise.all([
-    sql`select p.industry v, count(*)::int c from profiles p where ${where(f, viewer, "industry")} and p.industry is not null group by 1 order by 2 desc limit 20`,
-    sql`select unnest(p.gt_programs) v, count(*)::int c from profiles p where ${where(f, viewer, "program")} group by 1 order by 2 desc limit 20`,
-    sql`select p.major v, count(*)::int c from profiles p where ${where(f, viewer, "major")} and p.major is not null group by 1 order by 2 desc limit 25`,
-    sql`select p.city v, count(*)::int c from profiles p where ${where(f, viewer, "city")} and p.city is not null group by 1 order by 2 desc limit 25`,
-    sql`select unnest(p.roles) v, count(*)::int c from profiles p where ${where(f, viewer, "role")} group by 1 order by 2 desc`,
-    sql`select (p.class_year / 10 * 10)::text v, count(*)::int c from profiles p where ${where(f, viewer, "classYearMin")} and p.class_year is not null group by 1 order by 1 desc`,
-  ]);
-  const m = (rs: { v: string; c: number }[]) => rs.map((r) => ({ value: String(r.v), count: r.c }));
-  return { industry: m(industry as never), program: m(program as never), major: m(major as never), city: m(city as never), role: m(role as never), decade: m(decade as never) };
+  // ONE statement (one round trip, one connection): six parallel queries through the
+  // Supabase transaction pooler could stall until the function timed out.
+  const agg = (inner: ReturnType<typeof sql>) =>
+    sql`(select coalesce(json_agg(json_build_object('value', x.v::text, 'count', x.c)), '[]'::json) from (${inner}) x)`;
+  const [r] = await sql`select
+    ${agg(sql`select p.industry v, count(*)::int c from profiles p where ${where(f, viewer, "industry")} and p.industry is not null group by 1 order by 2 desc limit 20`)} as industry,
+    ${agg(sql`select unnest(p.gt_programs) v, count(*)::int c from profiles p where ${where(f, viewer, "program")} group by 1 order by 2 desc limit 20`)} as program,
+    ${agg(sql`select p.major v, count(*)::int c from profiles p where ${where(f, viewer, "major")} and p.major is not null group by 1 order by 2 desc limit 25`)} as major,
+    ${agg(sql`select p.city v, count(*)::int c from profiles p where ${where(f, viewer, "city")} and p.city is not null group by 1 order by 2 desc limit 25`)} as city,
+    ${agg(sql`select unnest(p.roles) v, count(*)::int c from profiles p where ${where(f, viewer, "role")} group by 1 order by 2 desc`)} as role,
+    ${agg(sql`select (p.class_year / 10 * 10)::text v, count(*)::int c from profiles p where ${where(f, viewer, "classYearMin")} and p.class_year is not null group by 1 order by 1 desc`)} as decade`;
+  return { industry: r.industry, program: r.program, major: r.major, city: r.city, role: r.role, decade: r.decade } as Record<string, Facet[]>;
 }
 
 export async function industryGroups(f: Filters, viewer?: string) {

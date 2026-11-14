@@ -7,20 +7,20 @@ let cache: { at: number; v: Vocab } | null = null;
 
 export async function getVocab(): Promise<Vocab> {
   if (cache && Date.now() - cache.at < 5 * 60_000) return cache.v;
-  const vis = sql.unsafe(VISIBLE_PREDICATE);
-  const [emp, ind, city, prog, maj] = await Promise.all([
-    sql`select p.employer v from profiles p where ${vis} and p.employer is not null group by 1 order by count(*) desc limit 250`,
-    sql`select distinct p.industry v from profiles p where ${vis} and p.industry is not null`,
-    sql`select distinct p.city v from profiles p where ${vis} and p.city is not null`,
-    sql`select distinct unnest(p.gt_programs) v from profiles p where ${vis}`,
-    sql`select distinct p.major v from profiles p where ${vis} and p.major is not null`,
-  ]);
+  // One statement (one round trip) instead of five parallel queries through the pooler.
+  const vis = VISIBLE_PREDICATE;
+  const [r] = await sql.unsafe(`select
+    (select coalesce(array_agg(v), '{}') from (select p.employer v from profiles p where ${vis} and p.employer is not null group by 1 order by count(*) desc limit 250) e) employers,
+    (select coalesce(array_agg(distinct p.industry), '{}') from profiles p where ${vis} and p.industry is not null) industries,
+    (select coalesce(array_agg(distinct p.city), '{}') from profiles p where ${vis} and p.city is not null) cities,
+    (select coalesce(array_agg(distinct g), '{}') from profiles p, unnest(p.gt_programs) g where ${vis}) programs,
+    (select coalesce(array_agg(distinct p.major), '{}') from profiles p where ${vis} and p.major is not null) majors`);
   const v = {
-    employers: emp.map((r) => r.v as string),
-    industries: ind.map((r) => r.v as string).sort(),
-    cities: city.map((r) => r.v as string).sort(),
-    programs: prog.map((r) => r.v as string).sort(),
-    majors: maj.map((r) => r.v as string).sort(),
+    employers: r.employers as string[],
+    industries: [...(r.industries as string[])].sort(),
+    cities: [...(r.cities as string[])].sort(),
+    programs: [...(r.programs as string[])].sort(),
+    majors: [...(r.majors as string[])].sort(),
   };
   cache = { at: Date.now(), v };
   return v;
