@@ -31,7 +31,9 @@ const csv = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean);
 function ProfileInner() {
   const { me, refresh } = useMe();
   const router = useRouter();
-  const fromClaim = useSearchParams().get("import") === "linkedin";
+  const params = useSearchParams();
+  const fromClaim = params.get("import") === "linkedin";
+  const welcome = params.get("welcome") === "1"; // joined from an invite link or LinkedIn
   const [vocab, setVocab] = useState<Vocab | null>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [mode, setMode] = useState<"import" | "edit">("edit");
@@ -46,7 +48,7 @@ function ProfileInner() {
   useEffect(() => {
     if (me && !form) {
       setForm(fromProfile(me.profile));
-      if (fromClaim || (!me.profile.summaryApproved && !me.profile.employer && !me.profile.major)) setMode("import");
+      if (fromClaim || welcome || (!me.profile.summaryApproved && !me.profile.employer && !me.profile.major)) setMode("import");
     }
   }, [me, form]);
 
@@ -117,6 +119,12 @@ function ProfileInner() {
             <div className="rounded-lg bg-primary-soft px-4 py-3">
               <p className="font-semibold">Welcome! Your Alumni Association record is prefilled.</p>
               <p className="text-text-muted">Import from LinkedIn to bring it up to date in 30 seconds, or skip and edit it yourself. Nothing goes public until you approve.</p>
+            </div>
+          )}
+          {welcome && !fromClaim && (
+            <div className="rounded-lg bg-primary-soft px-4 py-3 text-primary-ink">
+              <p className="font-semibold">Welcome to Venn, {me.profile.firstName}!</p>
+              <p className="text-body-sm">Fill your profile in 30 seconds: on LinkedIn, open your profile → <em>More</em> → <em>Save to PDF</em>, then upload it below. You review everything before it goes live.</p>
             </div>
           )}
           <h2 className="text-[15px] font-semibold">1 · Import from LinkedIn or a resume</h2>

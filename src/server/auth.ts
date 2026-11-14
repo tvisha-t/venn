@@ -29,6 +29,7 @@ export async function completeSignIn(input: { identityId: string } | { email: st
     }
   }
 
+  const claimedNow = Boolean(profile && claimProfileId && profile.id === claimProfileId);
   let isNew = false;
   if (!profile) {
     const [first, ...rest] = id.displayName.split(" ");
@@ -42,5 +43,8 @@ export async function completeSignIn(input: { identityId: string } | { email: st
   }
 
   const [p] = await sql`select summary_approved from profiles where id = ${profile.id}`;
-  return { userId: user.id as string, profileId: profile.id as string, needsProfile: isNew || !p.summary_approved };
+  return {
+    userId: user.id as string, profileId: profile.id as string, needsProfile: isNew || !p.summary_approved,
+    isNew, joined: isNew || claimedNow, // joined = this sign-in created or claimed the profile (credits an invite)
+  };
 }

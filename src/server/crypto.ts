@@ -72,6 +72,26 @@ export function verifySession(cookie: string | undefined | null): Session | null
   }
 }
 
+// ---------------------------------------------------------------- short-lived signed cookies
+/** Signs a small JSON payload for a cookie. `kind` keeps one cookie type from being replayed as another. */
+export function signPayload(kind: string, data: Record<string, unknown>): string {
+  const payload = Buffer.from(JSON.stringify({ ...data, iat: Date.now() })).toString("base64url");
+  return `${payload}.${hmac(`${kind}:${payload}`)}`;
+}
+
+export function verifyPayload<T>(kind: string, cookie: string | undefined | null, maxAgeMs: number): T | null {
+  if (!cookie) return null;
+  const [payload, sig] = cookie.split(".");
+  if (!payload || !sig || !safeEq(sig, hmac(`${kind}:${payload}`))) return null;
+  try {
+    const d = JSON.parse(Buffer.from(payload, "base64url").toString()) as T & { iat: number };
+    if (typeof d.iat !== "number" || Date.now() - d.iat > maxAgeMs) return null;
+    return d;
+  } catch {
+    return null;
+  }
+}
+
 /** Inbound webhook signature: HMAC-SHA256 of the raw body, hex, in `x-venn-signature`. */
 export function verifyWebhook(rawBody: string, signature: string | null): boolean {
   if (!signature) return false;

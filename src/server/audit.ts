@@ -5,7 +5,8 @@ export type AuditAction =
   | "profile.claim" | "profile.approve" | "aa.import" | "intro.decline" | "email.bounce"
   | "shared_contact.view" | "shared_contact.update" | "invite.send" | "invite.optout"
   | "intro.connect" | "email.inbound_rejected"
-  | "auth.code_requested" | "auth.code_verified" | "auth.code_failed" | "auth.wrong_domain" | "auth.rate_limited";
+  | "auth.code_requested" | "auth.code_verified" | "auth.code_failed" | "auth.wrong_domain" | "auth.rate_limited"
+  | "invite.link_created" | "invite.link_reset" | "referral.join" | "auth.linkedin";
 
 export async function audit(
   actor: string,

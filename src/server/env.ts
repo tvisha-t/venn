@@ -42,6 +42,10 @@ export const env = {
   get showSigninCodes() { return opt("SANDBOX_SHOW_SIGNIN_CODES", process.env.NODE_ENV === "production" ? "false" : "true") === "true"; },
   /** The "Continue with school login" demo picker (fictional identities, no verification). */
   get demoLogin() { return opt("ALLOW_DEMO_LOGIN", "true") === "true"; },
+  /** "Continue with LinkedIn" (Sign In with LinkedIn using OpenID Connect). Off until both are set. */
+  get linkedinClientId() { return opt("LINKEDIN_CLIENT_ID").trim(); },
+  get linkedinClientSecret() { return opt("LINKEDIN_CLIENT_SECRET").trim(); },
+  get linkedinReady() { return Boolean(this.linkedinClientId && this.linkedinClientSecret); },
   get appUrl() { return opt("APP_URL", "http://localhost:3000"); },
   get appName() { return opt("APP_NAME", "Venn"); },
   get coBrandAA() { return opt("FEATURE_AA_COBRAND") === "true"; },

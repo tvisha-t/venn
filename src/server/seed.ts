@@ -29,7 +29,7 @@ export async function migrate(db = defaultSql) {
 }
 
 export async function resetDatabase(db = defaultSql) {
-  await db.unsafe(`drop table if exists signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
+  await db.unsafe(`drop table if exists linkedin_links, referrals, invite_links, signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
     goal_parse_cache, goals, suppression_list, contact_points, profiles, users, schools cascade`);
 }
 

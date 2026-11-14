@@ -6,6 +6,7 @@ import { setSession } from "@/server/session";
 import { HttpError, route, throttle } from "@/server/http";
 import { verifySession } from "@/server/crypto";
 import { env } from "@/server/env";
+import { applyReferralCookie } from "@/server/referrals";
 
 // Demo picker ("Continue with school login" until GT SSO is approved): fictional identities only.
 // Typed emails never sign in here; they must go through /api/auth/request-code + verify-code.
@@ -20,7 +21,9 @@ export const POST = route(async (req: Request) => {
   const claim = verifySession(jar.get("venn_claim")?.value);
   const r = await completeSignIn(parsed.data, claim?.profileId);
   jar.delete("venn_claim");
+  const invited = Boolean(jar.get("venn_ref"));
+  await applyReferralCookie(jar, r);
   await setSession({ userId: r.userId, profileId: r.profileId });
-  const next = r.needsProfile ? (claim ? "/profile?import=linkedin" : "/profile") : "/home";
+  const next = r.needsProfile ? (claim ? "/profile?import=linkedin" : invited ? "/profile?welcome=1" : "/profile") : "/home";
   return NextResponse.json({ ok: true, next, claimed: Boolean(claim) });
 });

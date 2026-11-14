@@ -73,6 +73,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <MapPin className="size-4 text-text-muted" aria-hidden /> {me.profile.city}
               </Link>
             )}
+            {me?.profile.summaryApproved && (
+              <Button variant="outline" size="sm" onClick={() => setInviteOpen(true)} aria-label="Invite a Yellow Jacket">
+                <UserPlus /> <span className="hidden sm:inline">Invite</span>
+              </Button>
+            )}
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

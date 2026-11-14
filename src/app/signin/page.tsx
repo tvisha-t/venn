@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { VennLogo } from "@/components/brand/VennLogo";
 import { SignInCode } from "@/components/SignInCode";
+import { LinkedInButton } from "@/components/LinkedInButton";
 import { normalizeEmail, schoolForEmail } from "@/lib/schoolDomain";
 
 const WRONG_DOMAIN = "Use your Georgia Tech email, ending in @gatech.edu.";
@@ -55,7 +56,12 @@ function SampleMatch() {
 
 function SignIn() {
   const router = useRouter();
-  const claim = useSearchParams().get("claim") === "1";
+  const params = useSearchParams();
+  const claim = params.get("claim") === "1";
+  const invited = params.get("invited") === "1";
+  const liState = params.get("linkedin"); // verify | unavailable | cancelled | error
+  const [li, setLi] = useState<{ ready: boolean; pendingFirstName: string | null } | null>(null);
+  useEffect(() => { api<{ ready: boolean; pendingFirstName: string | null }>("/api/auth/linkedin/status").then(setLi).catch(() => {}); }, []);
   const [email, setEmail] = useState("");
   const [emailErr, setEmailErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -122,6 +128,24 @@ function SignIn() {
           <p className="text-body-sm">Sign in and we&apos;ll prefill your profile from your Alumni Association record. Nothing goes public until you approve it.</p>
         </div>
       )}
+      {li?.pendingFirstName ? (
+        <div className="mb-6 rounded-md bg-primary-soft px-4 py-3 text-primary-ink">
+          <p className="font-semibold">Hi {li.pendingFirstName}, LinkedIn is connected.</p>
+          <p className="text-body-sm">One more step: enter your Georgia Tech email so we know you&apos;re a Yellow Jacket. You only do this once.</p>
+        </div>
+      ) : invited && !claim ? (
+        <div className="mb-6 rounded-md bg-primary-soft px-4 py-3 text-primary-ink">
+          <p className="font-semibold">You&apos;re joining from an invite</p>
+          <p className="text-body-sm">Enter your Georgia Tech email and we&apos;ll send a 6-digit code. It takes about a minute.</p>
+        </div>
+      ) : liState && liState !== "verify" ? (
+        <p role="status" className="mb-6 flex items-start gap-1.5 rounded-md bg-surface-raised px-4 py-3 text-body-sm text-text-muted">
+          <AlertCircle className="mt-px size-4 shrink-0" aria-hidden />
+          {liState === "unavailable" ? "LinkedIn sign-in is coming soon. Use your school email for now."
+            : liState === "cancelled" ? "LinkedIn sign-in was cancelled. You can use your school email instead."
+            : "LinkedIn sign-in didn't finish. Try again, or use your school email."}
+        </p>
+      ) : null}
       <form onSubmit={continueWithEmail} className="space-y-3" noValidate>
         <label htmlFor="email" className="block text-[13px] font-semibold">School email</label>
         <input
@@ -150,6 +174,7 @@ function SignIn() {
       <Button variant="outline" size="lg" className="w-full" onClick={() => setOpen(true)}>
         <KeyRound /> Continue with school login
       </Button>
+      {!li?.pendingFirstName && <LinkedInButton ready={!!li?.ready} className="mt-3" />}
       <p className="mt-3 text-center text-body-sm text-text-muted">Graduated? Use your alumni forwarding address.</p>
     </>
   );
