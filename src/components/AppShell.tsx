@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { Bell, Bookmark, Compass, Inbox, LogOut, MapPin, Search, Send, Shield, UserPlus, UserRound } from "lucide-react";
+import { Bell, Bookmark, CalendarDays, Compass, Inbox, LogOut, MapPin, Search, Send, Shield, UserPlus, UserRound } from "lucide-react";
 import { api, type OwnProfile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ export const useMe = () => useContext(MeCtx);
 const NAV = [
   { href: "/home", label: "Find", icon: Search, match: ["/home", "/goals"] },
   { href: "/explore", label: "Explore", icon: Compass, match: ["/explore"] },
+  { href: "/events", label: "Events", icon: CalendarDays, match: ["/events"] },
   { href: "/requests", label: "Requests", icon: Send, match: ["/requests"] },
   { href: "/profile", label: "Profile", icon: UserRound, match: ["/profile"] },
 ];
@@ -115,7 +116,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </footer>
 
       {/* Bottom tab bar (phones) */}
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
         {NAV.map((n) => {
           const active = isActive(n.match);
           return (

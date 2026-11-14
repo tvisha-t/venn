@@ -29,7 +29,7 @@ export async function migrate(db = defaultSql) {
 }
 
 export async function resetDatabase(db = defaultSql) {
-  await db.unsafe(`drop table if exists linkedin_links, referrals, invite_links, signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
+  await db.unsafe(`drop table if exists event_rsvps, events, linkedin_links, referrals, invite_links, signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
     goal_parse_cache, goals, suppression_list, contact_points, profiles, users, schools cascade`);
 }
 
@@ -259,6 +259,68 @@ export async function seedDemoConversations(db = defaultSql) {
   return out;
 }
 
+/**
+ * Demo events (Atlanta, next 30 days). Fixed ids: re-running refreshes the dates relative to today
+ * (so the demo always has upcoming events) without duplicating anything. Everything is marked
+ * is_demo except "Home for the Holidays", a real GT tradition that links to the Alumni Association.
+ */
+export async function seedDemoEvents(db = defaultSql) {
+  const [school] = await db`select id from schools where slug = 'gatech'`;
+  if (!school) return 0;
+  const H = (name: string) => ({ Midtown: [33.7838, -84.383], Downtown: [33.755, -84.39], Buckhead: [33.8395, -84.3798], Westside: [33.781, -84.412],
+    "Old Fourth Ward": [33.764, -84.372], "Inman Park": [33.759, -84.353], "Virginia-Highland": [33.781, -84.354] } as Record<string, number[]>)[name];
+  const E = (n: number) => `e7e00000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+  const events = [
+    { id: E(1), days: 3, at: "18:30", hours: 2, title: "Young Alumni Happy Hour", category: "social", hood: "Midtown", venue: "Midtown Commons (demo venue)", addr: "1000 Peachtree St NE, Atlanta, GA", going: 31,
+      desc: "Drinks and snacks for Jackets who graduated in the last 10 years. Come straight from work, no RSVP fee." },
+    { id: E(2), days: 5, at: "07:45", hours: 1.5, title: "Fintech Jackets Breakfast", category: "career", hood: "Buckhead", venue: "Buckhead Cafe Room (demo venue)", addr: "3400 Peachtree Rd NE, Atlanta, GA", going: 14,
+      desc: "Coffee and a short panel with Jackets working in payments and fintech. Bring questions about breaking in." },
+    { id: E(3), days: 8, at: "09:00", hours: 3, title: "Food Bank Volunteer Morning", category: "volunteer", hood: "Westside", venue: "Westside Food Bank (demo venue)", addr: "730 Joseph E Lowery Blvd NW, Atlanta, GA", going: 18,
+      desc: "Sort and pack food with other Jackets. Closed-toe shoes, all ages 12+ welcome." },
+    { id: E(4), days: 13, at: "19:30", hours: 3.5, title: "Rivalry Game Watch", category: "game_watch", hood: "Midtown", venue: "Tech Square Hall (demo venue)", addr: "85 5th St NW, Atlanta, GA", going: 112, featured: true,
+      desc: "The biggest game of the year on the big screens. Wear gold. Food and drinks for purchase." },
+    { id: E(5), days: 20, at: "19:00", hours: 3, title: "Board Game Night", category: "member_hosted", source: "member", hood: "Old Fourth Ward", venue: "Ponce City lounge (demo venue)", addr: "675 Ponce De Leon Ave NE, Atlanta, GA", going: 9,
+      desc: "Bring a favorite game or learn a new one. Six tables, beginners welcome.", host: "morgan" },
+    { id: E(6), days: 16, at: "10:00", hours: 3, title: "Family Day at the Park", category: "family", hood: "Virginia-Highland", venue: "Piedmont Park meadow (demo venue)", addr: "400 Park Dr NE, Atlanta, GA", going: 22,
+      desc: "Picnic and lawn games for Jackets and their families. Kids' activities from 10 to noon." },
+    { id: E(7), days: 27, at: "17:00", hours: 3, title: "Home for the Holidays", category: "social", hood: "Downtown", venue: "Downtown Atlanta (see Alumni Association page)", addr: "Downtown Atlanta, GA", going: 64, real: true,
+      url: "https://www.gtalumni.org/events",
+      desc: "A Georgia Tech Alumni Association tradition: Jackets home for the holidays get together. Date and venue here are placeholders; the Alumni Association page has the official details and registration." },
+    { id: E(8), days: 10, at: "08:00", hours: 1.5, title: "Saturday Run on the BeltLine", category: "social", source: "member", hood: "Inman Park", venue: "Inman Park BeltLine entrance (demo venue)", addr: "Krog St & Irwin St NE, Atlanta, GA", going: 12,
+      desc: "An easy 5K at conversation pace, then coffee. All speeds.", host: "alex" },
+  ];
+  const morgan = DEMO_ALUM_ID, alex = DEMO_STUDENT_ID;
+  const hostName = async (pid: string) => { const [p] = await db`select first_name, last_name from profiles where id = ${pid}`; return p ? `${p.first_name} ${p.last_name}` : "A Jacket"; };
+  for (const e of events) {
+    const [lat, lng] = H(e.hood)!;
+    const hostId = e.host === "morgan" ? morgan : e.host === "alex" ? alex : null;
+    const hostLabel = hostId ? await hostName(hostId) : "Atlanta Network";
+    await db`
+      insert into events (id, school_id, title, description, category, source, host_label, host_profile_id, starts_at, ends_at, city, neighborhood,
+        venue_name, venue_address, lat, lng, external_url, is_featured, is_demo)
+      values (${e.id}, ${school.id}, ${e.title}, ${e.desc}, ${e.category}, ${e.source ?? "network"}, ${hostLabel}, ${hostId},
+        ((date_trunc('day', now() at time zone 'America/New_York') + make_interval(days => ${e.days}) + ${e.at}::time) at time zone 'America/New_York'),
+        ((date_trunc('day', now() at time zone 'America/New_York') + make_interval(days => ${e.days}) + ${e.at}::time + make_interval(mins => ${Math.round(e.hours * 60)})) at time zone 'America/New_York'),
+        'Atlanta', ${e.hood}, ${e.venue}, ${e.addr}, ${lat}, ${lng}, ${e.url ?? null}, ${Boolean(e.featured)}, ${!e.real})
+      on conflict (id) do update set starts_at = excluded.starts_at, ends_at = excluded.ends_at, title = excluded.title, description = excluded.description,
+        host_label = excluded.host_label, external_url = excluded.external_url, is_featured = excluded.is_featured`;
+    const [{ n }] = await db`select count(*)::int n from event_rsvps where event_id = ${e.id}`;
+    if (n > 0) continue;
+    // Claimed members first (they can show as faces), then other visible Atlanta-area people to reach the count.
+    const people = await db`
+      select p.id from profiles p
+      where p.status <> 'removed' and not p.ferpa_restricted and (p.status = 'unclaimed' or p.summary_approved)
+        and p.id not in (${alex}, ${morgan})
+        and (p.status = 'claimed' or lower(coalesce(p.city, '')) = 'atlanta')
+      order by (p.status = 'claimed') desc, md5(p.id::text || ${e.id}) limit ${e.going}`;
+    if (people.length) await db`insert into event_rsvps ${db(people.map((p) => ({ event_id: e.id, profile_id: p.id })), "event_id", "profile_id")} on conflict do nothing`;
+    if (hostId) await db`insert into event_rsvps (event_id, profile_id) values (${e.id}, ${hostId}) on conflict do nothing`;
+  }
+  // Alex is going to the happy hour ("Going 1" in the demo); Morgan to the game watch.
+  await db`insert into event_rsvps (event_id, profile_id) values (${E(1)}, ${alex}), (${E(4)}, ${morgan}) on conflict do nothing`;
+  return events.length;
+}
+
 export async function seedAll(db = defaultSql): Promise<{ members: number; intros: number; aa: ImportCounts; demo: number }> {
   await migrate(db);
   const schoolId = await seedSchool(db);
@@ -269,5 +331,6 @@ export async function seedAll(db = defaultSql): Promise<{ members: number; intro
   const demo = (await seedDemoPeople(schoolId, db)).length;
   await seedDemoIntros(db);
   await seedDemoConversations(db);
+  await seedDemoEvents(db);
   return { members, intros, aa, demo };
 }
