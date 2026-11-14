@@ -22,7 +22,8 @@ type Form = {
 };
 
 const fromProfile = (p: OwnProfile): Form => ({
-  firstName: p.firstName, lastName: p.lastName === "-" || (p.lastName === "Member" && !p.summaryApproved) ? "" : p.lastName, roles: p.roles, classYear: p.classYear ? String(p.classYear) : "",
+  firstName: p.firstName === "-" || (p.lastName === "Member" && !p.summaryApproved) ? "" : p.firstName,
+  lastName: p.lastName === "-" || (p.lastName === "Member" && !p.summaryApproved) ? "" : p.lastName, roles: p.roles, classYear: p.classYear ? String(p.classYear) : "",
   degree: p.degree ?? "", major: p.major ?? "", industry: p.industry ?? "", employer: p.employer ?? "", jobTitle: p.jobTitle ?? "",
   city: p.city ?? "", state: p.state ?? "", gtPrograms: p.gtPrograms, csThreads: p.csThreads, activities: p.activities.join(", "),
   summary: p.summary ?? "", openTo: p.openTo, interests: p.interests.join(", "),
@@ -68,6 +69,7 @@ function ProfileInner() {
       const x = data.extracted;
       setForm((f) => f && {
         ...f,
+        firstName: x.firstName || f.firstName, lastName: x.lastName || f.lastName,
         roles: x.roles.length ? x.roles : f.roles, classYear: x.classYear ? String(x.classYear) : f.classYear, degree: x.degree ?? f.degree,
         major: x.major ?? f.major, industry: x.industry ?? f.industry, employer: x.employer ?? f.employer, jobTitle: x.jobTitle ?? f.jobTitle,
         city: x.city ?? f.city, state: x.state ?? f.state, gtPrograms: x.gtPrograms, csThreads: x.csThreads,
@@ -126,7 +128,7 @@ function ProfileInner() {
           )}
           {welcome && !fromClaim && (
             <div className="rounded-lg bg-primary-soft px-4 py-3 text-primary-ink">
-              <p className="font-semibold">Welcome to Venn, {me.profile.firstName}!</p>
+              <p className="font-semibold">Welcome to Venn{me.profile.firstName !== "-" ? `, ${me.profile.firstName}` : ""}!</p>
               <p className="text-body-sm">Fill your profile in 30 seconds: on LinkedIn, open your profile → <em>More</em> → <em>Save to PDF</em>, then upload it below. You review everything before it goes live.</p>
             </div>
           )}

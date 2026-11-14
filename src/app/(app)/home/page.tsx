@@ -147,7 +147,7 @@ function HomeInner() {
         <VennMark size={420} stroke="var(--on-brand)" overlap="var(--on-brand)" className="pointer-events-none absolute -right-16 -top-24 opacity-[0.07] max-md:size-[260px] max-md:-right-20 max-md:-top-10" />
         <div className={cn("relative mx-auto max-w-[1200px] px-5 sm:px-6", searching ? "pb-10 pt-8" : "pb-16 pt-10 md:pt-14")}>
           <h1 id="home-h" className="text-[36px] font-extrabold leading-[1.1] tracking-[-0.035em] md:text-[44px] md:leading-[48px]">
-            {me ? `Hi ${me.profile.firstName}. ` : ""}Who do you <span className="hl-brand">need</span>?
+            {me && me.profile.firstName !== "-" ? `Hi ${me.profile.firstName}. ` : ""}Who do you <span className="hl-brand">need</span>?
           </h1>
           <form className="mt-6 max-w-[760px]" onSubmit={(e) => { e.preventDefault(); run(text); }}>
             <Label htmlFor="goal" className="sr-only">Your goal</Label>

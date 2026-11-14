@@ -43,7 +43,9 @@ test("school-email sign-in: rejects non-school email, verifies a code, creates a
   await page.waitForURL(/\/profile/);
   await expect(page.getByRole("heading", { name: "Build your profile" })).toBeVisible();
   await page.getByRole("button", { name: "Skip — fill it in myself" }).click();
-  await expect(page.getByLabel("First name")).toHaveValue("Casey");
+  // No name is guessed from the email address: the member types it (or a resume / LinkedIn fills it).
+  await expect(page.getByLabel("First name")).toHaveValue("");
+  await expect(page.getByLabel("Last name")).toHaveValue("");
 
   // Same email again → same account (still needs to finish the profile)
   await page.goto("about:blank");
@@ -56,7 +58,7 @@ test("school-email sign-in: rejects non-school email, verifies a code, creates a
   await page.waitForURL(/\/profile/);
   await expect(page.getByRole("heading", { name: "Build your profile" })).toBeVisible();
   await page.getByRole("button", { name: "Skip — fill it in myself" }).click();
-  await expect(page.getByLabel("First name")).toHaveValue("Casey");
+  await expect(page.getByLabel("First name")).toHaveValue("");
 
   // Terms and Privacy pages exist
   await page.goto("/privacy");

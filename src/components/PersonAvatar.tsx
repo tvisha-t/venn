@@ -2,7 +2,8 @@ import { cn } from "@/lib/utils";
 
 // Navy initials avatar (no photos are collected). White initials on --brand in both themes.
 export function PersonAvatar({ first, last, size = 44, className }: { first: string; last: string; size?: number; className?: string }) {
-  const initials = `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
+  const letter = (s: string) => (s.match(/\p{L}/u)?.[0] ?? "");
+  const initials = `${letter(first)}${letter(last)}`.toUpperCase() || "·";
   return (
     <span
       aria-hidden

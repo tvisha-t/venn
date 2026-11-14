@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <DropdownMenuContent align="end" className="w-60 rounded-md shadow-pop">
                 {me && (
                   <DropdownMenuLabel className="font-normal">
-                    <p className="text-title-3">{me.profile.firstName} {me.profile.lastName}</p>
+                    <p className="text-title-3">{me.profile.firstName === "-" ? "New member" : `${me.profile.firstName} ${me.profile.lastName === "-" ? "" : me.profile.lastName}`}</p>
                     <p className="text-body-sm text-text-muted">{me.profile.major ?? me.profile.employer ?? "Georgia Tech"}</p>
                   </DropdownMenuLabel>
                 )}

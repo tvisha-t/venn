@@ -111,7 +111,7 @@ async function signInWithEmail(raw: string): Promise<Identity> {
   if (!SCHOOL_EMAIL.test(email)) {
     throw new SchoolEmailError("Use your school email (you@gatech.edu) or your alumni / lifetime forwarding email.");
   }
-  return { subject: `mock|email|${sha256(email).slice(0, 24)}`, email, displayName: nameFromEmail(email), affiliation: affiliationFromEmail(email) };
+  return { subject: `mock|email|${sha256(email).slice(0, 24)}`, email, displayName: "", affiliation: affiliationFromEmail(email) }; // no guessing a name from the address: the member types it (or a resume/LinkedIn fills it)
 }
 
 export const identityProvider = new MockGtLogin();

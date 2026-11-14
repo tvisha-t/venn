@@ -36,7 +36,7 @@ export async function completeSignIn(input: { identityId: string } | { email: st
     const [school] = await sql`select id from schools where slug = 'gatech'`;
     [profile] = await sql`
       insert into profiles (school_id, user_id, status, source, first_name, last_name, roles, summary_approved)
-      values (${school.id}, ${user.id}, 'claimed', 'self', ${first}, ${rest.join(" ") || "-"}, ${[id.affiliation]}, false)
+      values (${school.id}, ${user.id}, 'claimed', 'self', ${first || "-"}, ${rest.join(" ") || "-"}, ${[id.affiliation]}, false)
       returning id`;
     await sql`insert into contact_points (profile_id, email_primary) values (${profile.id}, ${id.email}) on conflict do nothing`;
     isNew = true;

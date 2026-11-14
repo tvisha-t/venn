@@ -6,7 +6,7 @@ import { unzipSync } from "fflate";
 import Papa from "papaparse";
 import { GT_CONFIG } from "./seed";
 import { findCity } from "./geo";
-import { scrubResume, type Extracted } from "./resume";
+import { cleanName, scrubResume, type Extracted } from "./resume";
 
 export const LINKEDIN_ALLOWED = ["Profile.csv", "Positions.csv", "Education.csv", "Skills.csv"] as const;
 type Allowed = (typeof LINKEDIN_ALLOWED)[number];
@@ -128,6 +128,7 @@ export function extractFromLinkedIn(files: Partial<Record<Allowed, string>>, maj
   }
 
   return {
+    firstName: cleanName(get(profile, "First Name")), lastName: cleanName(get(profile, "Last Name")),
     roles,
     classYear,
     degree: gtLatest ? degreeShort(get(gtLatest, "Degree Name")) : null,
