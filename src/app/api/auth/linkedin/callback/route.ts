@@ -4,7 +4,8 @@ import { env } from "@/server/env";
 import { safeEq, verifySession } from "@/server/crypto";
 import { throttle } from "@/server/http";
 import { completeSignIn } from "@/server/auth";
-import { setSession } from "@/server/session";
+import { getSession, setSession } from "@/server/session";
+import { sql } from "@/server/db";
 import { applyReferralCookie } from "@/server/referrals";
 import { LI_PENDING_COOKIE, LI_STATE_COOKIE, fetchLinkedInUser, linkLinkedIn, signPending, userForLinkedIn } from "@/server/linkedin";
 import { schoolForEmail } from "@/lib/schoolDomain";
@@ -16,21 +17,31 @@ import { schoolForEmail } from "@/lib/schoolDomain";
 export async function GET(req: Request) {
   const go = (path: string) => NextResponse.redirect(new URL(path, req.url));
   const back = (q: string) => go(`/signin?linkedin=${q}`);
+  const fail = async (q: string) => ((await getSession()) ? go(`/profile?linkedin=${q}#linkedin`) : back(q));
   const jar = await cookies();
   const expected = jar.get(LI_STATE_COOKIE)?.value;
   jar.delete(LI_STATE_COOKIE);
   try {
     throttle(req, "auth");
     const url = new URL(req.url);
-    if (url.searchParams.get("error")) return back("cancelled");
+    if (url.searchParams.get("error")) return fail("cancelled");
     if (!env.linkedinReady) return back("unavailable");
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
-    if (!code || !state || !expected || !safeEq(state, expected)) return back("error");
+    if (!code || !state || !expected || !safeEq(state, expected)) return fail("error");
 
     const li = await fetchLinkedInUser(code);
-
     const existing = await userForLinkedIn(li.subHash);
+
+    // Connect mode: a verified, signed-in member links LinkedIn to their own profile (from the profile builder).
+    const session = await getSession();
+    if (session) {
+      if (existing && existing.userId !== session.userId) return go("/profile?linkedin=taken");
+      const [p] = await sql`select summary_approved from profiles where id = ${session.profileId}`;
+      await linkLinkedIn(session.userId, session.profileId, li, !p?.summary_approved); // fills the name only before publishing
+      return go("/profile?linkedin=connected#linkedin");
+    }
+
     if (existing) {
       await setSession({ userId: existing.userId, profileId: existing.profileId });
       return go(existing.approved ? "/home" : "/profile");
@@ -51,6 +62,6 @@ export async function GET(req: Request) {
     });
     return back("verify");
   } catch {
-    return back("error");
+    return fail("error");
   }
 }

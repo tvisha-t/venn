@@ -14,19 +14,19 @@ export function LinkedInMark({ className }: { className?: string }) {
  * "Continue with LinkedIn". Works once LINKEDIN_CLIENT_ID/SECRET are set; until then it shows
  * as "Coming soon" and does nothing. A plain link (full-page navigation), not a fetch.
  */
-export function LinkedInButton({ ready, href = "/api/auth/linkedin/start", className }: { ready: boolean; href?: string; className?: string }) {
+export function LinkedInButton({ ready, href = "/api/auth/linkedin/start", className, label = "Continue with LinkedIn" }: { ready: boolean; href?: string; className?: string; label?: string }) {
   const base = "inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-md border border-line-control bg-surface text-body-strong text-text";
   if (!ready) {
     return (
       <span aria-disabled="true" className={cn(base, "cursor-not-allowed opacity-60", className)}>
-        <LinkedInMark /> Continue with LinkedIn
+        <LinkedInMark /> {label}
         <span className="rounded-full bg-surface-raised px-2 py-0.5 text-label text-text-muted">Coming soon</span>
       </span>
     );
   }
   return (
     <a href={href} className={cn(base, "transition-colors hover:border-text-muted", className)}>
-      <LinkedInMark /> Continue with LinkedIn
+      <LinkedInMark /> {label}
     </a>
   );
 }

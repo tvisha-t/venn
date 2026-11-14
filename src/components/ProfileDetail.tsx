@@ -5,12 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/states";
 import { PersonAvatar } from "@/components/PersonAvatar";
+import { LinkedInMark } from "@/components/LinkedInButton";
 import { UnclaimedBadge, majorShort, shortYear } from "@/components/ResultRow";
 import { useMe } from "@/components/AppShell";
 import { overlapReasons, useDistanceBand } from "@/lib/overlap";
 import { api, ROLE_LABEL, type IntroStatus, type PublicProfile, type SharedContact } from "@/lib/api";
 
-type Resp = { profile: PublicProfile; sharesContact: boolean; myIntro: { id: string; status: IntroStatus } | null };
+type Resp = {
+  profile: PublicProfile; sharesContact: boolean; myIntro: { id: string; status: IntroStatus } | null;
+  linkedin?: { connected: boolean; shared: boolean };
+};
+
+/**
+ * "LinkedIn" button for members who connected LinkedIn and shared their profile link. The link is fetched
+ * from the audited contact endpoint on click (the window opens first, so pop-up blockers allow it).
+ */
+function LinkedInLink({ id, name }: { id: string; name: string }) {
+  async function open() {
+    const w = window.open("about:blank", "_blank");
+    try {
+      const { contact } = await api<{ contact: SharedContact }>(`/api/profiles/${id}/contact`);
+      if (contact.linkedinUrl && w) { w.opener = null; w.location.href = contact.linkedinUrl; } else w?.close();
+    } catch { w?.close(); }
+  }
+  return (
+    <button type="button" onClick={open} aria-label={`Open ${name}'s LinkedIn profile (new tab)`}
+      className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-full border border-brand-line bg-brand-raised px-3 text-label text-on-brand hover:bg-brand">
+      <LinkedInMark className="size-4" /> LinkedIn
+    </button>
+  );
+}
 
 export function Pills({ items, max }: { items: string[]; max?: number }) {
   if (!items.length) return null;
@@ -86,6 +110,7 @@ export function ProfileDetail({ id, reason, onRequest }: { id: string; reason?: 
         <div className="min-w-0 flex-1">
           <h2 className="text-title-1 text-on-brand">{p.firstName} {p.lastName}</h2>
           <p className="text-body-sm text-on-brand-muted">{roleLine}</p>
+          {data.linkedin?.connected && data.linkedin.shared && <LinkedInLink id={p.id} name={p.firstName} />}
         </div>
         <div className="shrink-0 text-right">
           {band && <p className="font-mono text-[15px] text-on-brand">{band}</p>}

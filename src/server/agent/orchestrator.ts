@@ -3,8 +3,9 @@
 import { sql } from "../db";
 import type { PublicProfile } from "../dto";
 import { getOwnProfile, getPublicProfile } from "../profiles";
-import { parseGoal, type ParsedGoal } from "./parse";
-import { countSearchable, searchProfiles } from "./search";
+import { parseGoal, parseGoalRules, type ParsedGoal } from "./parse";
+import { getVocab } from "./vocab";
+import { countSearchable, findByName, searchProfiles, type Candidate } from "./search";
 import { rankMatches } from "./rank";
 
 export type AgentEvent =
@@ -34,6 +35,25 @@ export function understoodChips(g: ParsedGoal): string[] {
 
 export async function runGoal(raw: string, profileId: string, emit: (e: AgentEvent) => void, opts: { standing?: boolean } = {}) {
   const me = await getOwnProfile(profileId);
+
+  // Looking for a specific person? A query that is just a member's name shows them directly.
+  const named = await findByName(raw, profileId);
+  if (named.length) {
+    const label = `Looking up “${raw.trim()}”`;
+    emit({ type: "step", id: "search", label, status: "running" });
+    const parsed: ParsedGoal = { ...parseGoalRules(raw, await getVocab()), explanation: `People named “${raw.trim()}” on Venn.`, clarifying_question: null };
+    const reason = (p: Candidate) => `Name matches “${raw.trim()}”${p.status === "claimed" ? " · Venn member" : ""}.`;
+    const ranked = named.map((p, i) => ({ profileId: p.id, score: 1 - i * 0.01, reason: reason(p) }));
+    const goalId = await saveGoal(profileId, raw, parsed, [], ranked, opts.standing ?? false);
+    emit({ type: "step", id: "search", label, status: "done" });
+    emit({ type: "step", id: "ready", label: "Ready", status: "done" });
+    emit({
+      type: "result", goalId, explanation: parsed.explanation, understood: [`Name: ${raw.trim()}`], relaxed: [],
+      matches: named.map((profile, i) => ({ profile, score: ranked[i].score, reason: ranked[i].reason, rank: i + 1 })),
+      usedFallback: false,
+    });
+    return goalId;
+  }
 
   emit({ type: "step", id: "parse", label: "Understanding your goal", status: "running" });
   const totalP = countSearchable(); // runs while Claude reads the goal

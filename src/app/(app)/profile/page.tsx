@@ -2,7 +2,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { FileUp, Loader2, ShieldCheck } from "lucide-react";
+import { Check, FileUp, Loader2, ShieldCheck } from "lucide-react";
+import { LinkedInButton, LinkedInMark } from "@/components/LinkedInButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -112,6 +113,8 @@ function ProfileInner() {
             : "Upload a LinkedIn “Save to PDF” or your resume. AI extracts your profile, and nothing goes public until you approve it."}
         </p>
       </header>
+
+      <LinkedInConnect />
 
       {mode === "import" ? (
         <section className="space-y-4 rounded-lg border bg-surface p-5">
@@ -231,6 +234,74 @@ function ChipSet({ legend, options, value, onToggle }: { legend: string; options
   );
 }
 
+/**
+ * LinkedIn, after GT verification: "Connect LinkedIn" proves the member owns a LinkedIn account
+ * (LinkedIn's sign-in shares only name + email, never the profile link, jobs or education), then the
+ * member adds their profile link, which signed-in GT members see as a "LinkedIn" button on their profile.
+ */
+function LinkedInConnect() {
+  const params = useSearchParams();
+  const result = params.get("linkedin"); // connected | taken | cancelled | error
+  const [st, setSt] = useState<{ ready: boolean; connected: boolean } | null>(null);
+  const [url, setUrl] = useState("");
+  const [saved, setSaved] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    api<{ ready: boolean; connected: boolean }>("/api/auth/linkedin/status").then(setSt).catch(() => setSt({ ready: false, connected: false }));
+    api<{ contact: SharedContact }>("/api/me/contact").then((r) => { setSaved(r.contact.linkedinUrl); setUrl(r.contact.linkedinUrl ?? ""); }).catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (result === "connected") toast.success("LinkedIn connected. Add your profile link so members can open it.");
+    if (result === "taken") toast.error("That LinkedIn account is already connected to another Venn member.");
+    if (result === "error") toast.error("LinkedIn didn't finish connecting. Try again.");
+  }, [result]);
+
+  if (!st || (!st.ready && !st.connected)) return null;
+
+  async function saveUrl(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true); setErr(null);
+    try {
+      const cur = (await api<{ contact: SharedContact }>("/api/me/contact")).contact;
+      const r = await api<{ contact: SharedContact }>("/api/me/contact", { method: "PUT", json: { ...cur, linkedinUrl: url.trim() } });
+      setSaved(r.contact.linkedinUrl);
+      window.dispatchEvent(new Event("venn:contact-updated"));
+      toast.success(r.contact.linkedinUrl ? "LinkedIn link added to your profile." : "LinkedIn link removed.");
+    } catch (x) { setErr((x as Error).message); }
+    setBusy(false);
+  }
+
+  return (
+    <section id="linkedin" aria-labelledby="li-h" className="rounded-lg border border-line bg-surface p-5 shadow-card">
+      <div className="flex items-start gap-3">
+        <LinkedInMark className="mt-0.5 size-6 shrink-0" />
+        <div className="min-w-0 flex-1">
+          <h2 id="li-h" className="text-title-3">
+            {st.connected ? <span className="inline-flex items-center gap-1.5">LinkedIn connected <Check className="size-4 text-success" aria-label="connected" /></span> : "Connect your LinkedIn"}
+          </h2>
+          <p className="mt-0.5 text-body-sm text-text-muted">
+            {st.connected
+              ? "Add your LinkedIn profile link. Signed-in GT members will see a LinkedIn button on your profile."
+              : "Link your LinkedIn so GT members can open it from your Venn profile. LinkedIn only shares your name with Venn."}
+          </p>
+        </div>
+      </div>
+      {!st.connected ? (
+        <LinkedInButton ready={st.ready} className="mt-4 sm:w-auto sm:px-5" label="Connect LinkedIn" />
+      ) : (
+        <form onSubmit={saveUrl} className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Label htmlFor="li-url" className="sr-only">Your LinkedIn profile link</Label>
+          <Input id="li-url" type="url" inputMode="url" placeholder="https://www.linkedin.com/in/your-name" value={url} onChange={(e) => setUrl(e.target.value)} className="sm:flex-1" />
+          <Button type="submit" variant="outline" disabled={busy || url.trim() === (saved ?? "")}>{busy && <Loader2 className="animate-spin" />} {saved ? "Update link" : "Add to profile"}</Button>
+        </form>
+      )}
+      {err && <p role="alert" className="mt-2 text-[13px] font-medium text-danger">{err}</p>}
+    </section>
+  );
+}
+
 function ContactSharing() {
   const [c, setC] = useState<SharedContact | null>(null);
   const [on, setOn] = useState<Record<keyof SharedContact, boolean>>({ preferredEmail: false, phone: false, linkedinUrl: false, websiteUrl: false });
@@ -238,10 +309,13 @@ function ContactSharing() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api<{ contact: SharedContact }>("/api/me/contact").then((r) => {
+    const load = () => api<{ contact: SharedContact }>("/api/me/contact").then((r) => {
       setC(r.contact);
       setOn({ preferredEmail: !!r.contact.preferredEmail, phone: !!r.contact.phone, linkedinUrl: !!r.contact.linkedinUrl, websiteUrl: !!r.contact.websiteUrl });
     }).catch((e) => setErr(e.message));
+    load();
+    window.addEventListener("venn:contact-updated", load); // the LinkedIn card above saved a link
+    return () => window.removeEventListener("venn:contact-updated", load);
   }, []);
 
   async function save() {

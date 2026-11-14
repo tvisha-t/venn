@@ -57,6 +57,29 @@ export async function searchProfiles(goal: ParsedGoal, viewer: string, opts: { l
   return { candidates, relaxed, effectiveFilters: f };
 }
 
+/**
+ * "Find a person by name": when the whole query looks like a name (1–4 words, letters only) and matches
+ * visible members' first, last or full name, return them. Same visibility rules as every search
+ * (published members and AA records only; never unpublished or FERPA-restricted people).
+ */
+export async function findByName(raw: string, viewer: string): Promise<Candidate[]> {
+  const q = raw.trim().replace(/\s+/g, " ");
+  if (!q || q.length > 60 || !/^[\p{L}][\p{L}'.-]*( [\p{L}][\p{L}'.-]*){0,3}$/u.test(q)) return [];
+  const lower = q.toLowerCase();
+  const rows = await sql`
+    select ${sql.unsafe(PUBLIC_COLUMNS)},
+      not exists (select 1 from contact_points cp where cp.profile_id = p.id and (cp.do_not_contact or cp.bounced)) as accepting_intros
+    from profiles p
+    where ${sql.unsafe(VISIBLE_PREDICATE)} and p.id <> ${viewer}
+      and (lower(p.first_name || ' ' || p.last_name) = ${lower}
+        or lower(p.first_name || ' ' || p.last_name) like ${lower.replace(/[%_]/g, "") + " %"}
+        or lower(p.first_name || ' ' || p.last_name) like ${lower.replace(/[%_]/g, "") + "%"} and ${lower.includes(" ")}
+        or lower(p.first_name) = ${lower} or lower(p.last_name) = ${lower})
+    order by (lower(p.first_name || ' ' || p.last_name) = ${lower}) desc, (p.status = 'claimed') desc, p.last_name, p.first_name
+    limit 12`;
+  return rows.map((r) => ({ ...toPublicProfile(r), vscore: 1 }));
+}
+
 export async function countSearchable() {
   const [{ n }] = await sql`select count(*)::int n from profiles p where ${sql.unsafe(VISIBLE_PREDICATE)}`;
   return n as number;
