@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { Check, FileUp, Loader2, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Check, FileUp, Loader2, ShieldCheck } from "lucide-react";
 import { LinkedInButton, LinkedInMark } from "@/components/LinkedInButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,6 +115,8 @@ function ProfileInner() {
             : "Upload a LinkedIn “Save to PDF” or your resume. AI extracts your profile, and nothing goes public until you approve it."}
         </p>
       </header>
+
+      <VerificationRow />
 
       <LinkedInConnect />
 
@@ -233,6 +235,26 @@ function ChipSet({ legend, options, value, onToggle }: { legend: string; options
         ))}
       </div>
     </fieldset>
+  );
+}
+
+/** How you're verified (badges others see) + a link to add another kind of proof. */
+function VerificationRow() {
+  const [badges, setBadges] = useState<{ method: string; label: string }[] | null>(null);
+  const [pending, setPending] = useState(0);
+  useEffect(() => {
+    api<{ badges: { method: string; label: string }[]; pending: unknown[] }>("/api/verify")
+      .then((r) => { setBadges(r.badges); setPending(r.pending.length); }).catch(() => setBadges([]));
+  }, []);
+  if (!badges) return null;
+  return (
+    <section aria-label="Verification" className="flex flex-wrap items-center gap-2 rounded-lg border border-line bg-surface px-5 py-3.5 shadow-card">
+      {badges.map((b) => (
+        <span key={b.method} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-success-soft px-3 text-label text-success"><BadgeCheck className="size-4" aria-hidden /> {b.label}</span>
+      ))}
+      {pending > 0 && <span className="inline-flex h-8 items-center rounded-full bg-accent-soft px-3 text-label text-accent-ink">{pending} in review</span>}
+      <a href="/verify" className="ml-auto text-body-sm font-semibold text-link underline underline-offset-2">Other ways to verify</a>
+    </section>
   );
 }
 

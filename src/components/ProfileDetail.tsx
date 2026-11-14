@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Check, Globe, Link2, Lock, Mail, Phone, Send } from "lucide-react";
+import { BadgeCheck, Check, Globe, Link2, Lock, Mail, Phone, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/states";
@@ -14,6 +14,8 @@ import { api, ROLE_LABEL, type IntroStatus, type PublicProfile, type SharedConta
 type Resp = {
   profile: PublicProfile; sharesContact: boolean; myIntro: { id: string; status: IntroStatus } | null;
   linkedin?: { connected: boolean; shared: boolean };
+  badges?: { method: string; label: string }[];
+  groups?: string[]; sharedGroups?: string[];
 };
 
 /**
@@ -30,7 +32,7 @@ function LinkedInLink({ id, name }: { id: string; name: string }) {
   }
   return (
     <button type="button" onClick={open} aria-label={`Open ${name}'s LinkedIn profile (new tab)`}
-      className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-full border border-brand-line bg-brand-raised px-3 text-label text-on-brand hover:bg-brand">
+      className="inline-flex h-7 items-center gap-1.5 rounded-full border border-brand-line bg-brand-raised px-3 text-label text-on-brand hover:bg-brand">
       <LinkedInMark className="size-4" /> LinkedIn
     </button>
   );
@@ -96,7 +98,8 @@ export function ProfileDetail({ id, reason, onRequest }: { id: string; reason?: 
 
   const p = data.profile;
   const sent = data.myIntro && data.myIntro.status !== "draft";
-  const reasons = [...(reason ? [reason.replace(/\.?$/, ".")] : []), ...overlapReasons(me?.profile, p)];
+  const reasons = [...(reason ? [reason.replace(/\.?$/, ".")] : []), ...overlapReasons(me?.profile, p),
+    ...(data.sharedGroups ?? []).map((g) => `You're both in ${g}.`)]; // groups count only when BOTH people show them
   const openMatch = me?.profile.roles.includes("student") && p.openTo.includes("mentoring students");
   if (openMatch) reasons.push("Marked open to mentoring students.");
   const roleLine = [p.jobTitle && p.employer ? `${p.jobTitle} at ${p.employer}` : p.employer ?? (p.roles.includes("student") ? `${p.major ?? "GT"} student` : "Role not listed"),
@@ -110,7 +113,12 @@ export function ProfileDetail({ id, reason, onRequest }: { id: string; reason?: 
         <div className="min-w-0 flex-1">
           <h2 className="text-title-1 text-on-brand">{p.firstName} {p.lastName}</h2>
           <p className="text-body-sm text-on-brand-muted">{roleLine}</p>
-          {data.linkedin?.connected && data.linkedin.shared && <LinkedInLink id={p.id} name={p.firstName} />}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {(data.badges ?? []).slice(0, 2).map((b) => (
+              <span key={b.method} className="inline-flex h-7 items-center gap-1 rounded-full bg-brand-raised px-2.5 text-[12px] font-semibold text-on-brand"><BadgeCheck className="size-3.5 text-accent" aria-hidden /> {b.label}</span>
+            ))}
+            {data.linkedin?.connected && data.linkedin.shared && <LinkedInLink id={p.id} name={p.firstName} />}
+          </div>
         </div>
         <div className="shrink-0 text-right">
           {band && <p className="font-mono text-[15px] text-on-brand">{band}</p>}
@@ -139,6 +147,10 @@ export function ProfileDetail({ id, reason, onRequest }: { id: string; reason?: 
         {p.openTo.length > 0 && <Section title="Open to"><Pills items={p.openTo} /></Section>}
 
         {p.summary && <Section title="About"><p className="text-text-muted">{p.summary}</p></Section>}
+
+        {(data.groups ?? []).length > 0 && (
+          <Section title="Groups"><ul className="flex flex-wrap gap-1.5">{data.groups!.map((g) => <li key={g} className="rounded-full bg-primary-soft px-3 py-1 text-label text-primary-ink">{g}</li>)}</ul></Section>
+        )}
 
         <Section title="Details">
           <dl className="grid grid-cols-[110px_1fr] gap-y-1.5">

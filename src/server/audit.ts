@@ -6,6 +6,8 @@ export type AuditAction =
   | "shared_contact.view" | "shared_contact.update" | "invite.send" | "invite.optout"
   | "intro.connect" | "email.inbound_rejected"
   | "auth.code_requested" | "auth.code_verified" | "auth.code_failed" | "auth.wrong_domain" | "auth.rate_limited"
+  | "verify.started" | "verify.approved" | "verify.rejected" | "verify.revoked"
+  | "group.join" | "group.leave"
   | "invite.link_created" | "invite.link_reset" | "referral.join" | "auth.linkedin";
 
 export async function audit(

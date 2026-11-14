@@ -42,6 +42,8 @@ export async function completeSignIn(input: { identityId: string } | { email: st
     isNew = true;
   }
 
+  // Signing in with a school email (or GT login) is the "GT email" verification.
+  await sql`update profiles set verified_method = coalesce(verified_method, 'gt_email'), verified_at = coalesce(verified_at, now()) where id = ${profile.id}`;
   const [p] = await sql`select summary_approved from profiles where id = ${profile.id}`;
   return {
     userId: user.id as string, profileId: profile.id as string, needsProfile: isNew || !p.summary_approved,

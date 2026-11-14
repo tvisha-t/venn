@@ -29,7 +29,7 @@ export async function migrate(db = defaultSql) {
 }
 
 export async function resetDatabase(db = defaultSql) {
-  await db.unsafe(`drop table if exists event_rsvps, events, linkedin_links, referrals, invite_links, signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
+  await db.unsafe(`drop table if exists group_memberships, affinity_groups, quiz_attempts, quiz_questions, verifications, event_rsvps, events, linkedin_links, referrals, invite_links, signin_codes, invite_optouts, invites, shared_contact, rate_limits, audit_log, sandbox_emails, relay_messages, intro_requests, goal_matches,
     goal_parse_cache, goals, suppression_list, contact_points, profiles, users, schools cascade`);
 }
 
@@ -321,6 +321,89 @@ export async function seedDemoEvents(db = defaultSql) {
   return events.length;
 }
 
+/** Starter quiz bank (from the spec; have two GT alumni confirm every answer and grow it to 50+). */
+const QUIZ = [
+  ["Campus life", "When does the Georgia Tech steam whistle blow?", "Five minutes before the hour", ["On the hour", "Only after football wins", "At noon and midnight"]],
+  ["Traditions", "Who is the fictional student who has been \"enrolled\" at Tech since the 1920s?", "George P. Burdell", ["Ramblin' Rex", "Bud Peterson", "Bobby Dodd"]],
+  ["Traditions", "What kind of car is the Ramblin' Wreck?", "A 1930 Ford Model A", ["A 1957 Chevy Bel Air", "A Ford Model T", "A 1965 Mustang"]],
+  ["Traditions", "Which letter on Tech Tower do students famously try to steal?", "The T", ["The E", "The C", "The H"]],
+  ["Campus life", "Which dog is buried next to Tech Tower?", "Sideways", ["Buzz", "Scrappy", "Uga"]],
+  ["Traditions", "What is the Homecoming tricycle race called?", "The Mini 500", ["The Pi Mile", "The Wreck Run", "The Burdell Dash"]],
+  ["Traditions", "What did \"RAT\" stand for on the freshman rat cap?", "Recruit At Tech", ["Rookie At Tech", "Rambling Atlanta Tech", "Rising At Tech"]],
+  ["Classes", "Which course is the intro to programming in Python?", "CS 1301", ["CS 1331", "CS 1100", "CS 2110"]],
+  ["Campus life", "What are the campus buses called?", "Stingers", ["Jackets", "Wreck Rides", "Buzz Lines"]],
+  ["Campus life", "The football stadium's full name is Bobby Dodd Stadium at…", "Historic Grant Field", ["Peachtree Field", "Burdell Field", "North Avenue Field"]],
+  ["Traditions", "The rivalry with UGA is nicknamed…", "Clean, Old-Fashioned Hate", ["The Peach Bowl", "The Southern Showdown", "The Golden Grudge"]],
+  ["Alumni", "Which 5K race is named for a former dean?", "The Pi Mile", ["The Burdell Mile", "The Wreck 5K", "The Tower Run"]],
+] as const;
+
+/** Official GT Alumni Association affinity groups (names as listed; descriptions in our own words). */
+const GROUPS: [slug: string, name: string, category: string, sensitive: boolean, icon: string, description: string][] = [
+  ["band", "Band Alumni Association", "campus", false, "music", "Former members of Tech's bands staying in tune with each other and the program."],
+  ["bar", "Georgia Tech Bar Association", "profession", false, "scale", "Jackets who practice or study law, from patent work to the courtroom."],
+  ["bao", "Black Alumni Organization", "identity", true, "users", "A network for Black alumni to connect, mentor and give back to the Institute."],
+  ["chinese", "Chinese Alumni Network", "identity", true, "globe", "Alumni with ties to Chinese heritage and culture building community across cities."],
+  ["crew", "Crew Alumni", "campus", false, "ship", "Rowers and coxswains from Tech crew who still keep pace off the water."],
+  ["firstgen", "First-Generation Affinity Group", "identity", true, "star", "Alumni who were the first in their family to finish college, supporting the next ones."],
+  ["hispanic", "Hispanic Alumni Network", "identity", true, "globe", "Hispanic and Latinx alumni sharing opportunities, mentorship and community."],
+  ["lacrosse", "Lacrosse Affinity Group", "campus", false, "trophy", "Former Tech lacrosse players and fans who stay connected to the game."],
+  ["lavender", "Lavender Alumni", "identity", true, "heart", "LGBTQIA+ alumni and allies building a welcoming Tech community."],
+  ["military", "Military Affinity Group", "military", false, "shield", "Veterans, service members and military families across the Tech network."],
+  ["rotc", "ROTC Alumni Network", "military", false, "shield", "Alumni of Tech's Army, Navy and Air Force ROTC programs."],
+  ["realestate", "Real Estate Alumni Network", "profession", false, "building", "Jackets in development, investment, brokerage and the built environment."],
+  ["women", "Women Alumnae Network", "identity", true, "users", "Alumnae connecting across industries to lift each other up."],
+  ["scl", "Supply Chain & Logistics Affinity Group", "profession", false, "truck", "Alumni who keep goods moving, from warehouses to global networks."],
+  ["iac", "Ivan Allen College Affinity Group", "college", false, "landmark", "Graduates of the Ivan Allen College of Liberal Arts and its programs."],
+];
+
+/**
+ * Quiz bank + groups + demo memberships. Demo leaders are fictional seed members (is_demo), never real
+ * people. Sensitive-group members are seeded private (show_on_profile = false). Idempotent.
+ */
+export async function seedGroupsAndQuiz(db = defaultSql) {
+  for (const [category, question, correct, distractors] of QUIZ) {
+    await db`insert into quiz_questions (category, question, correct, distractors) values (${category}, ${question}, ${correct}, ${[...distractors]})
+      on conflict (question) do update set correct = excluded.correct, distractors = excluded.distractors, category = excluded.category`;
+  }
+  const [school] = await db`select id from schools where slug = 'gatech'`;
+  if (!school) return { questions: QUIZ.length, groups: 0 };
+  for (const [slug, name, category, sensitive, icon, description] of GROUPS) {
+    await db`insert into affinity_groups (school_id, slug, name, category, sensitive, description, icon)
+      values (${school.id}, ${slug}, ${name}, ${category}, ${sensitive}, ${description}, ${icon})
+      on conflict (slug) do update set name = excluded.name, category = excluded.category, sensitive = excluded.sensitive,
+        description = excluded.description, icon = excluded.icon`;
+  }
+  // Demo members: a deterministic slice of published alumni per group (counts only matter for the demo).
+  const sizes: Record<string, number> = { band: 46, bar: 18, bao: 64, chinese: 52, crew: 23, firstgen: 71, hispanic: 48, lacrosse: 15,
+    lavender: 33, military: 41, rotc: 27, realestate: 36, women: 86, scl: 39, iac: 29 };
+  const groups = await db`select id, slug, sensitive from affinity_groups`;
+  for (const g of groups) {
+    const [{ n }] = await db`select count(*)::int n from group_memberships where group_id = ${g.id}`;
+    if (n > 0) continue;
+    const people = await db`select p.id, p.status from profiles p
+      where p.status <> 'removed' and not p.ferpa_restricted and (p.status = 'unclaimed' or p.summary_approved) and 'alum' = any(p.roles)
+        and p.id not in (${DEMO_STUDENT_ID}, ${DEMO_ALUM_ID})
+      order by md5(p.id::text || ${g.slug}) limit ${sizes[g.slug as string] ?? 20}`;
+    if (people.length) {
+      await db`insert into group_memberships ${db(people.map((p) => ({ group_id: g.id, profile_id: p.id, show_on_profile: !g.sensitive && p.status === "claimed", is_demo: true })), "group_id", "profile_id", "show_on_profile", "is_demo")} on conflict do nothing`;
+    }
+    // One fictional demo leader (a claimed seed member) per non-sensitive group, opted in.
+    if (!g.sensitive) {
+      const [leader] = await db`select p.id from profiles p where p.status = 'claimed' and p.summary_approved and 'alum' = any(p.roles)
+        and p.id not in (${DEMO_STUDENT_ID}, ${DEMO_ALUM_ID}) order by md5(p.id::text || ${g.slug} || 'lead') limit 1`;
+      if (leader) await db`insert into group_memberships (group_id, profile_id, role, show_on_profile, is_demo) values (${g.id}, ${leader.id}, 'leader', true, true)
+        on conflict (group_id, profile_id) do update set role = 'leader', show_on_profile = true, is_demo = true`;
+    }
+  }
+  // Morgan (demo alum) is in Band with it shown, so "You both" and the Joined state have something to show.
+  const [band] = await db`select id from affinity_groups where slug = 'band'`;
+  if (band) {
+    await db`insert into group_memberships (group_id, profile_id, show_on_profile, is_demo) values (${band.id}, ${DEMO_ALUM_ID}, true, true) on conflict do nothing`;
+    await db`update events set group_id = ${band.id} where id = 'e7e00000-0000-4000-8000-000000000004'`; // Rivalry Game Watch
+  }
+  return { questions: QUIZ.length, groups: GROUPS.length };
+}
+
 export async function seedAll(db = defaultSql): Promise<{ members: number; intros: number; aa: ImportCounts; demo: number }> {
   await migrate(db);
   const schoolId = await seedSchool(db);
@@ -332,5 +415,6 @@ export async function seedAll(db = defaultSql): Promise<{ members: number; intro
   await seedDemoIntros(db);
   await seedDemoConversations(db);
   await seedDemoEvents(db);
+  await seedGroupsAndQuiz(db);
   return { members, intros, aa, demo };
 }

@@ -146,6 +146,7 @@ function SignIn() {
           <div className="rounded-md bg-surface-raised px-4 py-3 text-body-sm text-text-muted">
             <p><strong className="font-semibold text-text">Graduated?</strong> Use your GT alumni forwarding address. It also ends in @gatech.edu.</p>
             <p className="mt-1"><strong className="font-semibold text-text">Another school?</strong> Venn is Georgia Tech only for now.</p>
+            <p className="mt-1"><Link href="/verify" className="font-semibold text-link underline underline-offset-2">Can&apos;t use your GT email? Other ways to verify.</Link></p>
           </div>
         )}
         <Button type="submit" size="lg" className="w-full" disabled={busy}>

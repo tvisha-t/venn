@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { Bell, Bookmark, CalendarDays, Compass, Inbox, LogOut, MapPin, Search, Send, Shield, UserPlus, UserRound } from "lucide-react";
+import { Bell, Bookmark, CalendarDays, Compass, UsersRound, Inbox, LogOut, MapPin, Search, Send, Shield, UserPlus, UserRound } from "lucide-react";
 import { api, type OwnProfile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PersonAvatar } from "@/components/PersonAvatar";
 import { InviteDialog } from "@/components/InviteDialog";
+import { isAlum, isAlumniOnlyPath } from "@/lib/roles";
 import { VennLogo } from "@/components/brand/VennLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/home", label: "Find", icon: Search, match: ["/home", "/goals"] },
   { href: "/explore", label: "Explore", icon: Compass, match: ["/explore"] },
   { href: "/events", label: "Events", icon: CalendarDays, match: ["/events"] },
+  { href: "/groups", label: "Groups", icon: UsersRound, match: ["/groups"] },
   { href: "/requests", label: "Requests", icon: Send, match: ["/requests"] },
   { href: "/profile", label: "Profile", icon: UserRound, match: ["/profile"] },
 ];
@@ -47,6 +49,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const isActive = (m: string[]) => m.some((x) => path === x || path.startsWith(x + "/"));
   const unseen = me?.unseenReplies ?? 0;
+  // Alumni-only tabs (Events, Groups) appear only once we know the member is an alum.
+  const nav = NAV.filter((n) => !isAlumniOnlyPath(n.href) || isAlum(me?.profile));
 
   return (
     <MeCtx.Provider value={{ me, refresh }}>
@@ -54,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-8 px-5 sm:px-6">
           <VennLogo size="nav" className="shrink-0 max-md:[&>span]:text-[20px]" />
           <nav aria-label="Main" className="hidden h-full items-stretch gap-7 md:flex">
-            {NAV.map((n) => {
+            {nav.map((n) => {
               const active = isActive(n.match);
               return (
                 <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}
@@ -116,8 +120,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </footer>
 
       {/* Bottom tab bar (phones) */}
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
-        {NAV.map((n) => {
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden" style={{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }}>
+        {nav.map((n) => {
           const active = isActive(n.match);
           return (
             <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined}
