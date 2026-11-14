@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, ArrowRight, GraduationCap, KeyRound, Loader2, Lock, Search } from "lucide-react";
+import { AlertCircle, ArrowRight, Award, FileCheck, GraduationCap, KeyRound, Loader2, Lock, Search } from "lucide-react";
 import { api, ApiError, ROLE_LABEL } from "@/lib/api";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { VennLogo } from "@/components/brand/VennLogo";
 import { SignInCode } from "@/components/SignInCode";
+import { VerifyByDocument } from "@/components/VerifyByDocument";
 import { normalizeEmail, schoolForEmail } from "@/lib/schoolDomain";
 
 const WRONG_DOMAIN = "Use your Georgia Tech email, ending in @gatech.edu.";
@@ -56,6 +57,8 @@ function SampleMatch() {
 function SignIn() {
   const router = useRouter();
   const params = useSearchParams();
+  // ?method=transcript|diploma swaps the card to that verify step (Back returns to the options).
+  const docMethod = ((m) => (m === "transcript" || m === "diploma" ? m : null))(params.get("method"));
   const claim = params.get("claim") === "1";
   const invited = params.get("invited") === "1";
   const [email, setEmail] = useState("");
@@ -145,7 +148,7 @@ function SignIn() {
         />
         {emailErr
           ? <p id="email-err" role="alert" className="flex items-start gap-1.5 text-[13px] font-medium text-danger"><AlertCircle className="mt-px size-4 shrink-0" aria-hidden />{emailErr}</p>
-          : <p id="email-hint" className="text-body-sm text-text-muted">We&apos;ll send a 6-digit code. Verified with a transcript or diploma? Use your personal email.</p>}
+          : <p id="email-hint" className="text-body-sm text-text-muted">We&apos;ll send a 6-digit code. Already verified with a transcript or diploma? Use your personal email.</p>}
         {wrongDomain && (
           <div className="rounded-md bg-surface-raised px-4 py-3 text-body-sm text-text-muted">
             <p><strong className="font-semibold text-text">Graduated?</strong> Use your GT alumni forwarding address. It also ends in @gatech.edu.</p>
@@ -163,6 +166,15 @@ function SignIn() {
       <Button variant="outline" size="lg" className="w-full" onClick={() => setOpen(true)}>
         <KeyRound /> Continue with school login
       </Button>
+      <p className="mt-5 text-[13px] font-semibold text-text-muted">No GT email? Verify with</p>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        {([["transcript", "Transcript", FileCheck], ["diploma", "Diploma", Award]] as const).map(([m, label, Icon]) => (
+          <button key={m} type="button" onClick={() => router.push(`/signin?method=${m}`)}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-line bg-canvas text-[14px] font-semibold text-text transition-colors hover:bg-surface-raised">
+            <Icon className="size-[18px] text-primary" aria-hidden /> {label}
+          </button>
+        ))}
+      </div>
       <p className="mt-3 text-center text-body-sm text-text-muted">Graduated? Use your alumni forwarding address.</p>
     </>
   );
@@ -187,12 +199,18 @@ function SignIn() {
           </div>
 
           <main id="main" className="-mt-8 flex flex-1 flex-col rounded-t-xl bg-surface px-6 pb-8 pt-8 lg:mx-auto lg:mt-0 lg:w-full lg:max-w-[400px] lg:justify-center lg:rounded-none lg:bg-transparent lg:px-0 lg:py-10">
-            <h1 className="sr-only lg:not-sr-only">
-              <span className="hidden text-eyebrow text-accent-text lg:block">Students and alumni</span>
-              <span className="mt-2 block text-[48px] font-extrabold leading-[1.05] tracking-[-0.035em]">Find your <span className="hl">people</span>.</span>
-            </h1>
-            <p className="mb-8 mt-3 hidden text-text-muted lg:block">Tell Venn who you need. It finds Yellow Jackets who can help, shows what you have in common, and sends the intro for you.</p>
-            {form}
+            {docMethod ? (
+              <VerifyByDocument kind={docMethod} onBack={() => router.push("/signin")} />
+            ) : (
+              <>
+                <h1 className="sr-only lg:not-sr-only">
+                  <span className="hidden text-eyebrow text-accent-text lg:block">Students and alumni</span>
+                  <span className="mt-2 block text-[48px] font-extrabold leading-[1.05] tracking-[-0.035em]">Find your <span className="hl">people</span>.</span>
+                </h1>
+                <p className="mb-8 mt-3 hidden text-text-muted lg:block">Tell Venn who you need. It finds Yellow Jackets who can help, shows what you have in common, and sends the intro for you.</p>
+                {form}
+              </>
+            )}
             <div className="mt-auto space-y-3 pt-10 lg:mt-10 lg:pt-0">
               <p className="flex gap-2.5 rounded-md bg-primary-soft px-4 py-3 text-body-sm text-primary-ink">
                 <Lock className="mt-0.5 size-4 shrink-0" aria-hidden />

@@ -36,7 +36,10 @@ async function emailAllowed(email: string | null, personal: boolean): Promise<bo
   if (!email) return false;
   if (schoolForEmail(email) || personal) return true;
   const [u] = await sql`select 1 from users where lower(login_email) = ${email} and verified_via is not null limit 1`;
-  return Boolean(u);
+  if (u) return true;
+  // Approved transcript/diploma request: the account is created at this first sign-in.
+  const { hasApprovedRequest } = await import("./verification");
+  return hasApprovedRequest(email);
 }
 
 export async function requestCode(raw: string, ip: string, opts: { personal?: boolean } = {}) {

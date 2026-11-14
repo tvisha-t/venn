@@ -1,12 +1,14 @@
 // Ways to get a verified account: GT email code, official e-transcript, or diploma photo.
-// Without a GT email, a member uploads a document, then adds a PERSONAL email (code-verified), which
-// becomes their sign-in. DEMO: uploads are not actually checked; any file counts. The file is hashed
-// (to block reuse) and discarded in memory: never stored, logged, or shown to anyone.
+// Without a GT email, a member uploads a document with their personal email; a person reviews it
+// (manual for the demo), and after approval they sign in with that personal email. The file is kept
+// only until the decision (then deleted automatically), never shown to other members; only the method
+// appears as a badge.
 import { createHash } from "node:crypto";
 import { sql } from "./db";
 import { audit } from "./audit";
 import { HttpError } from "./http";
-import { signPayload, verifyPayload, sha256 } from "./crypto";
+import { sha256 } from "./crypto";
+import { normalizeEmail } from "@/lib/schoolDomain";
 
 export type Method = "gt_email" | "etranscript" | "diploma_photo";
 export type DocMethod = "etranscript" | "diploma_photo";
@@ -37,63 +39,71 @@ const UPLOAD_RULES = {
   diploma_photo: { max: 10 * 1024 * 1024, types: ["image/jpeg", "image/png", "image/heic", "image/heif"], label: "a JPG, PNG or HEIC photo up to 10 MB" },
 } as const;
 
-/** Validates type/size, hashes the file in memory (then it's dropped), and blocks reuse. */
-async function hashDocument(method: DocMethod, file: File): Promise<string> {
+/** Validates type/size, hashes the file, and blocks reuse of the same document. */
+async function hashDocument(method: DocMethod, file: File, buf: Buffer): Promise<string> {
   const rule = UPLOAD_RULES[method];
   const type = file.type || (/\.heic$/i.test(file.name) ? "image/heic" : "");
   if (!(rule.types as readonly string[]).includes(type) || file.size === 0 || file.size > rule.max) {
     throw new HttpError(400, `Upload ${rule.label}.`, "bad_file");
   }
-  const hash = createHash("sha256").update(Buffer.from(await file.arrayBuffer())).digest("hex");
+  const hash = createHash("sha256").update(buf).digest("hex");
   const [dup] = await sql`select 1 from verifications where evidence_sha256 = ${hash}`;
   if (dup) throw new HttpError(409, "This file was already used to verify an account.", "reused");
   return hash;
 }
 
-// ---------------------------------------------------------------- sign-up without a GT email
-export const TICKET_COOKIE = "venn_vticket";
-export const TICKET_MAX_MS = 30 * 60_000;
-type Ticket = { method: DocMethod; hash: string };
-
-/** Step 1: document uploaded → a signed, short-lived ticket (cookie). Nothing else is stored yet. */
-export async function startDocSignup(method: DocMethod, file: File, ip: string): Promise<string> {
-  const [{ n }] = await sql`select count(*)::int n from audit_log where action = 'verify.started' and meta->>'ip' = ${sha256(`ip:${ip}`)} and at > now() - interval '1 hour'`;
+// ---------------------------------------------------------------- verify without a GT email
+/**
+ * Sign-in page "No GT email? Verify with Transcript / Diploma": a PENDING request with the personal
+ * email; the file is kept only for the reviewer. Review is manual for the demo
+ * (npm run verify:approve -- <email>, or set status = 'approved' in Supabase).
+ */
+export async function requestDocVerification(method: DocMethod, file: File, rawEmail: string, ip: string) {
+  const email = normalizeEmail(rawEmail);
+  if (!email) throw new HttpError(400, "Enter the personal email you'll sign in with.", "bad_email");
+  const ipHash = sha256(`ip:${ip}`);
+  const [{ n }] = await sql`select count(*)::int n from audit_log where action = 'verify.started' and meta->>'ip' = ${ipHash} and at > now() - interval '1 hour'`;
   if (n >= 10) throw new HttpError(429, "Too many attempts. Try again in an hour.", "rate_limited");
-  const hash = await hashDocument(method, file);
-  await audit("anon", "verify.started", null, { method, ip: sha256(`ip:${ip}`) });
-  return signPayload("verify-ticket", { method, hash });
+  const [dupEmail] = await sql`select 1 from verifications where lower(personal_email) = ${email} and status = 'pending'`;
+  if (dupEmail) throw new HttpError(409, "We already have a request for this email. We'll email you within 24 hours.", "already_pending");
+  const buf = Buffer.from(await file.arrayBuffer());
+  const hash = await hashDocument(method, file, buf);
+  await sql.begin(async (tx) => {
+    const [v] = await tx`insert into verifications (method, status, evidence, evidence_sha256, personal_email)
+      values (${method}, 'pending', ${tx.json({ size_kb: Math.round(file.size / 1024) })}, ${hash}, ${email}) returning id`;
+    await tx`insert into verification_files (verification_id, file_name, mime, content)
+      values (${v.id}, ${file.name.slice(0, 120)}, ${file.type || "application/octet-stream"}, ${buf})`;
+    await audit("anon", "verify.started", v.id, { method, ip: ipHash }, tx);
+  });
+  return { status: "pending" as const };
 }
 
-export function readTicket(cookie: string | undefined) {
-  return verifyPayload<Ticket>("verify-ticket", cookie, TICKET_MAX_MS);
+/** True if this personal email has an approved request (so it may get a sign-in code). */
+export async function hasApprovedRequest(email: string): Promise<boolean> {
+  const [r] = await sql`select 1 from verifications where lower(personal_email) = ${email} and status = 'approved' limit 1`;
+  return Boolean(r);
 }
 
 /**
- * Step 3 (after the personal email's code is verified): create the account, verified by the document.
- * If the email already has an account, it just signs in (and records the document as extra proof).
+ * First sign-in after approval: create the account (alum, verified by the document) for that personal
+ * email. Does nothing if the email already has an account or has no approved request.
  */
-export async function createDocAccount(email: string, t: Ticket): Promise<{ userId: string; profileId: string; isNew: boolean }> {
-  return sql.begin(async (tx) => {
-    const [existing] = await tx`select u.id uid, p.id pid from users u join profiles p on p.user_id = u.id and p.status = 'claimed'
-      where lower(u.login_email) = ${email} limit 1`;
-    let userId: string, profileId: string, isNew = false;
-    if (existing) {
-      userId = existing.uid; profileId = existing.pid;
-    } else {
-      const [school] = await tx`select id from schools where slug = 'gatech'`;
-      const [u] = await tx`insert into users (auth_subject, login_email, verified_via)
-        values (${`personal|${sha256(email).slice(0, 24)}`}, ${email}, ${t.method}) returning id`;
-      // A transcript or diploma shows they graduated: start as alum (they can change it in the builder).
-      const [p] = await tx`insert into profiles (school_id, user_id, status, source, first_name, last_name, roles, summary_approved, verified_method, verified_at)
-        values (${school.id}, ${u.id}, 'claimed', 'self', '-', '-', ${["alum"]}, false, ${t.method}, now()) returning id`;
-      await tx`insert into contact_points (profile_id, email_primary) values (${p.id}, ${email}) on conflict do nothing`;
-      userId = u.id; profileId = p.id; isNew = true;
-    }
-    await tx`insert into verifications (profile_id, method, status, evidence, evidence_sha256, decided_at)
-      values (${profileId}, ${t.method}, 'approved', ${tx.json({ demo_auto_approved: true })}, ${t.hash}, now())
-      on conflict do nothing`;
-    await audit(`user:${userId}`, "verify.approved", profileId, { method: t.method, demo: true }, tx);
-    return { userId, profileId, isNew };
+export async function ensureAccountFromApproved(email: string) {
+  await sql.begin(async (tx) => {
+    const [u] = await tx`select 1 from users where lower(login_email) = ${email}`;
+    if (u) return;
+    const [v] = await tx`select id, method from verifications where lower(personal_email) = ${email} and status = 'approved' and profile_id is null
+      order by decided_at desc nulls last limit 1 for update`;
+    if (!v) return;
+    const [school] = await tx`select id from schools where slug = 'gatech'`;
+    const [nu] = await tx`insert into users (auth_subject, login_email, verified_via)
+      values (${`personal|${sha256(email).slice(0, 24)}`}, ${email}, ${v.method}) returning id`;
+    // A transcript or diploma shows they graduated: start as alum (they can change it in the builder).
+    const [p] = await tx`insert into profiles (school_id, user_id, status, source, first_name, last_name, roles, summary_approved, verified_method, verified_at)
+      values (${school.id}, ${nu.id}, 'claimed', 'self', '-', '-', ${["alum"]}, false, ${v.method}, now()) returning id`;
+    await tx`insert into contact_points (profile_id, email_primary) values (${p.id}, ${email}) on conflict do nothing`;
+    await tx`update verifications set profile_id = ${p.id} where id = ${v.id}`;
+    await audit(`user:${nu.id}`, "verify.approved", p.id, { method: v.method }, tx);
   });
 }
 
@@ -101,7 +111,8 @@ export async function createDocAccount(email: string, t: Ticket): Promise<{ user
 export async function submitUpload(profileId: string, method: DocMethod, file: File) {
   const [{ n }] = await sql`select count(*)::int n from verifications where profile_id = ${profileId} and created_at > now() - interval '1 hour'`;
   if (n >= 5) throw new HttpError(429, "Too many verification attempts. Try again in an hour.", "rate_limited");
-  const hash = await hashDocument(method, file);
+  const buf = Buffer.from(await file.arrayBuffer());
+  const hash = await hashDocument(method, file, buf);
   await sql`insert into verifications (profile_id, method, status, evidence, evidence_sha256)
     values (${profileId}, ${method}, 'pending', ${sql.json({ size_kb: Math.round(file.size / 1024) })}, ${hash})`;
   await audit(`profile:${profileId}`, "verify.started", profileId, { method });

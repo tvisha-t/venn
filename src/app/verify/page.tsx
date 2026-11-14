@@ -1,13 +1,10 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, BadgeCheck, Check, ChevronRight, Clock, FileCheck2, Image as ImageIcon, Info, Loader2, Mail, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { api, ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { VennLogo } from "@/components/brand/VennLogo";
-import { SignInCode } from "@/components/SignInCode";
 
 type Method = "gt_email" | "etranscript" | "diploma_photo";
 type Doc = "etranscript" | "diploma_photo";
@@ -65,7 +62,10 @@ export default function VerifyPage() {
               ) : signedIn ? (
                 <ExtraProof m={open} pending={pending(open)} done={has(open)} onDone={load} />
               ) : (
-                <DocSignup m={open} />
+                <div className="mt-4 rounded-lg border border-line bg-surface p-5 shadow-card">
+                  <p className="text-text-muted">Upload it with the personal email you&apos;ll sign in with. A person reviews it, and we email you within 24 hours.</p>
+                  <Link href={`/signin?method=${open === "etranscript" ? "transcript" : "diploma"}`} className="mt-4 inline-flex h-11 items-center rounded-md bg-primary px-5 font-semibold text-on-primary">Continue</Link>
+                </div>
               )}
             </section>
           ) : (
@@ -99,7 +99,7 @@ export default function VerifyPage() {
               </ul>
               <p className="mt-5 flex items-start gap-2 rounded-md bg-primary-soft px-4 py-3 text-body-sm text-primary-ink">
                 <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-                You only do this once. Verify with a transcript or diploma and you&apos;ll add your personal email, which you sign in with after that. Documents are deleted right after they&apos;re checked and never shown to anyone.
+                You only do this once. Verify with a transcript or diploma and you&apos;ll sign in with your personal email after it&apos;s approved. Documents are deleted after review and never shown to anyone.
               </p>
             </>
           )}
@@ -121,87 +121,6 @@ function FilePicker({ m, file, setFile }: { m: Doc; file: File | null; setFile: 
       {isPdf && <a href="https://registrar.gatech.edu/parchment" target="_blank" rel="noopener noreferrer" className="inline-block text-body-sm font-semibold text-link underline underline-offset-2">Don&apos;t have one? Order it from GT through Parchment</a>}
       <p className="text-[12px] text-text-subtle">Demo: any file is accepted for now. It&apos;s deleted right away and never stored.</p>
     </>
-  );
-}
-
-/** Signed out: upload → add personal email → code → account created (verified by the document). */
-function DocSignup({ m }: { m: Doc }) {
-  const router = useRouter();
-  const [step, setStep] = useState<"upload" | "email" | "code">("upload");
-  const [file, setFile] = useState<File | null>(null);
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState<{ expiresIn: number; resendIn: number } | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-  const isPdf = m === "etranscript";
-
-  async function upload() {
-    if (!file) return;
-    setBusy(true); setErr(null);
-    try {
-      const fd = new FormData(); fd.append("method", m); fd.append("file", file);
-      const res = await fetch("/api/verify/signup/upload", { method: "POST", body: fd });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j.error ?? "Upload failed.");
-      setStep("email");
-    } catch (e) { setErr((e as Error).message); }
-    setBusy(false);
-  }
-
-  async function sendCode(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true); setErr(null);
-    try {
-      const r = await api<{ expiresIn: number; resendIn: number }>("/api/verify/signup/email", { method: "POST", json: { email: email.trim() } });
-      setSent(r); setStep("code");
-    } catch (x) {
-      const code = x instanceof ApiError ? x.code : undefined;
-      if (code?.startsWith("cooldown:")) { setSent({ expiresIn: 600, resendIn: Number(code.split(":")[1]) || 60 }); setStep("code"); }
-      else setErr((x as Error).message);
-    }
-    setBusy(false);
-  }
-
-  return (
-    <div className="mt-4 space-y-3 rounded-lg border border-line bg-surface p-5 shadow-card">
-      <ol className="flex gap-2 text-[12px] font-semibold" aria-label="Steps">
-        {(["Upload", "Personal email", "Code"] as const).map((label, i) => {
-          const idx = ["upload", "email", "code"].indexOf(step);
-          return <li key={label} className={cn("rounded-full px-2.5 py-1", i === idx ? "bg-primary text-on-primary" : i < idx ? "bg-success-soft text-success" : "bg-surface-raised text-text-muted")}>{i + 1} · {label}</li>;
-        })}
-      </ol>
-
-      {step === "upload" && (
-        <>
-          <p className="text-text-muted">{isPdf ? "Upload the official electronic transcript PDF from Parchment. We'd read only your name, degree and year, never grades." : "Upload a clear photo of your Georgia Tech diploma."}</p>
-          <FilePicker m={m} file={file} setFile={setFile} />
-          {err && <p role="alert" className="text-[13px] font-medium text-danger">{err}</p>}
-          <button type="button" onClick={upload} disabled={!file || busy} className="inline-flex h-11 items-center gap-1.5 rounded-md bg-primary px-5 font-semibold text-on-primary disabled:opacity-60">
-            {busy && <Loader2 className="size-4 animate-spin" aria-hidden />} Continue
-          </button>
-        </>
-      )}
-
-      {step === "email" && (
-        <form onSubmit={sendCode} className="space-y-3" noValidate>
-          <p className="flex items-center gap-2 text-body-strong text-success"><BadgeCheck className="size-5" aria-hidden /> {isPdf ? "Transcript" : "Diploma"} received.</p>
-          <p className="text-text-muted">Now add your personal email. You&apos;ll sign in with it from now on. It&apos;s never shown on your profile.</p>
-          <label htmlFor="pemail" className="block text-[13px] font-semibold">Personal email</label>
-          <input id="pemail" type="email" inputMode="email" autoComplete="email" placeholder="you@gmail.com" value={email} onChange={(e) => { setEmail(e.target.value); setErr(null); }}
-            className="h-12 w-full rounded-md border border-line-control bg-surface px-4 text-[15px] text-text outline-none focus:border-primary" />
-          {err && <p role="alert" className="text-[13px] font-medium text-danger">{err}</p>}
-          <button type="submit" disabled={busy || !email.trim()} className="inline-flex h-11 items-center gap-1.5 rounded-md bg-primary px-5 font-semibold text-on-primary disabled:opacity-60">
-            {busy && <Loader2 className="size-4 animate-spin" aria-hidden />} Send code
-          </button>
-        </form>
-      )}
-
-      {step === "code" && sent && (
-        <SignInCode email={email.trim().toLowerCase()} expiresIn={sent.expiresIn} resendIn={sent.resendIn}
-          verifyUrl="/api/verify/signup/confirm" resendUrl="/api/verify/signup/email"
-          onBack={() => setStep("email")} onDone={(next) => router.replace(next)} />
-      )}
-    </div>
   );
 }
 

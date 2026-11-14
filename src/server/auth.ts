@@ -10,7 +10,8 @@ import { audit } from "./audit";
 export async function completeSignIn(input: { identityId: string } | { email: string }, claimProfileId?: string | null) {
   const id = await identityProvider.signIn(input);
   const [user] = await sql`
-    insert into users (auth_subject, login_email) values (${id.subject}, ${id.email})
+    insert into users (auth_subject, login_email, verified_via)
+    values (${id.subject}, ${id.email}, (select verified_via from users where auth_subject = ${id.subject})) -- keep a document-verified account's flag (the email rule checks it)
     on conflict (auth_subject) do update set login_email = excluded.login_email returning id`;
 
   let [profile] = await sql`select id from profiles where user_id = ${user.id} and status = 'claimed' limit 1`;

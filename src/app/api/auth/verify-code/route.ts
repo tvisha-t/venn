@@ -6,6 +6,7 @@ import { setSession } from "@/server/session";
 import { route, throttle } from "@/server/http";
 import { verifySession } from "@/server/crypto";
 import { verifyCode } from "@/server/signinCodes";
+import { ensureAccountFromApproved } from "@/server/verification";
 import { applyReferralCookie } from "@/server/referrals";
 import { LI_PENDING_COOKIE, applyPendingLinkedIn } from "@/server/linkedin";
 
@@ -16,6 +17,7 @@ export const POST = route(async (req: Request) => {
   throttle(req, "auth");
   const { email, code } = Body.parse(await req.json());
   const verified = await verifyCode(email, code);
+  await ensureAccountFromApproved(verified); // personal email with an approved transcript/diploma: create the account now
   const jar = await cookies();
   const claim = verifySession(jar.get("venn_claim")?.value); // pending claim from a signed /r/{token}/claim link
   const r = await completeSignIn({ email: verified }, claim?.profileId);
