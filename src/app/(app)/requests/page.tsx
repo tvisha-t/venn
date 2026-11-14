@@ -1,7 +1,7 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Info, Lightbulb, Send } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Info, Lightbulb, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyState, ErrorState, LoadingRows } from "@/components/states";
@@ -59,6 +59,7 @@ export default function Requests() {
   const [nextBest, setNextBest] = useState<Record<string, Match | null>>({});
   const [compose, setCompose] = useState<{ p: PublicProfile; goalId: string | null } | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   function load() {
     setErr(null);
@@ -107,17 +108,30 @@ export default function Requests() {
     </button>
   ) : <span className="text-text-muted">Removed from Venn</span>;
 
-  const message = (i: Intro) => (
-    <div className="min-w-0 space-y-1.5">
-      <p className="truncate font-medium">{i.subject}</p>
-      <p className="line-clamp-1 text-text-muted">{i.message}</p>
-      {i.replyPreview && (
-        <p className="line-clamp-3 rounded-md bg-success-soft px-3 py-2 text-body-sm text-text">
-          <span className="font-bold text-success">Their reply:</span> {i.replyPreview}
-        </p>
-      )}
-    </div>
-  );
+  // Click the message to read the whole thing (and the whole reply); click again to collapse.
+  const message = (i: Intro) => {
+    const isOpen = expanded.has(i.id);
+    const toggleOpen = () => setExpanded((s) => { const n = new Set(s); if (n.has(i.id)) n.delete(i.id); else n.add(i.id); return n; });
+    return (
+      <div className="min-w-0 space-y-1.5">
+        <button
+          type="button" onClick={toggleOpen} aria-expanded={isOpen} aria-controls={`msg-${i.id}`}
+          className="group block w-full min-w-0 rounded-sm text-left"
+        >
+          <p className={cn("font-medium", !isOpen && "truncate")}>{i.subject}</p>
+          <p id={`msg-${i.id}`} className={cn("text-text-muted", isOpen ? "mt-1 whitespace-pre-wrap text-text" : "line-clamp-1")}>{i.message}</p>
+          <span className="mt-1 inline-flex items-center gap-1 text-[13px] font-medium text-link group-hover:underline">
+            {isOpen ? <>Show less <ChevronUp className="size-3.5" aria-hidden /></> : <>Show full message <ChevronDown className="size-3.5" aria-hidden /></>}
+          </span>
+        </button>
+        {i.replyPreview && (
+          <p className={cn("rounded-md bg-success-soft px-3 py-2 text-body-sm text-text", isOpen ? "whitespace-pre-wrap" : "line-clamp-3")}>
+            <span className="font-bold text-success">Their reply:</span> {i.replyPreview}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const nextBestRow = (i: Intro) => {
     const nb = nextBest[i.id];
