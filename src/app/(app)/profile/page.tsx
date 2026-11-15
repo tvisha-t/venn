@@ -179,17 +179,20 @@ function ProfileInner() {
       ) : (
         <section className="space-y-5 rounded-lg border border-line bg-surface p-6 shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-semibold">{approved ? "Edit" : "2 · Review and edit"}</h2>
+            <div>
+              <h2 className="font-semibold">{approved ? "Edit" : "2 · Review and edit"}</h2>
+              <p className="text-body-sm text-text-muted"><span aria-hidden className="text-danger">*</span> Required</p>
+            </div>
             <Button variant="outline" size="sm" onClick={() => setMode("import")}><FileUp /> Import from LinkedIn</Button>
           </div>
           {aiNote && <p className="rounded-lg bg-canvas px-3 py-2 text-sm">{aiNote}</p>}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field id="fn" label="First name"><Input id="fn" value={form.firstName} onChange={(e) => set("firstName", e.target.value)} /></Field>
-            <Field id="ln" label="Last name"><Input id="ln" value={form.lastName} onChange={(e) => set("lastName", e.target.value)} /></Field>
+            <Field id="fn" label="First name" required><Input id="fn" aria-required value={form.firstName} onChange={(e) => set("firstName", e.target.value)} /></Field>
+            <Field id="ln" label="Last name" required><Input id="ln" aria-required value={form.lastName} onChange={(e) => set("lastName", e.target.value)} /></Field>
           </div>
           <fieldset>
-            <legend className="mb-1.5 text-sm font-medium">I am a… (choose all that apply)</legend>
+            <legend className="mb-1.5 text-sm font-medium">I am a… (choose all that apply)<RequiredMark /></legend>
             <div className="flex flex-wrap gap-3">
               {Object.entries(ROLE_LABEL).map(([k, v]) => (
                 <label key={k} className="flex items-center gap-1.5 text-sm"><Checkbox checked={form.roles.includes(k)} onCheckedChange={() => toggle("roles", k)} />{v}</label>
@@ -218,8 +221,8 @@ function ProfileInner() {
             <Field id="act" label="Activities (comma-separated)"><Input id="act" value={form.activities} onChange={(e) => set("activities", e.target.value)} /></Field>
             <Field id="int" label="Interests (comma-separated)"><Input id="int" value={form.interests} onChange={(e) => set("interests", e.target.value)} /></Field>
           </div>
-          <Field id="sum" label="Summary (shown on your profile)">
-            <Textarea id="sum" rows={3} maxLength={600} value={form.summary} onChange={(e) => set("summary", e.target.value)} />
+          <Field id="sum" label="Summary (shown on your profile, at least 10 characters)" required>
+            <Textarea id="sum" aria-required rows={3} maxLength={600} value={form.summary} onChange={(e) => set("summary", e.target.value)} />
           </Field>
 
           <datalist id="majors">{vocab?.majors.map((m) => <option key={m} value={m} />)}</datalist>
@@ -243,8 +246,13 @@ function ProfileInner() {
   );
 }
 
-function Field({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
-  return <div className="space-y-1.5"><Label htmlFor={id}>{label}</Label>{children}</div>;
+/** Red asterisk for required fields (screen readers hear "required"). */
+function RequiredMark() {
+  return <><span aria-hidden className="ml-0.5 text-danger">*</span><span className="sr-only"> (required)</span></>;
+}
+
+function Field({ id, label, required, children }: { id: string; label: string; required?: boolean; children: React.ReactNode }) {
+  return <div className="space-y-1.5"><Label htmlFor={id}>{label}{required && <RequiredMark />}</Label>{children}</div>;
 }
 
 function ChipSet({ legend, options, value, onToggle }: { legend: string; options: string[]; value: string[]; onToggle: (v: string) => void }) {
