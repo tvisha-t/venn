@@ -4,6 +4,7 @@ import { requireSession } from "@/server/session";
 import { getOwnProfile, repairSearchable, updateOwnProfile } from "@/server/profiles";
 import { route, throttle } from "@/server/http";
 import { sql } from "@/server/db";
+import { canResetDemo } from "@/server/demoReset";
 
 export const GET = route(async (req: Request) => {
   throttle(req);
@@ -20,7 +21,7 @@ export const GET = route(async (req: Request) => {
   // Keep published members findable without them re-saving: rebuild a missing search entry or map
   // location after the response is sent.
   if (profile.summaryApproved) after(() => repairSearchable(s.profileId).catch((e) => console.warn("[repair]", e)));
-  return NextResponse.json({ profile, unseenReplies: counts.unseen_replies, graduationPrompt, checkIn });
+  return NextResponse.json({ profile, unseenReplies: counts.unseen_replies, graduationPrompt, checkIn, demoReset: await canResetDemo(s.userId) });
 });
 
 const Patch = z.object({

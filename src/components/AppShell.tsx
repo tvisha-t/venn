@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { Bell, Bookmark, CalendarDays, Compass, UsersRound, Inbox, LogOut, MapPin, Search, Send, Shield, UserPlus, UserRound } from "lucide-react";
+import { Bell, Bookmark, CalendarDays, Compass, Inbox, LogOut, MapPin, RotateCcw, Search, Send, Shield, UserPlus, UserRound, UsersRound } from "lucide-react";
 import { api, type OwnProfile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { isAlum, isAlumniOnlyPath } from "@/lib/roles";
 import { VennLogo } from "@/components/brand/VennLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-type Me = { profile: OwnProfile; unseenReplies: number; graduationPrompt: boolean; checkIn: boolean };
+type Me = { profile: OwnProfile; unseenReplies: number; graduationPrompt: boolean; checkIn: boolean; demoReset?: boolean };
 const MeCtx = createContext<{ me: Me | null; refresh: () => void }>({ me: null, refresh: () => {} });
 export const useMe = () => useContext(MeCtx);
 
@@ -41,6 +41,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (me && !me.profile.summaryApproved && path !== "/profile") router.replace("/profile");
   }, [me, path, router]);
+
+  // Demo owner only: erases this account (and the other configured demo address) so a new one can be created.
+  async function resetDemo() {
+    if (!window.confirm("Erase your demo account and everything tied to it? You will be signed out and can sign up again as new.")) return;
+    try {
+      await api("/api/demo/reset", { method: "POST" });
+      window.location.href = "/signin";
+    } catch (e) { window.alert((e as Error).message); }
+  }
 
   async function signOut() {
     await api("/api/auth/signout", { method: "POST" });
@@ -105,6 +114,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <DropdownMenuItem asChild><Link href="/dev/inbox"><Inbox /> Sandbox inbox</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/admin"><Shield /> Admin (demo)</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
+                {me?.demoReset && (
+                  <DropdownMenuItem onSelect={resetDemo} className="text-danger focus:text-danger"><RotateCcw /> Reset demo (erase my account)</DropdownMenuItem>
+                )}
                 <DropdownMenuItem onSelect={signOut}><LogOut /> Sign out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
