@@ -40,6 +40,7 @@ test("school-email sign-in: rejects non-school email, verifies a code, creates a
   await expect(page.locator("#code-err")).toBeVisible();
 
   await enterCode(page, await latestCode(page));
+  await page.getByRole("button", { name: "Skip for now" }).click(); // new accounts are offered a password (skippable)
   await page.waitForURL(/\/profile/);
   await expect(page.getByRole("heading", { name: "Build your profile" })).toBeVisible();
   await page.getByRole("button", { name: "Skip — fill it in myself" }).click();
@@ -55,6 +56,7 @@ test("school-email sign-in: rejects non-school email, verifies a code, creates a
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
   await enterCode(page, await latestCode(page));
+  await page.getByRole("button", { name: "Skip for now" }).click(); // new accounts are offered a password (skippable)
   await page.waitForURL(/\/profile/);
   await expect(page.getByRole("heading", { name: "Build your profile" })).toBeVisible();
   await page.getByRole("button", { name: "Skip — fill it in myself" }).click();

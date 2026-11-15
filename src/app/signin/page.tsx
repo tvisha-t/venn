@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { VennLogo } from "@/components/brand/VennLogo";
 import { SignInCode } from "@/components/SignInCode";
+import { CreatePassword, PasswordStep } from "@/components/PasswordSteps";
 import { VerifyByDocument } from "@/components/VerifyByDocument";
 import { normalizeEmail, schoolForEmail } from "@/lib/schoolDomain";
 
@@ -72,6 +73,9 @@ function SignIn() {
   const [err, setErr] = useState<string | null>(null);
   const [picking, setPicking] = useState<string | null>(null);
   const [sent, setSent] = useState<{ email: string; expiresIn: number; resendIn: number } | null>(null);
+  const [pwFor, setPwFor] = useState<string | null>(null);              // password step for this email
+  const [resetMode, setResetMode] = useState(false);                    // came from "Email me a code instead"
+  const [setPw, setSetPw] = useState<{ next: string; reset: boolean } | null>(null); // create/choose a password
 
   function loadIds() {
     setErr(null);
@@ -96,8 +100,10 @@ function SignIn() {
     setBusy(true); setEmailErr(null);
     const clean = normalizeEmail(email)!;
     try {
-      const r = await api<{ expiresIn: number; resendIn: number }>("/api/auth/request-code", { method: "POST", json: { email: clean } });
-      setSent({ email: clean, expiresIn: r.expiresIn, resendIn: r.resendIn });
+      // The server decides: password box (account with a password) or a 6-digit code.
+      const r = await api<{ method: "password" } | { method: "code"; expiresIn: number; resendIn: number }>("/api/auth/start", { method: "POST", json: { email: clean } });
+      if (r.method === "password") setPwFor(clean);
+      else setSent({ email: clean, expiresIn: r.expiresIn, resendIn: r.resendIn });
     } catch (x) {
       const code = x instanceof ApiError ? x.code : undefined;
       // A recent code is still valid: go to the code step instead of erroring.
@@ -119,13 +125,18 @@ function SignIn() {
   }
 
   const wrongDomain = emailErr === WRONG_DOMAIN;
-  const form = sent ? (
+  const form = setPw ? (
+    <CreatePassword reset={setPw.reset} onDone={() => router.replace(setPw.next)} />
+  ) : sent ? (
     <SignInCode
       key={sent.email}
       email={sent.email} expiresIn={sent.expiresIn} resendIn={sent.resendIn}
-      onBack={() => setSent(null)}
-      onDone={(next) => router.replace(next)}
+      onBack={() => { setSent(null); setResetMode(false); }}
+      onDone={(next, info) => (!info.hasPassword || resetMode ? setSetPw({ next, reset: resetMode && !!info.hasPassword }) : router.replace(next))}
     />
+  ) : pwFor ? (
+    <PasswordStep email={pwFor} onBack={() => setPwFor(null)} onDone={(next) => router.replace(next)}
+      onUseCode={(r) => { setResetMode(true); setPwFor(null); setSent({ email: pwFor, ...r }); }} />
   ) : (
     <>
       {claim && (

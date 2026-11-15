@@ -6,6 +6,7 @@ import { setSession } from "@/server/session";
 import { route, throttle } from "@/server/http";
 import { verifySession } from "@/server/crypto";
 import { verifyCode } from "@/server/signinCodes";
+import { userHasPassword } from "@/server/passwords";
 import { ensureAccountFromApproved } from "@/server/verification";
 import { applyReferralCookie } from "@/server/referrals";
 import { LI_PENDING_COOKIE, applyPendingLinkedIn } from "@/server/linkedin";
@@ -28,5 +29,6 @@ export const POST = route(async (req: Request) => {
   await applyReferralCookie(jar, r);
   await setSession({ userId: r.userId, profileId: r.profileId });
   const next = r.needsProfile ? (claim ? "/profile?import=linkedin" : invited || viaLinkedIn ? "/profile?welcome=1" : "/profile") : "/home";
-  return NextResponse.json({ ok: true, next, claimed: Boolean(claim) });
+  // No password yet? The sign-in screen offers to create one so next time it's email + password.
+  return NextResponse.json({ ok: true, next, claimed: Boolean(claim), hasPassword: await userHasPassword(r.userId) });
 });

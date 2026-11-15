@@ -9,7 +9,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.max(0, s % 60)).
 
 /** Step 2 of school-email sign-in: six single-digit boxes, paste-to-fill, auto-submit on the 6th digit. */
 export function SignInCode({ email, expiresIn, resendIn, onBack, onDone, verifyUrl = "/api/auth/verify-code", resendUrl = "/api/auth/request-code" }: {
-  email: string; expiresIn: number; resendIn: number; onBack: () => void; onDone: (next: string) => void;
+  email: string; expiresIn: number; resendIn: number; onBack: () => void; onDone: (next: string, info: { hasPassword?: boolean }) => void;
   /** Where the code is checked / re-sent (the personal-email sign-up uses its own endpoints). */
   verifyUrl?: string; resendUrl?: string;
 }) {
@@ -31,8 +31,8 @@ export function SignInCode({ email, expiresIn, resendIn, onBack, onDone, verifyU
     if (busy || code.length !== 6) return;
     setBusy(true); setErr(null);
     try {
-      const r = await api<{ next: string }>(verifyUrl, { method: "POST", json: { email, code } });
-      onDone(r.next);
+      const r = await api<{ next: string; hasPassword?: boolean }>(verifyUrl, { method: "POST", json: { email, code } });
+      onDone(r.next, { hasPassword: r.hasPassword });
     } catch (e) {
       setErr((e as Error).message);
       setBusy(false);
