@@ -12,7 +12,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ErrorState } from "@/components/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMe } from "@/components/AppShell";
-import { api, ROLE_LABEL, type OwnProfile, type SharedContact } from "@/lib/api";
+import { api, ApiError, ROLE_LABEL, type OwnProfile, type SharedContact } from "@/lib/api";
+
+const FIELD_LABEL: Record<string, string> = {
+  firstName: "First name", lastName: "Last name", roles: "I am a…", classYear: "Class year (1940–2040)", degree: "Degree", major: "Major",
+  industry: "Industry", employer: "Employer", jobTitle: "Job title", city: "City", state: "State", gtPrograms: "GT programs",
+  csThreads: "CS threads", activities: "Activities (up to 20, each under 60 characters)", summary: "Summary (10–600 characters)",
+  openTo: "Open to", interests: "Interests (up to 15, each under 40 characters)",
+};
 
 type Vocab = { industries: string[]; majors: string[]; programs: string[]; csThreads: string[]; openTo: string[]; cities: { city: string; state: string }[] };
 type Form = {
@@ -98,13 +105,24 @@ function ProfileInner() {
       toast.success(first ? "Profile approved — you're live on Venn." : "Profile updated.");
       refresh();
       if (first) router.push("/home");
-    } catch (e) { toast.error((e as Error).message); }
+    } catch (e) {
+      // Name the fields the server rejected instead of a bare "Invalid request".
+      const issues = e instanceof ApiError ? e.issues : undefined;
+      toast.error(issues?.length ? `Check these fields: ${[...new Set(issues.map((i) => FIELD_LABEL[i.split(".")[0]] ?? i.split(".")[0]))].join(", ")}.` : (e as Error).message);
+    }
     setSaving(false);
   }
 
   if (!me || !form) return <div className="space-y-3"><Skeleton className="h-10 w-1/3" /><Skeleton className="h-64 w-full" /></div>;
   const approved = me.profile.summaryApproved;
-  const valid = form.firstName && form.lastName && form.roles.length && form.summary.trim().length >= 10;
+  // What's still needed to publish, said plainly next to the button (instead of a silently disabled button).
+  const missing = [
+    !form.firstName.trim() && "first name",
+    !form.lastName.trim() && "last name",
+    !form.roles.length && "“I am a…” (tick at least one)",
+    form.summary.trim().length < 10 && `a summary (${form.summary.trim().length}/10 characters)`,
+  ].filter(Boolean) as string[];
+  const valid = missing.length === 0;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -210,8 +228,13 @@ function ProfileInner() {
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
             <p className="flex items-center gap-1.5 text-xs text-text-muted"><ShieldCheck className="size-4" aria-hidden /> Your login email is never shown. Students appear only after approving.</p>
-            <Button onClick={approve} disabled={saving || !valid}>{saving && <Loader2 className="animate-spin" />}{approved ? "Save changes" : "Approve & publish"}</Button>
+            <Button onClick={approve} disabled={saving || !valid} aria-describedby={valid ? undefined : "publish-missing"}>{saving && <Loader2 className="animate-spin" />}{approved ? "Save changes" : "Approve & publish"}</Button>
           </div>
+          {!valid && (
+            <p id="publish-missing" role="status" className="-mt-2 text-right text-body-sm font-medium text-accent-ink">
+              To {approved ? "save" : "publish"}, add: {missing.join(", ")}.
+            </p>
+          )}
         </section>
       )}
 

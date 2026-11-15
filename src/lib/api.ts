@@ -13,7 +13,8 @@ export type IntroStatus = "draft" | "sent" | "replied" | "not_interested" | "no_
 export type SharedContact = { preferredEmail: string | null; phone: string | null; linkedinUrl: string | null; websiteUrl: string | null };
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public code?: string) { super(message); }
+  /** issues = field paths the server rejected (validation errors), e.g. ["summary", "interests.3"]. */
+  constructor(public status: number, message: string, public code?: string, public issues?: string[]) { super(message); }
 }
 
 export async function api<T>(path: string, init?: RequestInit & { json?: unknown }): Promise<T> {
@@ -27,7 +28,7 @@ export async function api<T>(path: string, init?: RequestInit & { json?: unknown
   if (res.status === 401 && typeof window !== "undefined" && !path.startsWith("/api/auth")) {
     window.location.href = "/signin";
   }
-  if (!res.ok) throw new ApiError(res.status, (data as { error?: string }).error ?? "Something went wrong.", (data as { code?: string }).code);
+  if (!res.ok) throw new ApiError(res.status, (data as { error?: string }).error ?? "Something went wrong.", (data as { code?: string }).code, (data as { issues?: string[] }).issues);
   return data as T;
 }
 
