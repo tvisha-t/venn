@@ -58,7 +58,9 @@ Never commit `.env`. On Vercel the same values live under Project → Settings �
 
 **Starting over:** signed in as one of `DEMO_RESET_EMAILS`, open the avatar menu → **Reset demo (erase my account)**. It erases those accounts and everything tied to them, so you can sign up as new.
 
-**Sandbox only** (`EMAIL_MODE=sandbox`): emails to fictional people land in **/dev/inbox**, where you can reply as the recipient; "Simulate 5 days passing" fires the reminder and no-response jobs; **/admin** has the Alumni Association import and the engagement dashboard.
+**Claimed vs. unclaimed:** Find results and profiles mark Alumni Association records that haven't joined as "Not on Venn yet", and Explore has an **On Venn** filter. An intro to an unclaimed alum carries a "Claim your profile" link that signs them in with their record prefilled.
+
+**Developer tools** (not in the menu): with `EMAIL_MODE=sandbox`, **/dev/inbox** shows emails to fictional people (reply as the recipient, "Simulate 5 days passing"); **/admin** has the Alumni Association import and the engagement dashboard.
 
 ## Commands
 

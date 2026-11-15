@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { Bell, Bookmark, CalendarDays, Compass, Inbox, LogOut, MapPin, RotateCcw, Search, Send, Shield, UserPlus, UserRound, UsersRound } from "lucide-react";
+import { Bell, Bookmark, CalendarDays, Compass, LogOut, MapPin, RotateCcw, Search, Send, UserPlus, UserRound, UsersRound } from "lucide-react";
 import { api, type OwnProfile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -110,9 +110,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <DropdownMenuItem asChild><Link href="/profile"><UserRound /> Profile</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/goals"><Bookmark /> Saved goals</Link></DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => setInviteOpen(true)}><UserPlus /> Invite a Yellow Jacket</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/dev/inbox"><Inbox /> Sandbox inbox</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/admin"><Shield /> Admin (demo)</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {me?.demoReset && (
                   <DropdownMenuItem onSelect={resetDemo} className="text-danger focus:text-danger"><RotateCcw /> Reset demo (erase my account)</DropdownMenuItem>

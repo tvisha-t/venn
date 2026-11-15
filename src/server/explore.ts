@@ -73,8 +73,9 @@ export async function facets(f: Filters, viewer?: string): Promise<Record<string
     ${agg(sql`select p.major v, count(*)::int c from profiles p where ${where(f, viewer, "major")} and p.major is not null group by 1 order by 2 desc limit 25`)} as major,
     ${agg(sql`select p.city v, count(*)::int c from profiles p where ${where(f, viewer, "city")} and p.city is not null group by 1 order by 2 desc limit 25`)} as city,
     ${agg(sql`select unnest(p.roles) v, count(*)::int c from profiles p where ${where(f, viewer, "role")} group by 1 order by 2 desc`)} as role,
-    ${agg(sql`select (p.class_year / 10 * 10)::text v, count(*)::int c from profiles p where ${where(f, viewer, "classYearMin")} and p.class_year is not null group by 1 order by 1 desc`)} as decade`;
-  return { industry: r.industry, program: r.program, major: r.major, city: r.city, role: r.role, decade: r.decade } as Record<string, Facet[]>;
+    ${agg(sql`select (p.class_year / 10 * 10)::text v, count(*)::int c from profiles p where ${where(f, viewer, "classYearMin")} and p.class_year is not null group by 1 order by 1 desc`)} as decade,
+    ${agg(sql`select (p.status = 'claimed')::text v, count(*)::int c from profiles p where ${where(f, viewer, "claimed")} group by 1 order by 1 desc`)} as claimed`;
+  return { industry: r.industry, program: r.program, major: r.major, city: r.city, role: r.role, decade: r.decade, claimed: r.claimed } as Record<string, Facet[]>;
 }
 
 export async function industryGroups(f: Filters, viewer?: string) {
