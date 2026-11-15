@@ -53,11 +53,11 @@ export type IntroEmailInput = {
 
 export function introEmail(i: IntroEmailInput) {
   const url = (p: string) => `${env.appUrl}${p}`;
-  const cobrand = i.unclaimed && env.coBrandAA ? `<p style="margin:0 0 12px;color:${T.subtle};font-size:13px">Sent via the GT Alumni Association</p>` : "";
+  const cobrand = i.unclaimed && env.coBrandAA ? `<p style="margin:0 0 12px;color:${T.subtle};font-size:13px">Sent via Georgia Tech records</p>` : "";
   const reminderNote = i.reminder ? `<p style="margin:0 0 16px;padding:10px 14px;background:${T.raised};border-radius:12px;color:${T.muted};font-size:14px;line-height:20px">A gentle reminder: ${esc(i.senderFirstName)} reached out a few days ago. This is the only reminder you'll get.</p>` : "";
   const footer = [
     `${esc(env.appName)} connects the Georgia Tech community and is independent, not run by Georgia Tech.`,
-    i.unclaimed ? " You're listed because of your Georgia Tech Alumni Association record." : "",
+    i.unclaimed ? " You're listed because of your Georgia Tech record." : "",
     " We never show your email to anyone unless you reply.",
     i.unclaimed && i.links.remove ? `<br>${footLink(url(i.links.remove), "Remove me from Venn")}` : "",
   ].join("");

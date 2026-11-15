@@ -11,9 +11,9 @@ Everything listed under "Verified by" is an automated test in this repo (`npm te
 | Data | Where | Who can read it |
 |---|---|---|
 | Public profile fields (name, class year, major, GT programs, employer, title, industry, city) | `profiles` | Signed-in GT members, via the `PublicProfile` DTO only |
-| Relay addresses (login email, AA email on file, EMFL alias) | `contact_points`, `users.login_email` | **Server only.** Read solely by `src/server/contact.ts` to send email. Every read is audit-logged |
+| Relay addresses (login email, email on file from GT records, EMFL alias) | `contact_points`, `users.login_email` | **Server only.** Read solely by `src/server/contact.ts` to send email. Every read is audit-logged |
 | Opt-in contact details (preferred email, phone, LinkedIn, website) | `shared_contact` | Signed-in GT members, **only if the member opted in to that field**, via one route. Every view is audit-logged |
-| Suppression hashes | `suppression_list` | Server only (sha256 of lower-cased email + AA id) |
+| Suppression hashes | `suppression_list` | Server only (sha256 of lower-cased email + record id) |
 | Intro messages and reply previews | `intro_requests` | The sender only |
 | Audit trail | `audit_log` | Server/admin only (aggregates in the admin UI) |
 
@@ -36,7 +36,7 @@ All tables have Row Level Security enabled. `contact_points`, `shared_contact`, 
   - are never in `PublicProfile` and never sent to the AI;
   - are served only by `GET /api/profiles/:id/contact`, which writes a `shared_contact.view` audit row;
   - are logged on update by field name only, never by value.
-- **Unclaimed alumni (from Alumni Association data) can never share contact details.** They are reachable only through the email relay. There is no in-app chat.
+- **Unclaimed alumni (from Georgia Tech records) can never share contact details.** They are reachable only through the email relay. There is no in-app chat.
 - **Email addresses are consent-shared only by replying.** The recipient's address reaches the sender only when the recipient replies, because the reply is forwarded with their address in `Reply-To`.
 - **Verified by:**
   - `privacy.spec.ts`: crawls every API route with seeded data and asserts no email or phone pattern.
@@ -45,7 +45,7 @@ All tables have Row Level Security enabled. `contact_points`, `shared_contact`, 
 
 ## 3a. Data sourcing (no scraping)
 
-- Profiles come only from **GT Alumni Association records** (with the §6 import rules and one-tap removal) or from **the person themself**.
+- Profiles come only from **Georgia Tech records** (with the §6 import rules and one-tap removal) or from **the person themself**.
 - **LinkedIn import is the member's own data.** They upload a LinkedIn PDF or their own "Get a copy of your data" export. From the .zip, only `Profile.csv`, `Positions.csv`, `Education.csv` and `Skills.csv` are decompressed (`src/server/linkedinExport.ts`). `Connections.csv`, messages, email addresses, phone numbers and invitations, which hold other people's data or private contact data, are never opened. Free text is scrubbed of emails, phones and links.
 - **No scraping or enrichment.** Venn never scrapes LinkedIn or any third-party site, never harvests contacts from members' inboxes, and never guesses email addresses.
 - **Invites.** "Invite a Yellow Jacket" sends one email. The invitee's address is used only for that send and is not stored. Venn keeps only a sha256 hash to block repeat invites for 30 days and to honor the "Don't send me invites" link. Members and opted-out or suppressed addresses are silently skipped, and the response is the same either way, so the endpoint can't reveal who is on Venn. Audit rows record that an invite was sent, never the address or hash. Invite hashes are deleted after 1 year.
@@ -53,7 +53,7 @@ All tables have Row Level Security enabled. `contact_points`, `shared_contact`, 
 
 ## 4. FERPA (students)
 
-- Students appear **only** after they sign in and approve their profile. The Alumni Association import never creates student profiles (`class_year ≤ current year`, role `alum` only).
+- Students appear **only** after they sign in and approve their profile. The GT records import never creates student profiles (`class_year ≤ current year`, role `alum` only).
 - `ferpa_restricted` profiles are hidden everywhere (`VISIBLE_PREDICATE` in `src/server/dto.ts`).
 - **Verified by:** `privacy.spec.ts` (FERPA student never appears), `import.test.ts` (rule 6).
 
@@ -83,7 +83,7 @@ Server errors are logged without request bodies. Clients receive generic error m
   - deletes `contact_points` and `shared_contact`;
   - adds hashes to `suppression_list`.
 
-  Re-imports skip suppressed people by AA id or email hash. If a person opts out of the directory at the Alumni Association, the next import purges their imported profile.
+  Re-imports skip suppressed people by record id or email hash. If a person opts out of the directory in GT's records, the next import purges their imported profile.
 - **Retention** (`src/server/retention.ts`, runs hourly):
   - message bodies of declined, no-response and bounced intros are deleted after 180 days;
   - their metadata is deleted after 1 year;
@@ -92,7 +92,7 @@ Server errors are logged without request bodies. Clients receive generic error m
 
 ## 8. Location privacy
 
-- Coordinates are rounded to 2 decimals (about 1 km). The AA import geocodes to a city centroid, jitters by up to about 3 km, then rounds.
+- Coordinates are rounded to 2 decimals (about 1 km). The GT records import geocodes to a city centroid, jitters by up to about 3 km, then rounds.
 - Per-person coordinates are **never** returned by any API. The map endpoint returns only aggregate clusters. Above city zoom (> 10), clusters with fewer than 3 people are hidden, and their member lists are refused (k-anonymity).
 - **Verified by:** `intros.test.ts` (location privacy), `privacy.spec.ts` (no `lat`/`lng` outside the map).
 

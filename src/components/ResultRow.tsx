@@ -31,7 +31,7 @@ export function classCity(p: Pick<PublicProfile, "classYear" | "city">) {
 
 export function UnclaimedBadge() {
   return (
-    <span className="rounded-sm bg-surface-raised px-2 py-0.5 text-label text-text-muted" title="From Alumni Association records; hasn't joined Venn yet">
+    <span className="rounded-sm bg-surface-raised px-2 py-0.5 text-label text-text-muted" title="From Georgia Tech records; hasn't joined Venn yet">
       Not on Venn yet
     </span>
   );

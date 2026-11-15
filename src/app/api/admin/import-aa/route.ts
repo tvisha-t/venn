@@ -10,7 +10,7 @@ export const POST = route(async (req: Request) => {
   const s = await requireAdmin();
   const form = await req.formData();
   const file = form.get("file");
-  if (!(file instanceof File) || file.size === 0) throw new HttpError(400, "Choose the Alumni Association CSV export.");
+  if (!(file instanceof File) || file.size === 0) throw new HttpError(400, "Choose the GT records CSV export.");
   if (file.size > 20 * 1024 * 1024) throw new HttpError(413, "CSV is over 20 MB.");
   let counts;
   try {

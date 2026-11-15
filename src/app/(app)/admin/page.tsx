@@ -48,12 +48,12 @@ export default function Admin() {
     <div className="space-y-6">
       <header>
         <h1 className="text-3xl font-semibold">Admin <span className="text-base font-sans font-normal text-text-muted">(demo)</span></h1>
-        <p className="text-text-muted">Alumni Association import and engagement. Aggregates only: no names, no contact data.</p>
+        <p className="text-text-muted">GT records import and engagement. Aggregates only: no names, no contact data.</p>
       </header>
 
       <section className="space-y-3 rounded-lg border border-line bg-surface p-6 shadow-card">
-        <h2 className="font-semibold">Alumni Association import</h2>
-        <p className="text-sm text-text-muted">Upload the AA export CSV. Deceased and directory-opt-out rows are never stored, duplicates are merged, claimed members win, and people who removed themselves are never re-created. Safe to re-run.</p>
+        <h2 className="font-semibold">GT records import</h2>
+        <p className="text-sm text-text-muted">Upload the GT records export CSV. Deceased and directory-opt-out rows are never stored, duplicates are merged, claimed members win, and people who removed themselves are never re-created. Safe to re-run.</p>
         <div className="flex flex-wrap items-center gap-3">
           <label className="cursor-pointer rounded-md border bg-surface px-3 py-2 text-sm hover:border-line-control">
             {file ? file.name : "Choose CSV…"}
@@ -71,7 +71,7 @@ export default function Admin() {
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label="Claimed profiles" value={dash.profiles.claimed} />
-            <Stat label="Unclaimed (AA)" value={dash.profiles.unclaimed} />
+            <Stat label="Unclaimed (GT records)" value={dash.profiles.unclaimed} />
             <Stat label="Intros sent" value={dash.intros.total} />
             <Stat label="Reply rate" value={`${dash.replyRate}%`} />
           </div>

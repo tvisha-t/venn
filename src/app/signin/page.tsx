@@ -142,7 +142,7 @@ function SignIn() {
       {claim && (
         <div className="mb-6 rounded-md bg-primary-soft px-4 py-3 text-primary-ink">
           <p className="font-semibold">Claim your profile</p>
-          <p className="text-body-sm">Sign in and we&apos;ll prefill your profile from your Alumni Association record. Nothing goes public until you approve it.</p>
+          <p className="text-body-sm">Sign in and we&apos;ll prefill your profile from your Georgia Tech record. Nothing goes public until you approve it.</p>
         </div>
       )}
       {invited && !claim ? (

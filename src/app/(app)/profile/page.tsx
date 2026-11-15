@@ -142,7 +142,7 @@ function ProfileInner() {
         <section className="space-y-4 rounded-lg border bg-surface p-5">
           {fromClaim && (
             <div className="rounded-lg bg-primary-soft px-4 py-3">
-              <p className="font-semibold">Welcome! Your Alumni Association record is prefilled.</p>
+              <p className="font-semibold">Welcome! Your Georgia Tech record is prefilled.</p>
               <p className="text-text-muted">Import from LinkedIn to bring it up to date in 30 seconds, or skip and edit it yourself. Nothing goes public until you approve.</p>
             </div>
           )}

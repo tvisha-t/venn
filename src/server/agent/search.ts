@@ -60,7 +60,7 @@ export async function searchProfiles(goal: ParsedGoal, viewer: string, opts: { l
 /**
  * "Find a person by name": when the whole query looks like a name (1–4 words, letters only) and matches
  * visible members' first, last or full name, return them. Same visibility rules as every search
- * (published members and AA records only; never unpublished or FERPA-restricted people).
+ * (published members and GT records only; never unpublished or FERPA-restricted people).
  */
 export async function findByName(raw: string, viewer: string): Promise<Candidate[]> {
   const q = raw.trim().replace(/\s+/g, " ");

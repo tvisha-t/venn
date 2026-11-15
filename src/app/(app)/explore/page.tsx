@@ -76,7 +76,7 @@ function Explore() {
       onChange: (v: string | null) => setParam(v ? { classYearMin: v, classYearMax: String(Number(v) + 9) } : { classYearMin: null, classYearMax: null }),
     },
     { label: "Major", value: sp.get("major"), onChange: (v: string | null) => setParam({ major: v }), options: f?.major ?? [] },
-    // Claimed (joined Venn) vs unclaimed (Alumni Association record, not on Venn yet).
+    // Claimed (joined Venn) vs unclaimed (GT record, not on Venn yet).
     { label: "On Venn", value: sp.get("claimed"), onChange: (v: string | null) => setParam({ claimed: v }),
       options: (f?.claimed ?? []).map((o) => ({ ...o, label: o.value === "true" ? "On Venn" : "Not on Venn yet" })) },
   ].sort((a, b) => Number(!!b.value) - Number(!!a.value));

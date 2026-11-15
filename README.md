@@ -16,7 +16,7 @@ Built for the GT SGA × College of Lifetime Learning Campus Solutions Challenge.
 ```bash
 npm install
 cp .env.example .env            # fill in DATABASE_URL, ANTHROPIC_API_KEY and the secrets (see below)
-npm run db:reset                # migrations + GT config + claimed members + REAL AA import + demo data
+npm run db:reset                # migrations + GT config + claimed members + REAL GT records import + demo data
 npm run dev                     # http://localhost:3000
 ```
 
@@ -58,9 +58,9 @@ Never commit `.env`. On Vercel the same values live under Project → Settings �
 
 **Starting over:** signed in as one of `DEMO_RESET_EMAILS`, open the avatar menu → **Reset demo (erase my account)**. It erases those accounts and everything tied to them, so you can sign up as new.
 
-**Claimed vs. unclaimed:** Find results and profiles mark Alumni Association records that haven't joined as "Not on Venn yet", and Explore has an **On Venn** filter. An intro to an unclaimed alum carries a "Claim your profile" link that signs them in with their record prefilled.
+**Claimed vs. unclaimed:** Find results and profiles mark people listed from Georgia Tech records who haven't joined as "Not on Venn yet", and Explore has an **On Venn** filter. An intro to an unclaimed alum carries a "Claim your profile" link that signs them in with their record prefilled.
 
-**Developer tools** (not in the menu): with `EMAIL_MODE=sandbox`, **/dev/inbox** shows emails to fictional people (reply as the recipient, "Simulate 5 days passing"); **/admin** has the Alumni Association import and the engagement dashboard.
+**Developer tools** (not in the menu): with `EMAIL_MODE=sandbox`, **/dev/inbox** shows emails to fictional people (reply as the recipient, "Simulate 5 days passing"); **/admin** has the GT records import and the engagement dashboard.
 
 ## Commands
 
@@ -68,7 +68,7 @@ Never commit `.env`. On Vercel the same values live under Project → Settings �
 |---|---|
 | `npm run dev` | Start the app |
 | `npm run db:migrate` | Apply migrations (idempotent; every file re-runs) |
-| `npm run db:seed` / `npm run db:reset` | Seed (reset drops all tables first) through the real AA import pipeline |
+| `npm run db:seed` / `npm run db:reset` | Seed (reset drops all tables first) through the real GT records import pipeline |
 | `npm run db:seed:demo` | Demo people, intros, events, groups only (fast; refreshes event dates) |
 | `npm run db:repair` | Rebuild missing search entries / map locations for published members |
 | `npm run email:test [-- someone@gatech.edu]` | Send a sample email through the configured provider |
@@ -99,7 +99,7 @@ On Windows, run Vitest from `C:\…` (capital drive letter); a lowercase `c:\` p
 
 - **Agent** (`src/server/agent/`): `parse_goal` → `search_profiles` (SQL filters + pgvector) → `rank_matches` → `draft_intro` / `rewrite_intro`. A query that is just a member's name returns those members directly. Steps stream over SSE; every LLM call has a timeout and a rule-based fallback.
 - **Sign-in** (`src/server/signinCodes.ts`, `passwords.ts`, `verification.ts`): 6-digit codes (hashed, rate-limited), optional scrypt passwords with lockout, and transcript/diploma verification for personal-email accounts. A database trigger refuses non-school login emails unless the account was verified by document.
-- **AA import** (`src/server/import/aa.ts`): all 12 rules from spec §6.
+- **GT records import** (`src/server/import/aa.ts`): all 12 rules from spec §6.
 - **Email** (`src/server/email/`): Gmail (demo) or Postmark. Intros carry a "Reply to connect" button (one-tap confirm page) and a relay Reply-To; connecting emails both people each other's address. Sign-in codes and "You're verified" emails are sent right after the response, so screens don't wait on email.
 - **Events** (`src/server/events.ts`) and **affinity groups** (`src/server/groups.ts`): alumni-only via one rule in `src/lib/roles.ts`. Identity-based groups are private by default, and "You both" counts a group only when both people show it.
 - **Privacy:** `PublicProfile` allowlist DTO, contact data isolated in `contact_points`, opt-in `shared_contact`, k-anonymous map clusters, venue-only event pins. See [SECURITY.md](SECURITY.md).

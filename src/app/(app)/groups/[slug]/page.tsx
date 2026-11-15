@@ -1,7 +1,7 @@
 "use client";
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Check, ChevronLeft, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
+import { CalendarDays, Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, ApiError, type PublicProfile } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -69,7 +69,7 @@ export default function GroupPage({ params }: { params: Promise<{ slug: string }
           <GroupIcon icon={g.icon} size={56} dark />
           <div className="min-w-0">
             <h1 className="text-[24px] font-extrabold leading-[30px] tracking-[-0.03em]">{g.name}</h1>
-            <p className="mt-1 text-body-sm text-on-brand-muted">Official Alumni Association group · <span className="font-mono text-on-brand">{g.count}</span> on Venn</p>
+            <p className="mt-1 text-body-sm text-on-brand-muted">Georgia Tech affinity group · <span className="font-mono text-on-brand">{g.count}</span> on Venn</p>
           </div>
         </div>
       </header>
@@ -112,9 +112,6 @@ export default function GroupPage({ params }: { params: Promise<{ slug: string }
       <section aria-labelledby="about-h" className="rounded-lg border border-line bg-surface p-5 shadow-card">
         <h2 id="about-h" className="text-title-3">About</h2>
         <p className="mt-2 text-text-muted">{g.description}</p>
-        <a href={g.externalUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-body-sm font-semibold text-link underline underline-offset-2">
-          <ExternalLink className="size-4" aria-hidden /> Group page on gtalumni.org
-        </a>
       </section>
 
       {d.leaders.length > 0 && (

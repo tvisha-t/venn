@@ -3,7 +3,7 @@ import { sql } from "../src/server/db";
 import { migrate, seedDemoConversations, seedDemoEvents, seedDemoIntros, seedGroupsAndQuiz, seedDemoPeople, seedSchool } from "../src/server/seed";
 
 // Loads only mock-data/demo_people.json (fictional / consented demo profiles) and their demo intros.
-// Fast and idempotent; no Alumni Association re-import.
+// Fast and idempotent; no GT records re-import.
 async function main() {
   await migrate();
   const schoolId = await seedSchool();

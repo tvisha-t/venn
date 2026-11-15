@@ -1,4 +1,4 @@
-// Alumni Association import (BUILD_SPEC.md §6). This is the ONLY path that
+// GT records import (BUILD_SPEC.md §6). This is the ONLY path that
 // creates unclaimed profiles — the seed script uses it too.
 import Papa from "papaparse";
 import { sql as defaultSql } from "../db";
@@ -146,7 +146,7 @@ export async function importAlumniAssociation(csvText: string, opts: Opts = {}):
       const classYear = Number(r.class_year);
       if (!Number.isFinite(classYear) || classYear > currentYear) { counts.excluded_not_alum++; await purge(ids); continue; }
 
-      // Rule 2 — suppression list (by AA id or hashed email)
+      // Rule 2 — suppression list (by record id or hashed email)
       const hashes = [emailHash(r.email_on_file), emailHash(r.emfl_alias)].filter(Boolean) as string[];
       if (ids.some((i) => suppIds.has(i)) || hashes.some((h) => suppHashes.has(h))) { counts.suppressed++; continue; }
       // Previously removed via "Remove me" → never re-create

@@ -16,7 +16,7 @@ export function rsvpToggle(event: Pick<EventItem, "id" | "meGoing" | "going" | "
   const next = !event.meGoing;
   if (next && event.externalUrl && event.source === "network") {
     window.open(event.externalUrl, "_blank", "noopener,noreferrer");
-    toast("Also register on the Alumni Association page.");
+    toast("Also register on the event page.");
   }
   apply(next, next ? 1 : -1);
   const prev = queues.get(event.id) ?? Promise.resolve();

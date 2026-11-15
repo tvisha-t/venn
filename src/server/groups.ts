@@ -1,4 +1,4 @@
-// Affinity groups (official GT Alumni Association groups). Alumni-only. Identity-based groups are
+// Affinity groups (Georgia Tech affinity groups). Alumni-only. Identity-based groups are
 // "sensitive": joining is private by default, memberships never show on a profile or in "You both"
 // unless the member turns it on, and the member list is visible only to other members.
 import { sql } from "./db";

@@ -50,7 +50,7 @@ export function EventDetail({ initial }: { initial: Detail }) {
           </a>
           {e.externalUrl && (
             <a href={e.externalUrl} target="_blank" rel="noopener noreferrer" className="ml-4 inline-flex min-h-11 items-center gap-1.5 text-body-sm font-semibold text-link underline underline-offset-2">
-              <ExternalLink className="size-4" aria-hidden /> Alumni Association page
+              <ExternalLink className="size-4" aria-hidden /> Event page
             </a>
           )}
           {e.isDemo && <p className="mt-2 text-[12px] text-text-subtle">Demo event (fictional venue).</p>}
@@ -112,7 +112,7 @@ export function EventDetail({ initial }: { initial: Detail }) {
             {e.meGoing ? <><Check className="size-4" aria-hidden /> Going</> : "RSVP"}
           </button>
         </div>
-        {e.externalUrl && !e.meGoing && <p className="mx-auto mt-1.5 max-w-[720px] text-[12px] text-text-subtle">RSVP also opens the Alumni Association page to register.</p>}
+        {e.externalUrl && !e.meGoing && <p className="mx-auto mt-1.5 max-w-[720px] text-[12px] text-text-subtle">RSVP also opens the event page to register.</p>}
       </div>
     </div>
   );

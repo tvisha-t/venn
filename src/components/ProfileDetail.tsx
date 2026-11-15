@@ -128,7 +128,7 @@ export function ProfileDetail({ id, reason, onRequest }: { id: string; reason?: 
 
       <div className="space-y-6 p-6">
         {p.status === "unclaimed" && (
-          <div className="flex items-start gap-2"><UnclaimedBadge /><p className="text-body-sm text-text-muted">Listed from GT Alumni Association records. An intro reaches {p.firstName} by email, and they can claim or remove this listing.</p></div>
+          <div className="flex items-start gap-2"><UnclaimedBadge /><p className="text-body-sm text-text-muted">Listed from Georgia Tech records. An intro reaches {p.firstName} by email, and they can claim or remove this listing.</p></div>
         )}
 
         {reasons.length > 0 && (

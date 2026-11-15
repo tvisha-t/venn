@@ -215,7 +215,7 @@ test("claim link → sign in → prefilled profile → approve", async ({ page }
   await page.getByRole("button", { name: "Continue with school login" }).click();
   await page.getByRole("dialog").getByRole("button", { name: /Sam Rivera/ }).click();
   await expect(page).toHaveURL(/\/profile\?import=linkedin/);
-  await expect(page.getByText("Your Alumni Association record is prefilled")).toBeVisible();
+  await expect(page.getByText("Your Georgia Tech record is prefilled")).toBeVisible();
   await expect(page.getByText("LinkedIn data export (.zip)")).toBeVisible();
   await page.getByRole("button", { name: "Skip — fill it in myself" }).click();
   await expect(page.getByLabel("First name")).toHaveValue(mail.toName.split(" ")[0]);

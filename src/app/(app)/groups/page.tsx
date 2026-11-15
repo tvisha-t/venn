@@ -45,7 +45,7 @@ export default function GroupsPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[28px] font-extrabold leading-[34px] tracking-[-0.03em] md:text-[30px] md:leading-9">Affinity groups</h1>
-          <p className="mt-1 text-text-muted">Official Alumni Association groups. Find your people all over again.</p>
+          <p className="mt-1 text-text-muted">Georgia Tech affinity groups. Find your people all over again.</p>
         </div>
         <label className="relative w-full sm:w-[340px]">
           <span className="sr-only">Search groups</span>

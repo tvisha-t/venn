@@ -17,9 +17,9 @@ export default function Privacy() {
         <li>If they reply, their reply reaches you and shares their email with you. &ldquo;Not interested&rdquo; shares nothing.</li>
         <li>Venn never sends an intro without you clicking Send. People get at most one reminder.</li>
       </ul>
-      <h2>Alumni Association records</h2>
+      <h2>Georgia Tech records</h2>
       <ul>
-        <li>Some alumni are listed from GT Alumni Association records before they join. We never list anyone who is deceased or opted out of the directory.</li>
+        <li>Some alumni are listed from Georgia Tech records before they join. We never list anyone who is deceased or opted out of the directory.</li>
         <li>Every email to a listed alum includes one-tap links to claim the profile or remove it. Removed people are never listed or contacted again.</li>
       </ul>
       <h2>Location, AI and retention</h2>

@@ -14,7 +14,7 @@ beforeAll(async () => {
   await seedAll();
 });
 
-describe("Alumni Association import (§6)", () => {
+describe("GT records import (§6)", () => {
   it("imports the expected number of unclaimed profiles on the mock file", async () => {
     const [{ n }] = await sql`select count(*)::int n from profiles where status = 'unclaimed'`;
     const deceasedOrOptOut = rows.filter((r) => r.deceased === "Y" || r.directory_opt_out === "Y").length;

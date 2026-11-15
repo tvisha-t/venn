@@ -4,7 +4,7 @@ import { audit } from "./audit";
 
 /**
  * Complete a (mock) GT Login. Creates the user on first sign-in. If a claim is
- * pending (from a signed /r/{token}/claim link), links the unclaimed AA profile
+ * pending (from a signed /r/{token}/claim link), links the unclaimed GT-records profile
  * to this user instead of creating a new profile.
  */
 export async function completeSignIn(input: { identityId: string } | { email: string }, claimProfileId?: string | null) {
@@ -21,7 +21,7 @@ export async function completeSignIn(input: { identityId: string } | { email: st
       update profiles set user_id = ${user.id}, status = 'claimed', summary_approved = false, updated_at = now()
       where id = ${claimProfileId} and status = 'unclaimed' returning id`;
     if (claimed) {
-      // The login email becomes their contact address; AA addresses stay as fallback alias.
+      // The login email becomes their contact address; record addresses stay as fallback alias.
       await sql`
         insert into contact_points (profile_id, email_primary) values (${claimed.id}, ${id.email})
         on conflict (profile_id) do update set email_primary = excluded.email_primary, updated_at = now()`;

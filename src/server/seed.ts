@@ -52,7 +52,7 @@ export function loadMembers(): Member[] {
   return JSON.parse(readFileSync(path.join(MOCK, "claimed_members.json"), "utf8"));
 }
 
-/** Claimed members = people who signed in themselves. Loaded before the AA import so merge rules apply. */
+/** Claimed members = people who signed in themselves. Loaded before the GT records import so merge rules apply. */
 export async function seedClaimedMembers(schoolId: string, db = defaultSql) {
   const members = loadMembers().map((m) => ({
     ...m,
@@ -262,7 +262,7 @@ export async function seedDemoConversations(db = defaultSql) {
 /**
  * Demo events (Atlanta, next 30 days). Fixed ids: re-running refreshes the dates relative to today
  * (so the demo always has upcoming events) without duplicating anything. Everything is marked
- * is_demo except "Home for the Holidays", a real GT tradition that links to the Alumni Association.
+ * is_demo except "Home for the Holidays", a real GT tradition.
  */
 export async function seedDemoEvents(db = defaultSql) {
   const [school] = await db`select id from schools where slug = 'gatech'`;
@@ -283,9 +283,8 @@ export async function seedDemoEvents(db = defaultSql) {
       desc: "Bring a favorite game or learn a new one. Six tables, beginners welcome.", host: "morgan" },
     { id: E(6), days: 16, at: "10:00", hours: 3, title: "Family Day at the Park", category: "family", hood: "Virginia-Highland", venue: "Piedmont Park meadow (demo venue)", addr: "400 Park Dr NE, Atlanta, GA", going: 22,
       desc: "Picnic and lawn games for Jackets and their families. Kids' activities from 10 to noon." },
-    { id: E(7), days: 27, at: "17:00", hours: 3, title: "Home for the Holidays", category: "social", hood: "Downtown", venue: "Downtown Atlanta (see Alumni Association page)", addr: "Downtown Atlanta, GA", going: 64, real: true,
-      url: "https://www.gtalumni.org/events",
-      desc: "A Georgia Tech Alumni Association tradition: Jackets home for the holidays get together. Date and venue here are placeholders; the Alumni Association page has the official details and registration." },
+    { id: E(7), days: 27, at: "17:00", hours: 3, title: "Home for the Holidays", category: "social", hood: "Downtown", venue: "Downtown Atlanta", addr: "Downtown Atlanta, GA", going: 64, real: true,
+      desc: "A Georgia Tech tradition: Jackets home for the holidays get together. Date and venue here are placeholders." },
     { id: E(8), days: 10, at: "08:00", hours: 1.5, title: "Saturday Run on the BeltLine", category: "social", source: "member", hood: "Inman Park", venue: "Inman Park BeltLine entrance (demo venue)", addr: "Krog St & Irwin St NE, Atlanta, GA", going: 12,
       desc: "An easy 5K at conversation pace, then coffee. All speeds.", host: "alex" },
   ];
@@ -301,9 +300,9 @@ export async function seedDemoEvents(db = defaultSql) {
       values (${e.id}, ${school.id}, ${e.title}, ${e.desc}, ${e.category}, ${e.source ?? "network"}, ${hostLabel}, ${hostId},
         ((date_trunc('day', now() at time zone 'America/New_York') + make_interval(days => ${e.days}) + ${e.at}::time) at time zone 'America/New_York'),
         ((date_trunc('day', now() at time zone 'America/New_York') + make_interval(days => ${e.days}) + ${e.at}::time + make_interval(mins => ${Math.round(e.hours * 60)})) at time zone 'America/New_York'),
-        'Atlanta', ${e.hood}, ${e.venue}, ${e.addr}, ${lat}, ${lng}, ${e.url ?? null}, ${Boolean(e.featured)}, ${!e.real})
+        'Atlanta', ${e.hood}, ${e.venue}, ${e.addr}, ${lat}, ${lng}, ${null}, ${Boolean(e.featured)}, ${!e.real})
       on conflict (id) do update set starts_at = excluded.starts_at, ends_at = excluded.ends_at, title = excluded.title, description = excluded.description,
-        host_label = excluded.host_label, external_url = excluded.external_url, is_featured = excluded.is_featured`;
+        host_label = excluded.host_label, venue_name = excluded.venue_name, external_url = excluded.external_url, is_featured = excluded.is_featured`;
     const [{ n }] = await db`select count(*)::int n from event_rsvps where event_id = ${e.id}`;
     if (n > 0) continue;
     // Claimed members first (they can show as faces), then other visible Atlanta-area people to reach the count.
@@ -337,9 +336,9 @@ const QUIZ = [
   ["Alumni", "Which 5K race is named for a former dean?", "The Pi Mile", ["The Burdell Mile", "The Wreck 5K", "The Tower Run"]],
 ] as const;
 
-/** Official GT Alumni Association affinity groups (names as listed; descriptions in our own words). */
+/** Georgia Tech affinity groups (names as listed; descriptions in our own words). */
 const GROUPS: [slug: string, name: string, category: string, sensitive: boolean, icon: string, description: string][] = [
-  ["band", "Band Alumni Association", "campus", false, "music", "Former members of Tech's bands staying in tune with each other and the program."],
+  ["band", "Band Alumni", "campus", false, "music", "Former members of Tech's bands staying in tune with each other and the program."],
   ["bar", "Georgia Tech Bar Association", "profession", false, "scale", "Jackets who practice or study law, from patent work to the courtroom."],
   ["bao", "Black Alumni Organization", "identity", true, "users", "A network for Black alumni to connect, mentor and give back to the Institute."],
   ["chinese", "Chinese Alumni Network", "identity", true, "globe", "Alumni with ties to Chinese heritage and culture building community across cities."],
