@@ -61,7 +61,10 @@ function SignIn() {
   const docMethod = ((m) => (m === "transcript" || m === "diploma" ? m : null))(params.get("method"));
   const claim = params.get("claim") === "1";
   const invited = params.get("invited") === "1";
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(params.get("email") ?? "");
+  // "Sign in to Venn" links (e.g. the "You're verified" email) prefill the address.
+  const emailParam = params.get("email");
+  useEffect(() => { if (emailParam) setEmail(emailParam); }, [emailParam]);
   const [emailErr, setEmailErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);

@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { Camera, ChevronLeft, CircleCheck, Loader2, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 const COPY = {
@@ -9,14 +10,15 @@ const COPY = {
     accept: "application/pdf,.pdf", hint: "PDF only, up to 5 MB", max: 5 * 1024 * 1024, cta: "Verify",
   },
   diploma: {
-    method: "diploma_photo", title: "Verify with your diploma", line: "Upload a clear photo. A person reviews it within 24 hours.",
-    accept: "image/jpeg,image/png,image/heic,.heic", hint: "JPG, PNG or HEIC, up to 10 MB", max: 10 * 1024 * 1024, cta: "Submit for review",
+    method: "diploma_photo", title: "Verify with your diploma", line: "Upload a clear photo of your diploma.",
+    accept: "image/jpeg,image/png,image/heic,.heic", hint: "JPG, PNG or HEIC, up to 10 MB", max: 10 * 1024 * 1024, cta: "Verify",
   },
 } as const;
 
 /** Sign-in card step for "No GT email? Verify with Transcript / Diploma": file + personal email → pending review. */
 export function VerifyByDocument({ kind, onBack }: { kind: "transcript" | "diploma"; onBack: () => void }) {
   const c = COPY[kind];
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -53,9 +55,12 @@ export function VerifyByDocument({ kind, onBack }: { kind: "transcript" | "diplo
       <Button type="button" variant="ghost" size="sm" className="-ml-2" onClick={onBack}><ChevronLeft aria-hidden /> All sign-in options</Button>
       <h1 className="mt-3 text-[28px] font-extrabold leading-[34px] tracking-[-0.03em]">{c.title}</h1>
       {done ? (
-        <div role="status" className="mt-6 flex items-start gap-3 rounded-md bg-success-soft px-4 py-4 text-success">
-          <CircleCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
-          <p className="font-semibold">Thanks! We&apos;ll email you within 24 hours.</p>
+        <div className="mt-6 space-y-4">
+          <div role="status" className="flex items-start gap-3 rounded-md bg-success-soft px-4 py-4 text-success">
+            <CircleCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
+            <p><span className="font-semibold">You&apos;re verified!</span> We emailed <span className="font-semibold">{email.trim()}</span>. Sign in with that address from now on.</p>
+          </div>
+          <Button type="button" size="lg" className="w-full" onClick={() => router.push(`/signin?email=${encodeURIComponent(email.trim())}`)}>Sign in now</Button>
         </div>
       ) : (
         <form onSubmit={submit} className="mt-2 space-y-4" noValidate>
@@ -80,7 +85,7 @@ export function VerifyByDocument({ kind, onBack }: { kind: "transcript" | "diplo
           </div>
           {err && <p role="alert" className="text-[13px] font-medium text-danger">{err}</p>}
           <Button type="submit" size="lg" className="w-full" disabled={busy}>{busy && <Loader2 className="animate-spin" />} {c.cta}</Button>
-          <p className="text-[12px] text-text-muted">We only check your name, degree and year. Files are deleted after review.</p>
+          <p className="text-[12px] text-text-muted">We only check your name, degree and year. Files are deleted right away.</p>
         </form>
       )}
     </div>

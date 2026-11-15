@@ -129,6 +129,19 @@ export function connectedEmail(i: { otherName: string; otherEmail: string; other
   return { subject: `You're connected: ${i.subject}`, html, text };
 }
 
+/** Sent right after a transcript/diploma verification is approved. */
+export function verifiedEmail(i: { method: "etranscript" | "diploma_photo"; signInUrl: string }) {
+  const doc = i.method === "etranscript" ? "transcript" : "diploma";
+  const html = shell("You're verified", `
+    <p style="margin:0 0 12px;font-size:22px;line-height:28px;font-weight:800">You're verified. Welcome, Jacket!</p>
+    <p style="margin:0 0 20px">Your ${doc} was approved. Sign in to Venn with this email address: we'll send you a 6-digit code, no password needed.</p>
+    ${btn(i.signInUrl, "Sign in to Venn", true)}
+    <p style="margin:12px 0 0;font-size:14px;line-height:20px;color:${T.muted}">Your ${doc} was deleted after the check. Only a "Verified · ${doc}" badge appears on your profile.</p>`,
+    `Didn't ask to join Venn? Ignore this email. Venn is independent and not run by Georgia Tech.`);
+  const text = `You're verified. Your ${doc} was approved.\n\nSign in to Venn with this email address (we'll send a 6-digit code): ${i.signInUrl}\n\nYour ${doc} was deleted after the check.`;
+  return { subject: "You're verified on Venn", html, text };
+}
+
 /** 6-digit sign-in code. */
 export function signinCodeEmail(code: string) {
   const html = shell("Sign-in code", `

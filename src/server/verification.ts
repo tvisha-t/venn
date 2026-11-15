@@ -64,18 +64,30 @@ export async function requestDocVerification(method: DocMethod, file: File, rawE
   const ipHash = sha256(`ip:${ip}`);
   const [{ n }] = await sql`select count(*)::int n from audit_log where action = 'verify.started' and meta->>'ip' = ${ipHash} and at > now() - interval '1 hour'`;
   if (n >= 10) throw new HttpError(429, "Too many attempts. Try again in an hour.", "rate_limited");
-  const [dupEmail] = await sql`select 1 from verifications where lower(personal_email) = ${email} and status = 'pending'`;
-  if (dupEmail) throw new HttpError(409, "We already have a request for this email. We'll email you within 24 hours.", "already_pending");
+  const [already] = await sql`select 1 from verifications where lower(personal_email) = ${email} and status = 'approved'`;
+  if (already) throw new HttpError(409, "This email is already verified. Sign in with it on the sign-in page.", "already_verified");
   const buf = Buffer.from(await file.arrayBuffer());
   const hash = await hashDocument(method, file, buf);
-  await sql.begin(async (tx) => {
-    const [v] = await tx`insert into verifications (method, status, evidence, evidence_sha256, personal_email)
-      values (${method}, 'pending', ${tx.json({ size_kb: Math.round(file.size / 1024) })}, ${hash}, ${email}) returning id`;
-    await tx`insert into verification_files (verification_id, file_name, mime, content)
-      values (${v.id}, ${file.name.slice(0, 120)}, ${file.type || "application/octet-stream"}, ${buf})`;
-    await audit("anon", "verify.started", v.id, { method, ip: ipHash }, tx);
-  });
-  return { status: "pending" as const };
+  // DEMO: approved automatically (no real document check). The file is never stored: only its hash, to block reuse.
+  const [v] = await sql`insert into verifications (method, status, evidence, evidence_sha256, personal_email, decided_at)
+    values (${method}, 'approved', ${sql.json({ size_kb: Math.round(file.size / 1024), demo_auto_approved: true })}, ${hash}, ${email}, now()) returning id`;
+  await audit("anon", "verify.started", v.id, { method, ip: ipHash });
+  await audit("system:auto-approve", "verify.approved", v.id, { method, demo: true });
+  // "You're verified" email, right away. A failed send doesn't undo the approval.
+  try {
+    const { verifiedEmail } = await import("./email/templates");
+    const { deliver } = await import("./email/provider");
+    const { env } = await import("./env");
+    const { maskEmail } = await import("@/lib/schoolDomain");
+    const mail = verifiedEmail({ method, signInUrl: `${env.appUrl}/signin?email=${encodeURIComponent(email)}` });
+    await deliver({
+      introId: null, mailbox: "signin", toProfileId: null, toLabel: maskEmail(email), toAddress: email,
+      fromName: "Venn", replyTo: "", replyToLabel: "No reply", subject: mail.subject, html: mail.html, text: mail.text, kind: "notification",
+    });
+  } catch (e) {
+    console.warn("[verify] approval email failed:", (e as Error).message);
+  }
+  return { status: "approved" as const, email };
 }
 
 /** True if this personal email has an approved request (so it may get a sign-in code). */

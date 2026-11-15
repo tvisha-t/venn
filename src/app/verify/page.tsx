@@ -63,7 +63,7 @@ export default function VerifyPage() {
                 <ExtraProof m={open} pending={pending(open)} done={has(open)} onDone={load} />
               ) : (
                 <div className="mt-4 rounded-lg border border-line bg-surface p-5 shadow-card">
-                  <p className="text-text-muted">Upload it with the personal email you&apos;ll sign in with. A person reviews it, and we email you within 24 hours.</p>
+                  <p className="text-text-muted">Upload it with the personal email you&apos;ll sign in with. You&apos;re verified right away and we email you.</p>
                   <Link href={`/signin?method=${open === "etranscript" ? "transcript" : "diploma"}`} className="mt-4 inline-flex h-11 items-center rounded-md bg-primary px-5 font-semibold text-on-primary">Continue</Link>
                 </div>
               )}
@@ -99,7 +99,7 @@ export default function VerifyPage() {
               </ul>
               <p className="mt-5 flex items-start gap-2 rounded-md bg-primary-soft px-4 py-3 text-body-sm text-primary-ink">
                 <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-                You only do this once. Verify with a transcript or diploma and you&apos;ll sign in with your personal email after it&apos;s approved. Documents are deleted after review and never shown to anyone.
+                You only do this once. Verify with a transcript or diploma and you&apos;ll sign in with your personal email. Documents are deleted right away and never shown to anyone.
               </p>
             </>
           )}
