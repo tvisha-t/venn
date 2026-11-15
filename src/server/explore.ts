@@ -49,7 +49,9 @@ export async function listProfiles(f: Filters, opts: { page?: number; pageSize?:
   const rows = await sql`
     select ${sql.unsafe(PUBLIC_COLUMNS)}, ${ACCEPTING}, count(*) over() as total
     from profiles p where ${where(f, opts.viewer)}
-    order by (p.status = 'claimed') desc, p.class_year desc nulls last, p.last_name
+    -- Alternate members and "Not on Venn yet" records (member first) so both show on page 1.
+    order by row_number() over (partition by p.status = 'claimed' order by p.class_year desc nulls last, p.last_name, p.id),
+      (p.status = 'claimed') desc
     limit ${pageSize} offset ${(page - 1) * pageSize}`;
   return {
     total: rows[0] ? Number(rows[0].total) : 0,
