@@ -9,6 +9,7 @@ import { audit } from "./audit";
 import { HttpError } from "./http";
 import { sha256 } from "./crypto";
 import { normalizeEmail } from "@/lib/schoolDomain";
+import { afterResponse } from "./background";
 
 export type Method = "gt_email" | "etranscript" | "diploma_photo";
 export type DocMethod = "etranscript" | "diploma_photo";
@@ -73,8 +74,8 @@ export async function requestDocVerification(method: DocMethod, file: File, rawE
     values (${method}, 'approved', ${sql.json({ size_kb: Math.round(file.size / 1024), demo_auto_approved: true })}, ${hash}, ${email}, now()) returning id`;
   await audit("anon", "verify.started", v.id, { method, ip: ipHash });
   await audit("system:auto-approve", "verify.approved", v.id, { method, demo: true });
-  // "You're verified" email, right away. A failed send doesn't undo the approval.
-  try {
+  // "You're verified" email, sent right after responding (the card shows instantly). A failed send doesn't undo the approval.
+  await afterResponse("verified-email", async () => {
     const { verifiedEmail } = await import("./email/templates");
     const { deliver } = await import("./email/provider");
     const { env } = await import("./env");
@@ -84,9 +85,7 @@ export async function requestDocVerification(method: DocMethod, file: File, rawE
       introId: null, mailbox: "signin", toProfileId: null, toLabel: maskEmail(email), toAddress: email,
       fromName: "Venn", replyTo: "", replyToLabel: "No reply", subject: mail.subject, html: mail.html, text: mail.text, kind: "notification",
     });
-  } catch (e) {
-    console.warn("[verify] approval email failed:", (e as Error).message);
-  }
+  });
   return { status: "approved" as const, email };
 }
 

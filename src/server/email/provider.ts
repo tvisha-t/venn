@@ -78,7 +78,8 @@ let gmailTransport: import("nodemailer").Transporter | null = null;
 async function gmail(e: OutboundEmail): Promise<string> {
   if (!gmailTransport) {
     const nodemailer = await import("nodemailer");
-    gmailTransport = nodemailer.createTransport({ service: "gmail", auth: { user: env.gmailUser, pass: env.gmailAppPassword } });
+    // Pooled: a warm function instance reuses the open SMTP connection instead of reconnecting each time.
+    gmailTransport = nodemailer.createTransport({ service: "gmail", pool: true, maxConnections: 2, auth: { user: env.gmailUser, pass: env.gmailAppPassword } });
   }
   const info = await gmailTransport.sendMail({
     from: { name: e.fromName.replace(/"/g, ""), address: env.gmailUser },

@@ -6,6 +6,7 @@ import { audit } from "./audit";
 import { emailHash, hmac, safeEq, sha256 } from "./crypto";
 import { HttpError } from "./http";
 import { deliver } from "./email/provider";
+import { afterResponse } from "./background";
 import { signinCodeEmail } from "./email/templates";
 import { GATECH, maskEmail, normalizeEmail, schoolForEmail } from "@/lib/schoolDomain";
 
@@ -70,10 +71,12 @@ export async function requestCode(raw: string, ip: string, opts: { personal?: bo
   await sql`insert into signin_codes (email_hash, code_hash, ip_hash, expires_at)
     values (${eh}, ${codeHash(eh!, code)}, ${ipHash}, now() + make_interval(secs => ${CODE_TTL_SEC}))`;
   const mail = signinCodeEmail(code);
-  await deliver({
-    introId: null, mailbox: "signin", toProfileId: null, toLabel: maskEmail(email), toAddress: email,
+  // Send after responding, so the code screen appears immediately (the email isn't faster, the page is).
+  const to = email;
+  await afterResponse("signin-code", () => deliver({
+    introId: null, mailbox: "signin", toProfileId: null, toLabel: maskEmail(to), toAddress: to,
     fromName: "Venn", replyTo: "", replyToLabel: "No reply", subject: mail.subject, html: mail.html, text: mail.text, kind: "signin_code",
-  });
+  }));
   await audit("anon", "auth.code_requested", null, { email_hash: eh });
   // Same answer whether or not an account exists: never reveal who is registered.
   return { ok: true as const, expiresIn: CODE_TTL_SEC, resendIn: RESEND_COOLDOWN_SEC };
